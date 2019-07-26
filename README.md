@@ -1,4 +1,4 @@
-# System Actor Model 
+# System Actor Model
 
 First let me say that this is heavily inspired by the work on the ["Actor model in Elm"](https://package.elm-lang.org/packages/webbhuset/elm-actor-model/latest/)
 package
@@ -21,6 +21,14 @@ You can think of an Actor as an Elm application whit in an Elm application.
   - An Actor can populate an Address
   - Different Actors can populate the same Address
   - An Actor can talk to an Address but there is no guarantee any or all residing Actors will respond.
+
+## Documentation
+
+The documentation is hosted on the [Elm package website](https://package.elm-lang.org/packages/tricycle/system-actor-model/latest).
+
+## Demo
+
+The example Application can be found in action [here](https://tricycle.github.io/system-actor-model/).
 
 ## Example Application
 
