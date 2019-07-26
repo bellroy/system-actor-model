@@ -1,4 +1,4 @@
-# The Bellroy Actor Model Framework
+# System Actor Model 
 
 First let me say that this is heavily inspired by the work on the ["Actor model in Elm"](https://package.elm-lang.org/packages/webbhuset/elm-actor-model/latest/)
 package
