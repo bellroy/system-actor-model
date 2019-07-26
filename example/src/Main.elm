@@ -1,8 +1,5 @@
 module Main exposing (main)
 
--- import Components.Layout.Pages.Msg as ComponentLayoutPages exposing (MsgIn(..))
--- import Components.Worker.Router as ComponentWorkerRouter exposing (MsgIn(..))
-
 import ActorName as Actor exposing (ActorName(..))
 import Address exposing (Address(..))
 import Bootstrap exposing (AppModel, bootstrap)
