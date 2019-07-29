@@ -4,7 +4,7 @@ import Dict
 import Set
 import System.Internal.Event exposing (Event(..), EventHandler(..))
 import System.Internal.Message exposing (Control(..), Message(..))
-import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getInstance, getNewPID, removePID, updateDocumentTitle, updateInstance)
+import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getChildren, getInstance, getInstances, getNewPID, removePID, updateDocumentTitle, updateInstance)
 import System.Internal.PID exposing (PID, toInt)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
@@ -158,20 +158,9 @@ handleKill :
     -> ( Model address actorName appModel, Cmd (Message address actorName appMsg) )
 handleKill impl maybePid pid model =
     let
-        -- @TODO This requires work
         children =
-            []
-
-        -- Dict.get (PID.toInt pid) model.children
-        --     |> Maybe.map
-        --         (Set.toList
-        --             >> List.filterMap
-        --                 (\key ->
-        --                     Dict.get key model.instances
-        --                         |> Maybe.map .pid
-        --                 )
-        --         )
-        --     |> Maybe.withDefault []
+            getChildren pid model
+                |> Maybe.withDefault []
     in
     case getInstance pid model of
         Just ( actorName, appModel ) ->
@@ -183,6 +172,12 @@ handleKill impl maybePid pid model =
                     applied.events OnKill pid
             in
             case event of
+                Ignore ->
+                    ( model, Cmd.none )
+
+                Custom msgIn ->
+                    update impl maybePid msgIn model
+
                 Default ->
                     children
                         |> List.foldl
@@ -192,9 +187,6 @@ handleKill impl maybePid pid model =
                             ( model, Cmd.none )
                         |> Tuple.mapFirst (removePID pid)
 
-                Ignore ->
-                    ( model, Cmd.none )
-
                 BeforeDefault msgIn ->
                     let
                         ( updatedModel, cmd ) =
@@ -203,9 +195,6 @@ handleKill impl maybePid pid model =
                     ( removePID pid updatedModel
                     , cmd
                     )
-
-                Custom msgIn ->
-                    update impl maybePid msgIn model
 
         Nothing ->
             ( model, Cmd.none )

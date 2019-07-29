@@ -5669,7 +5669,7 @@ var elm$core$Dict$foldl = F3(
 	});
 var author$project$System$Internal$Model$foldlInstances = F3(
 	function (f, initial, _n0) {
-		var instances = _n0.k;
+		var instances = _n0.h;
 		return A3(
 			elm$core$Dict$foldl,
 			F3(
@@ -5690,7 +5690,7 @@ var author$project$System$Internal$PID$System = {$: 1};
 var author$project$System$Internal$PID$system = author$project$System$Internal$PID$System;
 var elm$core$Dict$RBEmpty_elm_builtin = {$: -2};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
-var author$project$System$Internal$Model$init = {o: _List_Nil, p: elm$core$Dict$empty, J: '', k: elm$core$Dict$empty, K: author$project$System$Internal$PID$system, t: _List_Nil};
+var author$project$System$Internal$Model$init = {o: _List_Nil, p: elm$core$Dict$empty, J: '', h: elm$core$Dict$empty, K: author$project$System$Internal$PID$system, t: _List_Nil};
 var author$project$System$Internal$Model$getViews = function (_n0) {
 	var views = _n0.t;
 	return views;
@@ -5739,7 +5739,7 @@ var elm$core$Maybe$map = F2(
 	});
 var author$project$System$Internal$Model$getInstance = F2(
 	function (pid, _n0) {
-		var instances = _n0.k;
+		var instances = _n0.h;
 		return A2(
 			elm$core$Maybe$map,
 			function (_n1) {
@@ -5836,6 +5836,14 @@ var author$project$System$Internal$Model$getAddress = F2(
 		return _Utils_Tuple2(
 			address,
 			A2(elm$core$List$map, elm$core$Tuple$second, modelRecord.o));
+	});
+var author$project$System$Internal$Model$getChildren = F2(
+	function (pid, _n0) {
+		var children = _n0.p;
+		return A2(
+			elm$core$Dict$get,
+			author$project$System$Internal$PID$toInt(pid),
+			children);
 	});
 var author$project$System$Internal$PID$PID = function (a) {
 	return {$: 0, a: a};
@@ -5948,34 +5956,30 @@ var elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
-var elm$core$Set$Set_elm_builtin = elm$core$Basics$identity;
-var elm$core$Set$empty = elm$core$Dict$empty;
-var elm$core$Set$insert = F2(
-	function (key, _n0) {
-		var dict = _n0;
-		return A3(elm$core$Dict$insert, key, 0, dict);
-	});
 var author$project$System$Internal$Model$getNewPID = F2(
 	function (maybeSpawendBy, _n0) {
 		var modelRecord = _n0;
+		var lastPID = modelRecord.K;
+		var children = modelRecord.p;
 		var spawnedBy = A2(elm$core$Maybe$withDefault, author$project$System$Internal$PID$system, maybeSpawendBy);
 		var spawnedByPidId = author$project$System$Internal$PID$toInt(spawnedBy);
-		var pidId = author$project$System$Internal$PID$toInt(modelRecord.K) + 1;
+		var pidId = author$project$System$Internal$PID$toInt(lastPID) + 1;
+		var pid = author$project$System$Internal$PID$PID(
+			{aJ: pidId, aQ: spawnedBy});
 		var updatedChildren = A3(
 			elm$core$Dict$insert,
 			spawnedByPidId,
 			A2(
 				elm$core$Maybe$withDefault,
-				A2(elm$core$Set$insert, pidId, elm$core$Set$empty),
+				_List_fromArray(
+					[pid]),
 				A2(
 					elm$core$Maybe$map,
 					function (setOfChildren) {
-						return A2(elm$core$Set$insert, pidId, setOfChildren);
+						return A2(elm$core$List$cons, pid, setOfChildren);
 					},
-					A2(elm$core$Dict$get, spawnedByPidId, modelRecord.p))),
-			modelRecord.p);
-		var pid = author$project$System$Internal$PID$PID(
-			{aJ: pidId, aQ: spawnedBy});
+					A2(elm$core$Dict$get, spawnedByPidId, children))),
+			children);
 		return _Utils_Tuple2(
 			pid,
 			_Utils_update(
@@ -6362,7 +6366,7 @@ var author$project$System$Internal$Model$removePID = F2(
 						elm$core$Tuple$second),
 					modelRecord.o),
 				p: A2(elm$core$Dict$remove, pidId, modelRecord.p),
-				k: A2(elm$core$Dict$remove, pidId, modelRecord.k),
+				h: A2(elm$core$Dict$remove, pidId, modelRecord.h),
 				t: A2(
 					elm$core$List$filter,
 					A2(
@@ -6385,11 +6389,11 @@ var author$project$System$Internal$Model$updateInstance = F4(
 		return _Utils_update(
 			modelRecord,
 			{
-				k: A3(
+				h: A3(
 					elm$core$Dict$insert,
 					author$project$System$Internal$PID$toInt(pid),
 					_Utils_Tuple3(pid, actorName, actorModel),
-					modelRecord.k)
+					modelRecord.h)
 			});
 	});
 var author$project$System$Internal$Update$cmdAndThen = F2(
@@ -6458,7 +6462,10 @@ var elm$core$Tuple$mapFirst = F2(
 	});
 var author$project$System$Internal$Update$handleKill = F4(
 	function (impl, maybePid, pid, model) {
-		var children = _List_Nil;
+		var children = A2(
+			elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2(author$project$System$Internal$Model$getChildren, pid, model));
 		var _n17 = A2(author$project$System$Internal$Model$getInstance, pid, model);
 		if (!_n17.$) {
 			var _n18 = _n17.a;
@@ -6468,6 +6475,11 @@ var author$project$System$Internal$Update$handleKill = F4(
 			var applied = _n19;
 			var event = A2(applied.aE, author$project$System$Internal$Event$OnKill, pid);
 			switch (event.$) {
+				case 1:
+					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				case 3:
+					var msgIn = event.a;
+					return A4(author$project$System$Internal$Update$update, impl, maybePid, msgIn, model);
 				case 0:
 					return A2(
 						elm$core$Tuple$mapFirst,
@@ -6483,9 +6495,7 @@ var author$project$System$Internal$Update$handleKill = F4(
 								}),
 							_Utils_Tuple2(model, elm$core$Platform$Cmd$none),
 							children));
-				case 1:
-					return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
-				case 2:
+				default:
 					var msgIn = event.a;
 					var _n21 = A4(author$project$System$Internal$Update$update, impl, maybePid, msgIn, model);
 					var updatedModel = _n21.a;
@@ -6493,9 +6503,6 @@ var author$project$System$Internal$Update$handleKill = F4(
 					return _Utils_Tuple2(
 						A2(author$project$System$Internal$Model$removePID, pid, updatedModel),
 						cmd);
-				default:
-					var msgIn = event.a;
-					return A4(author$project$System$Internal$Update$update, impl, maybePid, msgIn, model);
 			}
 		} else {
 			return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);

@@ -4,8 +4,10 @@ module System.Internal.Model exposing
     , addView
     , foldlInstances
     , getAddress
+    , getChildren
     , getDocumentTitle
     , getInstance
+    , getInstances
     , getNewPID
     , getViews
     , init
@@ -53,6 +55,26 @@ getInstance pid (Model { instances }) =
             )
 
 
+{-| Retrieve all instance PIDs currently active
+-}
+getInstances :
+    Model address actorName actorModel
+    -> List PID
+getInstances (Model { instances }) =
+    Dict.toList instances
+        |> List.map (\( _, ( pid, _, _ ) ) -> pid)
+
+
+{-| Retrieve possible children of given PID
+-}
+getChildren :
+    PID
+    -> Model address actorName actorModel
+    -> Maybe (List PID)
+getChildren pid (Model { children }) =
+    Dict.get (toInt pid) children
+
+
 {-| Retrieve views
 -}
 getViews :
@@ -87,7 +109,7 @@ getNewPID :
     Maybe PID
     -> Model address actorName actorModel
     -> ( PID, Model address actorName actorModel )
-getNewPID maybeSpawendBy (Model modelRecord) =
+getNewPID maybeSpawendBy (Model ({ lastPID, children } as modelRecord)) =
     let
         spawnedBy =
             Maybe.withDefault system maybeSpawendBy
@@ -96,7 +118,7 @@ getNewPID maybeSpawendBy (Model modelRecord) =
             toInt spawnedBy
 
         pidId =
-            toInt modelRecord.lastPID + 1
+            toInt lastPID + 1
 
         pid =
             PID
@@ -106,14 +128,14 @@ getNewPID maybeSpawendBy (Model modelRecord) =
 
         updatedChildren =
             Dict.insert spawnedByPidId
-                (Dict.get spawnedByPidId modelRecord.children
+                (Dict.get spawnedByPidId children
                     |> Maybe.map
                         (\setOfChildren ->
-                            Set.insert pidId setOfChildren
+                            pid :: setOfChildren
                         )
-                    |> Maybe.withDefault (Set.insert pidId Set.empty)
+                    |> Maybe.withDefault [ pid ]
                 )
-                modelRecord.children
+                children
     in
     ( pid
     , Model
@@ -225,7 +247,7 @@ foldlInstances f initial (Model { instances }) =
 
 type alias ModelRecord address actorName actorModel =
     { instances : Dict.Dict Int ( PID, actorName, actorModel )
-    , children : Dict.Dict Int (Set.Set Int)
+    , children : Dict.Dict Int (List PID)
     , addresses : List ( address, PID )
     , lastPID : PID
     , views : List PID
