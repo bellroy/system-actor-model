@@ -57,7 +57,8 @@ update impl maybePid msg model =
                                 )
                                 ( appModel, NoOp )
                                 appMsgs
-                                |> Tuple.mapFirst (updateInstance model pid actorName)
+                                |> Tuple.mapFirst
+                                    (\actorModel -> updateInstance pid actorName actorModel model)
                     in
                     update impl maybePid newMsg updatedModel
 
@@ -111,7 +112,7 @@ update impl maybePid msg model =
 
                 ( m3, newMsg ) =
                     impl.factory actorName newPID
-                        |> Tuple.mapFirst (updateInstance updateModel newPID actorName)
+                        |> Tuple.mapFirst (\actorModel -> updateInstance newPID actorName actorModel updateModel)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
@@ -157,11 +158,6 @@ handleKill :
     -> Model address actorName appModel
     -> ( Model address actorName appModel, Cmd (Message address actorName appMsg) )
 handleKill impl maybePid pid model =
-    let
-        children =
-            getChildren pid model
-                |> Maybe.withDefault []
-    in
     case getInstance pid model of
         Just ( actorName, appModel ) ->
             let
@@ -179,7 +175,8 @@ handleKill impl maybePid pid model =
                     update impl maybePid msgIn model
 
                 Default ->
-                    children
+                    getChildren pid model
+                        |> Maybe.withDefault []
                         |> List.foldl
                             (\childPID previous ->
                                 cmdAndThen (handleKill impl maybePid childPID) previous

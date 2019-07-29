@@ -151,12 +151,12 @@ getNewPID maybeSpawendBy (Model ({ lastPID, children } as modelRecord)) =
 
 
 updateInstance :
-    Model address actorName actorModel
-    -> PID
+    PID
     -> actorName
     -> actorModel
     -> Model address actorName actorModel
-updateInstance (Model modelRecord) pid actorName actorModel =
+    -> Model address actorName actorModel
+updateInstance pid actorName actorModel (Model modelRecord) =
     Model
         { modelRecord
             | instances =
@@ -212,7 +212,10 @@ removePID pid (Model modelRecord) =
     Model <|
         { modelRecord
             | instances = Dict.remove pidId modelRecord.instances
-            , children = Dict.remove pidId modelRecord.children
+            , children =
+                Dict.remove pidId modelRecord.children
+                    |> Dict.map
+                        (\a b -> List.filter (not << equals pid) b)
             , views = List.filter (not << equals pid) modelRecord.views
             , addresses = List.filter (not << equals pid << Tuple.second) modelRecord.addresses
         }
