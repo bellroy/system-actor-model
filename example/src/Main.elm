@@ -5,6 +5,7 @@ import Address exposing (Address(..))
 import Bootstrap exposing (AppModel, bootstrap)
 import Html exposing (Html, a, div, h1, p, text)
 import Html.Attributes exposing (href)
+import Json.Encode as Encode
 import Msg exposing (AppMsg(..), Msg)
 import System.Browser exposing (element)
 import System.Message exposing (..)
@@ -23,7 +24,11 @@ main =
 
 init : () -> List Msg
 init _ =
-    [ spawn Actor.Counters populateView ]
+    [ spawnWithFlags
+        (Encode.int 10)
+        Actor.Counters
+        populateView
+    ]
 
 
 view : List (Html Msg) -> Html Msg

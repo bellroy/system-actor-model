@@ -12,6 +12,7 @@ A Ui component can't spawn or render other Actors.
 -}
 
 import Html as Html exposing (Html, text)
+import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapToTuple, wrapUiView, wrapUpdate)
@@ -23,7 +24,7 @@ import System.Process exposing (PID)
 -}
 type alias Ui model msgIn msgOut =
     { init :
-        PID
+        ( PID, Decode.Value )
         -> ( model, List msgOut, Cmd msgIn )
     , update :
         msgIn

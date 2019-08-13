@@ -1,6 +1,7 @@
 module System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapToTuple, wrapUiView, wrapUpdate)
 
 import Html as Html exposing (Html, map, text)
+import Json.Decode as Decode
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Event exposing (Event(..), EventHandler, mapEventHandler)
 import System.Internal.Message exposing (Control(..), Message(..))
@@ -19,11 +20,11 @@ type alias Args a address actorName model actorModel msgIn msgOut wrappedMsg =
 
 wrapInit :
     Args a address actorName model actorModel msgIn msgOut wrappedMsg
-    -> (PID -> ( model, List msgOut, Cmd msgIn ))
-    -> PID
+    -> (( PID, Decode.Value ) -> ( model, List msgOut, Cmd msgIn ))
+    -> ( PID, Decode.Value )
     -> ( actorModel, Message address actorName wrappedMsg )
-wrapInit ({ wrapModel, mapOut } as args) init pid =
-    init pid
+wrapInit ({ wrapModel, mapOut } as args) init ( pid, flags ) =
+    init ( pid, flags )
         |> wrapToTuple args pid
 
 

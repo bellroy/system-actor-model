@@ -1,6 +1,7 @@
 module System.Internal.Update exposing (update)
 
 import Dict
+import Json.Encode as Encode
 import Set
 import System.Internal.Event exposing (Event(..), EventHandler(..))
 import System.Internal.Message exposing (Control(..), Message(..))
@@ -12,7 +13,7 @@ import System.Internal.SystemActor exposing (SystemActor(..))
 update :
     { a
         | apply : appModel -> SystemActor appModel output (Message address actorName appMsg)
-        , factory : actorName -> PID -> ( appModel, Message address actorName appMsg )
+        , factory : actorName -> ( PID, Encode.Value ) -> ( appModel, Message address actorName appMsg )
     }
     -> Maybe PID
     -> Message address actorName appMsg
@@ -111,8 +112,26 @@ update impl maybePid msg model =
                     getNewPID maybePid model
 
                 ( m3, newMsg ) =
-                    impl.factory actorName newPID
-                        |> Tuple.mapFirst (\actorModel -> updateInstance newPID actorName actorModel updateModel)
+                    impl.factory actorName ( newPID, Encode.null )
+                        |> Tuple.mapFirst
+                            (\actorModel ->
+                                updateInstance newPID actorName actorModel updateModel
+                            )
+            in
+            update impl maybePid newMsg m3
+                |> cmdAndThen (update impl maybePid (replyMsg newPID))
+
+        Control (SpawnWithFlags flags actorName replyMsg) ->
+            let
+                ( newPID, updateModel ) =
+                    getNewPID maybePid model
+
+                ( m3, newMsg ) =
+                    impl.factory actorName ( newPID, flags )
+                        |> Tuple.mapFirst
+                            (\actorModel ->
+                                updateInstance newPID actorName actorModel updateModel
+                            )
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
@@ -151,7 +170,7 @@ update impl maybePid msg model =
 handleKill :
     { a
         | apply : appModel -> SystemActor appModel output (Message address actorName appMsg)
-        , factory : actorName -> PID -> ( appModel, Message address actorName appMsg )
+        , factory : actorName -> ( PID, Encode.Value ) -> ( appModel, Message address actorName appMsg )
     }
     -> Maybe PID
     -> PID

@@ -2,6 +2,7 @@ module Components.Counters exposing (Model, MsgIn(..), MsgOut(..), component)
 
 import Html exposing (Html, button, div, h1, option, p, select, table, text, th, tr)
 import Html.Events exposing (onClick)
+import Json.Decode as Decode
 import System.Component.Layout exposing (Layout)
 import System.Debug exposing (pidToString)
 import System.Event exposing (ignoreAll)
@@ -9,18 +10,22 @@ import System.Process exposing (PID, equals)
 
 
 type Model
-    = Counters PID (List PID)
+    = Counters PID InitialValue (List PID)
+
+
+type alias InitialValue =
+    Int
 
 
 type MsgIn
     = ReceiveCounter PID
-    | OnSpawnCounterClick
+    | OnSpawnCounterClick InitialValue
     | OnKillCounterClick
     | KilledCounter PID
 
 
 type MsgOut
-    = SpawnCounter
+    = SpawnCounter InitialValue
     | KillCounter PID
 
 
@@ -35,23 +40,28 @@ component =
 
 
 init :
-    PID
+    ( PID, Decode.Value )
     -> ( Model, List MsgOut, Cmd MsgIn )
-init pid =
-    ( Counters pid [], [], Cmd.none )
+init ( pid, flags ) =
+    case Decode.decodeValue Decode.int flags of
+        Ok initialValue ->
+            ( Counters pid initialValue [], [], Cmd.none )
+
+        Err _ ->
+            ( Counters pid 0 [], [], Cmd.none )
 
 
 update :
     MsgIn
     -> Model
     -> ( Model, List MsgOut, Cmd MsgIn )
-update msgIn ((Counters pid counters) as model) =
+update msgIn ((Counters pid initialValue counters) as model) =
     case msgIn of
         ReceiveCounter counterPid ->
-            ( Counters pid (counterPid :: counters), [], Cmd.none )
+            ( Counters pid initialValue (counterPid :: counters), [], Cmd.none )
 
-        OnSpawnCounterClick ->
-            ( model, [ SpawnCounter ], Cmd.none )
+        OnSpawnCounterClick int ->
+            ( model, [ SpawnCounter int ], Cmd.none )
 
         OnKillCounterClick ->
             case List.reverse counters of
@@ -63,10 +73,10 @@ update msgIn ((Counters pid counters) as model) =
 
         KilledCounter killedPid ->
             let
-                updatedCounted =
+                updatedCounters =
                     List.filter (not << equals killedPid) counters
             in
-            ( Counters pid updatedCounted, [], Cmd.none )
+            ( Counters pid initialValue updatedCounters, [], Cmd.none )
 
 
 view :
@@ -74,14 +84,14 @@ view :
     -> Model
     -> (PID -> Html msg)
     -> Html msg
-view wrap (Counters pid counters) renderPid =
+view wrap (Counters pid initialValue counters) renderPid =
     div []
         [ h1 [] [ text "Counters" ]
         , p [] [ text <| "(PID: " ++ pidToString pid ++ ")" ]
         , p []
             [ button [ onClick <| wrap OnKillCounterClick ] [ text "Kill first Counter" ]
             ]
-        , button [ onClick <| wrap OnSpawnCounterClick ] [ text "Spawn a Counter" ]
+        , button [ onClick <| wrap (OnSpawnCounterClick initialValue) ] [ text "Spawn a Counter" ]
         , table
             []
             ([ tr []

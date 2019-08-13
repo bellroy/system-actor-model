@@ -12,6 +12,7 @@ A Layout is a component that can spawn, hold and render other components.
 -}
 
 import Html as Html exposing (Html, text)
+import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapToTuple, wrapUpdate)
@@ -23,7 +24,7 @@ import System.Process exposing (PID)
 -}
 type alias Layout model msgIn msgOut msg =
     { init :
-        PID
+        ( PID, Decode.Value )
         -> ( model, List msgOut, Cmd msgIn )
     , update :
         msgIn

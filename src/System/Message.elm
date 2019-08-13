@@ -1,6 +1,6 @@
 module System.Message exposing
     ( SystemMessage
-    , spawn, populateView, populateAddress
+    , spawn, spawnWithFlags, populateView, populateAddress
     , kill
     , sendToPid, sendToAddress
     , batch, noOperation, toCmd
@@ -32,7 +32,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
                 ]
         )
 
-@docs spawn, populateView, populateAddress
+@docs spawn, spawnWithFlags, populateView, populateAddress
 
 
 # Destroying
@@ -56,6 +56,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 
 -}
 
+import Json.Encode as Encode exposing (Value)
 import System.Internal.Message exposing (Control(..), Message(..))
 import System.Internal.PID exposing (PID)
 import Task as Task exposing (perform, succeed)
@@ -79,6 +80,17 @@ spawn :
     -> Message address actorName wrappedMsg
 spawn actorName f =
     Control <| Spawn actorName f
+
+
+{-| Spawn an Actor with given flags (as an encoded JSON Value)
+-}
+spawnWithFlags :
+    Encode.Value
+    -> actorName
+    -> (PID -> Message address actorName wrappedMsg)
+    -> Message address actorName wrappedMsg
+spawnWithFlags flags actorName f =
+    Control <| SpawnWithFlags flags actorName f
 
 
 {-| Add a PID to the System's view

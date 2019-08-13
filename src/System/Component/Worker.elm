@@ -14,6 +14,7 @@ This is great if you want to use an Actor as the “brain” for something else.
 -}
 
 import Html as Html exposing (Html, text)
+import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapToTuple, wrapUpdate)
@@ -25,7 +26,7 @@ import System.Process exposing (PID)
 -}
 type alias Worker model msgIn msgOut =
     { init :
-        PID
+        ( PID, Decode.Value )
         -> ( model, List msgOut, Cmd msgIn )
     , update :
         msgIn

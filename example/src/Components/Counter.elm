@@ -2,6 +2,7 @@ module Components.Counter exposing (Model, MsgIn, MsgOut, component)
 
 import Html exposing (Html, button, td, text, tr)
 import Html.Events exposing (onClick)
+import Json.Decode as Decode
 import System.Component.Ui exposing (Ui)
 import System.Debug exposing (pidToString)
 import System.Event exposing (custom, systemDefault)
@@ -46,10 +47,15 @@ component =
 {-| When a component get's initialized you will receive it's assigned PID from the System
 -}
 init :
-    PID
+    ( PID, Decode.Value )
     -> ( Model, List MsgOut, Cmd MsgIn )
-init pid =
-    ( Counter pid 0, [], Cmd.none )
+init ( pid, flags ) =
+    case Decode.decodeValue Decode.int flags of
+        Ok int ->
+            ( Counter pid int, [], Cmd.none )
+
+        Err _ ->
+            ( Counter pid 0, [], Cmd.none )
 
 
 update :

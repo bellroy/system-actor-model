@@ -32,6 +32,7 @@ Applications always use the Browser.Navigation module for precise control over U
 import Browser as Browser exposing (UrlRequest, application, element)
 import Browser.Navigation exposing (Key)
 import Html exposing (Html)
+import Json.Decode as Decode
 import System.Internal.Message exposing (Message)
 import System.Internal.Model exposing (foldlInstances, init)
 import System.Internal.PID exposing (PID)
@@ -51,7 +52,7 @@ element :
         -> SystemActor actorModel output (Message address actorName wrappedMsg)
     , factory :
         actorName
-        -> PID
+        -> ( PID, Decode.Value )
         -> ( actorModel, Message address actorName wrappedMsg )
     , init :
         flags
@@ -94,7 +95,7 @@ application :
         -> SystemActor actorModel output (Message address actorName wrappedMsg)
     , factory :
         actorName
-        -> PID
+        -> ( PID, Decode.Value )
         -> ( actorModel, Message address actorName wrappedMsg )
     , init :
         flags

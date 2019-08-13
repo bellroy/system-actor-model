@@ -9,6 +9,7 @@ module System.Internal.Message exposing (Message(..), Control(..))
 
 -}
 
+import Json.Decode exposing (Value)
 import System.Internal.PID exposing (PID)
 
 
@@ -31,6 +32,7 @@ type Control address actorName message
     | SendToPID PID message
     | SendToAddress address message
     | Spawn actorName (PID -> message)
+    | SpawnWithFlags Value actorName (PID -> message)
     | AddView PID
     | PopulateAddress address PID
     | Kill PID

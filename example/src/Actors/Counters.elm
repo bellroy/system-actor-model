@@ -3,10 +3,11 @@ module Actors.Counters exposing (Model, actor)
 import ActorName as ActorName exposing (ActorName(..))
 import Components.Counters as Component
 import Html exposing (Html)
+import Json.Encode as Encode
 import Msg as Msg exposing (Msg)
 import System.Actor exposing (Actor)
 import System.Component.Layout exposing (toActor)
-import System.Message exposing (batch, kill, sendToPid, spawn)
+import System.Message exposing (batch, kill, sendToPid, spawnWithFlags)
 import System.Process exposing (PID)
 
 
@@ -52,8 +53,10 @@ mapOut :
     -> Msg
 mapOut pid msgOut =
     case msgOut of
-        Component.SpawnCounter ->
-            spawn ActorName.Counter
+        Component.SpawnCounter intialValue ->
+            spawnWithFlags
+                (Encode.int intialValue)
+                ActorName.Counter
                 (sendToPid pid
                     << Msg.Counters
                     << Component.ReceiveCounter
