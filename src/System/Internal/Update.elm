@@ -1,12 +1,10 @@
 module System.Internal.Update exposing (update)
 
-import Dict
 import Json.Encode as Encode
-import Set
 import System.Internal.Event exposing (Event(..), EventHandler(..))
 import System.Internal.Message exposing (Control(..), Message(..))
-import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getChildren, getInstance, getInstances, getNewPID, removePID, updateDocumentTitle, updateInstance)
-import System.Internal.PID exposing (PID, toInt)
+import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getChildren, getInstance, getNewPID, removePID, updateDocumentTitle, updateInstance)
+import System.Internal.PID exposing (PID)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 
@@ -68,7 +66,7 @@ update impl maybePid msg model =
                         |> Maybe.map
                             (\senderPID ->
                                 case getInstance senderPID model of
-                                    Just ( actorName, actorModel ) ->
+                                    Just ( _, actorModel ) ->
                                         let
                                             (SystemActor appliedActor) =
                                                 impl.apply actorModel
@@ -163,7 +161,7 @@ update impl maybePid msg model =
         ActorMsg _ ->
             ( model, Cmd.none )
 
-        UnmappedMsg appMsg ->
+        UnmappedMsg _ ->
             ( model, Cmd.none )
 
 
@@ -178,7 +176,7 @@ handleKill :
     -> ( Model address actorName appModel, Cmd (Message address actorName appMsg) )
 handleKill impl maybePid pid model =
     case getInstance pid model of
-        Just ( actorName, appModel ) ->
+        Just ( _, appModel ) ->
             let
                 (SystemActor applied) =
                     impl.apply appModel

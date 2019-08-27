@@ -56,7 +56,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 
 -}
 
-import Json.Encode as Encode exposing (Value)
+import Json.Encode as Encode
 import System.Internal.Message exposing (Control(..), Message(..))
 import System.Internal.PID exposing (PID)
 import Task as Task exposing (perform, succeed)

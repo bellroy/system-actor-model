@@ -29,7 +29,7 @@ Applications always use the Browser.Navigation module for precise control over U
 
 -}
 
-import Browser as Browser exposing (UrlRequest, application, element)
+import Browser as Browser exposing (application, element)
 import Browser.Navigation exposing (Key)
 import Html exposing (Html)
 import Json.Decode as Decode

@@ -17,7 +17,6 @@ module System.Internal.Model exposing
     )
 
 import Dict
-import Set
 import System.Internal.PID exposing (PID(..), equals, system, toInt)
 
 
@@ -215,7 +214,7 @@ removePID pid (Model modelRecord) =
             , children =
                 Dict.remove pidId modelRecord.children
                     |> Dict.map
-                        (\a b -> List.filter (not << equals pid) b)
+                        (\_ a -> List.filter (not << equals pid) a)
             , views = List.filter (not << equals pid) modelRecord.views
             , addresses = List.filter (not << equals pid << Tuple.second) modelRecord.addresses
         }

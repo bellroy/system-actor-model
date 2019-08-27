@@ -4,12 +4,11 @@ module System.Internal.Render exposing
     , viewApplication
     )
 
-import Browser as Browser exposing (Document)
-import Dict exposing (Dict, get, insert)
+import Browser
 import Html exposing (Html)
 import System.Internal.Message exposing (Message(..))
 import System.Internal.Model exposing (Model, getDocumentTitle, getInstance, getViews)
-import System.Internal.PID exposing (PID, toInt)
+import System.Internal.PID exposing (PID)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 

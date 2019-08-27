@@ -6,7 +6,7 @@ import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Event exposing (Event(..), EventHandler, mapEventHandler)
 import System.Internal.Message exposing (Control(..), Message(..))
 import System.Internal.PID exposing (PID)
-import System.Message exposing (batch, sendToPid)
+import System.Message exposing (sendToPid)
 
 
 type alias Args a address actorName model actorModel msgIn msgOut wrappedMsg =
@@ -23,7 +23,7 @@ wrapInit :
     -> (( PID, Decode.Value ) -> ( model, List msgOut, Cmd msgIn ))
     -> ( PID, Decode.Value )
     -> ( actorModel, Message address actorName wrappedMsg )
-wrapInit ({ wrapModel, mapOut } as args) init ( pid, flags ) =
+wrapInit args init ( pid, flags ) =
     init ( pid, flags )
         |> wrapToTuple args pid
 
@@ -32,7 +32,7 @@ wrapUpdate :
     Args a address actorName model actorModel msgIn msgOut wrappedMsg
     -> (msgIn -> model -> ( model, List msgOut, Cmd msgIn ))
     -> (model -> Message address actorName wrappedMsg -> PID -> ( actorModel, Message address actorName wrappedMsg ))
-wrapUpdate ({ wrapModel, mapIn, mapOut } as args) update model msg pid =
+wrapUpdate args update model msg pid =
     case msg of
         ActorMsg wrappedMsg ->
             case args.mapIn wrappedMsg of

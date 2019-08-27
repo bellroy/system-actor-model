@@ -29,7 +29,7 @@ import Json.Decode as Decode
 import System.Event exposing (EventHandler)
 import System.Internal.Event exposing (Event)
 import System.Internal.PID exposing (PID)
-import System.Internal.SystemActor as SystemActor exposing (SystemActor(..))
+import System.Internal.SystemActor exposing (SystemActor(..))
 
 
 {-| The type of an Actor

@@ -13,11 +13,11 @@ This is great if you want to use an Actor as the “brain” for something else.
 
 -}
 
-import Html as Html exposing (Html, text)
+import Html as Html
 import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
-import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapToTuple, wrapUpdate)
+import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapUpdate)
 import System.Internal.Message exposing (Message)
 import System.Process exposing (PID)
 
@@ -53,7 +53,7 @@ toActor :
             -> Message address actorName wrappedMsg
         }
     -> Actor model actorModel (Html.Html msg) (Message address actorName wrappedMsg)
-toActor worker ({ wrapModel, wrapMsg, mapIn } as args) =
+toActor worker args =
     { init = wrapInit args worker.init
     , update = wrapUpdate args worker.update
     , subscriptions = wrapSubscriptions args worker.subscriptions

@@ -11,11 +11,11 @@ A Ui component can't spawn or render other Actors.
 
 -}
 
-import Html as Html exposing (Html, text)
+import Html as Html
 import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
-import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapToTuple, wrapUiView, wrapUpdate)
+import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapUiView, wrapUpdate)
 import System.Internal.Message exposing (Message)
 import System.Process exposing (PID)
 
@@ -52,7 +52,7 @@ toActor :
             -> Message address actorName wrappedMsg
         }
     -> Actor model actorModel (Html (Message address actorName wrappedMsg)) (Message address actorName wrappedMsg)
-toActor ui ({ wrapModel, wrapMsg, mapIn } as args) =
+toActor ui args =
     { init = wrapInit args ui.init
     , update = wrapUpdate args ui.update
     , subscriptions = wrapSubscriptions args ui.subscriptions

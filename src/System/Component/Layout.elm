@@ -11,11 +11,11 @@ A Layout is a component that can spawn, hold and render other components.
 
 -}
 
-import Html as Html exposing (Html, text)
+import Html as Html
 import Json.Decode as Decode
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
-import System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapToTuple, wrapUpdate)
+import System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapUpdate)
 import System.Internal.Message exposing (Message)
 import System.Process exposing (PID)
 
@@ -52,7 +52,7 @@ toActor :
             -> Message address actorName wrappedMsg
         }
     -> Actor model actorModel (Html (Message address actorName wrappedMsg)) (Message address actorName wrappedMsg)
-toActor layout ({ wrapModel, wrapMsg, mapIn } as args) =
+toActor layout args =
     { init = wrapInit args layout.init
     , update = wrapUpdate args layout.update
     , subscriptions = wrapSubscriptions args layout.subscriptions
