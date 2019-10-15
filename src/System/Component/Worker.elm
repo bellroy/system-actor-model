@@ -13,8 +13,8 @@ This is great if you want to use an Actor as the “brain” for something else.
 
 -}
 
-import Html as Html
-import Json.Decode as Decode
+import Html exposing (Html, text)
+import Json.Decode exposing (Value)
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapUpdate)
@@ -26,7 +26,7 @@ import System.Process exposing (PID)
 -}
 type alias Worker model msgIn msgOut =
     { init :
-        ( PID, Decode.Value )
+        ( PID, Value )
         -> ( model, List msgOut, Cmd msgIn )
     , update :
         msgIn
@@ -52,7 +52,7 @@ toActor :
             -> msgOut
             -> Message address actorName wrappedMsg
         }
-    -> Actor model actorModel (Html.Html msg) (Message address actorName wrappedMsg)
+    -> Actor model actorModel (Html msg) (Message address actorName wrappedMsg)
 toActor worker args =
     { init = wrapInit args worker.init
     , update = wrapUpdate args worker.update
@@ -60,5 +60,5 @@ toActor worker args =
     , events = wrapEvents args worker.events
 
     -- Disable the view by always rendering an empty string
-    , view = \_ _ _ -> Html.text ""
+    , view = \_ _ _ -> text ""
     }

@@ -1,6 +1,7 @@
 module Components.Counters exposing (Model, MsgIn(..), MsgOut(..), component)
 
-import Html exposing (Html, button, div, h1, option, p, select, table, text, th, tr)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import System.Component.Layout exposing (Layout)
@@ -86,20 +87,28 @@ view :
     -> Html msg
 view wrap (Counters pid initialValue counters) renderPid =
     div []
-        [ h1 [] [ text "Counters" ]
-        , p [] [ text <| "(PID: " ++ pidToString pid ++ ")" ]
-        , p []
-            [ button [ onClick <| wrap OnKillCounterClick ] [ text "Kill first Counter" ]
-            ]
-        , button [ onClick <| wrap (OnSpawnCounterClick initialValue) ] [ text "Spawn a Counter" ]
-        , table
-            []
-            ([ tr []
-                [ th [] [ text "PID" ]
-                , th [] [ text "Count" ]
-                , th [] []
+        [ h2 [] [ text ("Counters (PID: " ++ pidToString pid ++ ")") ]
+        , div [ class "container clearfix" ]
+            [ div [ class "row float-right" ]
+                [ div [ class "btn-group", style "margin-bottom" "20px" ]
+                    [ button [ class "btn btn-secondary", onClick <| wrap OnKillCounterClick ] [ text "Kill first Counter" ]
+                    , button [ class "btn btn-primary", onClick <| wrap (OnSpawnCounterClick initialValue) ] [ text "Spawn a Counter" ]
+                    ]
                 ]
-             ]
-                ++ (List.map renderPid <| List.reverse counters)
-            )
+            ]
+        , div [ class "container" ]
+            [ div [ class "row" ]
+                [ table
+                    [ class "table" ]
+                    [ thead [ class "thead-dark" ]
+                        [ tr []
+                            [ th [] [ text "PID" ]
+                            , th [] [ text "Count" ]
+                            , th [] []
+                            ]
+                        ]
+                    , tbody [] (List.map renderPid <| List.reverse counters)
+                    ]
+                ]
+            ]
         ]

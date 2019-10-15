@@ -1,7 +1,7 @@
 module Actors.Counters exposing (Model, actor)
 
 import ActorName as ActorName exposing (ActorName(..))
-import Components.Counters as Component
+import Components.Counters as Counters
 import Html exposing (Html)
 import Json.Encode as Encode
 import Msg as Msg exposing (Msg)
@@ -12,22 +12,22 @@ import System.Process exposing (PID)
 
 
 type alias Model =
-    Component.Model
+    Counters.Model
 
 
 type alias MsgIn =
-    Component.MsgIn
+    Counters.MsgIn
 
 
 type alias MsgOut =
-    Component.MsgOut
+    Counters.MsgOut
 
 
 actor :
     (Model -> appModel)
     -> Actor Model appModel (Html Msg) Msg
 actor wrapModel =
-    toActor Component.component
+    toActor Counters.component
         { wrapModel = wrapModel
         , wrapMsg = Msg.Counters
         , mapIn = mapIn
@@ -53,17 +53,17 @@ mapOut :
     -> Msg
 mapOut pid msgOut =
     case msgOut of
-        Component.SpawnCounter intialValue ->
+        Counters.SpawnCounter intialValue ->
             spawnWithFlags
                 (Encode.int intialValue)
                 ActorName.Counter
                 (sendToPid pid
                     << Msg.Counters
-                    << Component.ReceiveCounter
+                    << Counters.ReceiveCounter
                 )
 
-        Component.KillCounter killPid ->
+        Counters.KillCounter killPid ->
             batch
                 [ kill killPid
-                , sendToPid pid <| Msg.Counters <| Component.KilledCounter killPid
+                , sendToPid pid <| Msg.Counters <| Counters.KilledCounter killPid
                 ]

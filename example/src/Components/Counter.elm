@@ -1,11 +1,12 @@
-module Components.Counter exposing (Model, MsgIn, MsgOut, component)
+module Components.Counter exposing (Model, MsgIn, MsgOut(..), component)
 
-import Html exposing (Html, button, td, text, tr)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import System.Component.Ui exposing (Ui)
 import System.Debug exposing (pidToString)
-import System.Event exposing (custom, systemDefault)
+import System.Event exposing (systemDefault)
 import System.Process exposing (PID)
 
 
@@ -29,7 +30,7 @@ type MsgIn
 {-| Think of MsgOut as Elm Cmds that you would like the System to run
 -}
 type MsgOut
-    = NoOp
+    = LogCreated
 
 
 {-| Setting up a component is much like setting up a Core Browser.element
@@ -50,12 +51,15 @@ init :
     ( PID, Decode.Value )
     -> ( Model, List MsgOut, Cmd MsgIn )
 init ( pid, flags ) =
-    case Decode.decodeValue Decode.int flags of
-        Ok int ->
-            ( Counter pid int, [], Cmd.none )
-
-        Err _ ->
-            ( Counter pid 0, [], Cmd.none )
+    let
+        initialCounterValue =
+            Decode.decodeValue Decode.int flags
+                |> Result.withDefault 0
+    in
+    ( Counter pid initialCounterValue
+    , [ LogCreated ]
+    , Cmd.none
+    )
 
 
 update :
@@ -77,9 +81,13 @@ view :
 view (Counter pid count) =
     tr []
         [ td [] [ text (pidToString pid) ]
-        , td [] [ text (String.fromInt count) ]
         , td []
-            [ button [ onClick Decrement ] [ text "-" ]
-            , button [ onClick Increment ] [ text "+" ]
+            [ strong [] [ text (String.fromInt count) ]
+            ]
+        , td []
+            [ div [ class "btn-group" ]
+                [ button [ class "btn btn-primary", onClick Decrement ] [ text "-" ]
+                , button [ class "btn btn-primary", onClick Increment ] [ text "+" ]
+                ]
             ]
         ]

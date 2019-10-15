@@ -2,16 +2,24 @@ module System.Internal.Update exposing (update)
 
 import Json.Encode as Encode
 import System.Internal.Event exposing (Event(..), EventHandler(..))
-import System.Internal.Message exposing (Control(..), Message(..))
+import System.Internal.Message exposing (Control(..), LogMessage(..), Message(..), Severity(..), toString)
 import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getChildren, getInstance, getNewPID, removePID, updateDocumentTitle, updateInstance)
-import System.Internal.PID exposing (PID)
+import System.Internal.PID exposing (PID, system)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 
 update :
     { a
-        | apply : appModel -> SystemActor appModel output (Message address actorName appMsg)
-        , factory : actorName -> ( PID, Encode.Value ) -> ( appModel, Message address actorName appMsg )
+        | apply :
+            appModel
+            -> SystemActor appModel output (Message address actorName appMsg)
+        , factory :
+            actorName
+            -> ( PID, Encode.Value )
+            -> ( appModel, Message address actorName appMsg )
+        , onLogMessage :
+            LogMessage address actorName appMsg
+            -> Message address actorName appMsg
     }
     -> Maybe PID
     -> Message address actorName appMsg
@@ -155,6 +163,9 @@ update impl maybePid msg model =
             , Cmd.none
             )
 
+        Log logMessage ->
+            update impl maybePid (impl.onLogMessage logMessage) model
+
         NoOp ->
             ( model, Cmd.none )
 
@@ -167,8 +178,16 @@ update impl maybePid msg model =
 
 handleKill :
     { a
-        | apply : appModel -> SystemActor appModel output (Message address actorName appMsg)
-        , factory : actorName -> ( PID, Encode.Value ) -> ( appModel, Message address actorName appMsg )
+        | apply :
+            appModel
+            -> SystemActor appModel output (Message address actorName appMsg)
+        , factory :
+            actorName
+            -> ( PID, Encode.Value )
+            -> ( appModel, Message address actorName appMsg )
+        , onLogMessage :
+            LogMessage address actorName appMsg
+            -> Message address actorName appMsg
     }
     -> Maybe PID
     -> PID

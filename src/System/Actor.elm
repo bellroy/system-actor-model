@@ -1,4 +1,7 @@
-module System.Actor exposing (Actor, toSystemActor)
+module System.Actor exposing
+    ( Actor
+    , SystemActor, toSystemActor
+    )
 
 {-|
 
@@ -21,7 +24,9 @@ of one of the existing Components.
 
 Actors can communicate directly with other Actors only when it knows it's PID.
 
-@docs Actor, toSystemActor
+@docs Actor
+
+@docs SystemActor, toSystemActor
 
 -}
 
@@ -29,10 +34,10 @@ import Json.Decode as Decode
 import System.Event exposing (EventHandler)
 import System.Internal.Event exposing (Event)
 import System.Internal.PID exposing (PID)
-import System.Internal.SystemActor exposing (SystemActor(..))
+import System.Internal.SystemActor as Internal exposing (SystemActor(..))
 
 
-{-| The type of an Actor
+{-| An Actor looks a lot like a Browser.element !
 -}
 type alias Actor model actorModel output msg =
     { init : ( PID, Decode.Value ) -> ( actorModel, msg )
@@ -41,6 +46,15 @@ type alias Actor model actorModel output msg =
     , subscriptions : model -> PID -> Sub msg
     , events : Event -> PID -> EventHandler msg
     }
+
+
+{-| An Actor within the System has a different Type.
+
+You can create SystemActors using the `toSystemActor` function.
+
+-}
+type alias SystemActor actorModel output msg =
+    Internal.SystemActor actorModel output msg
 
 
 {-| Apply your model over your Actor to create a SystemActor

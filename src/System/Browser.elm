@@ -33,7 +33,7 @@ import Browser as Browser exposing (application, element)
 import Browser.Navigation exposing (Key)
 import Html exposing (Html)
 import Json.Decode as Decode
-import System.Internal.Message exposing (Message)
+import System.Internal.Message exposing (LogMessage, Message)
 import System.Internal.Model exposing (foldlInstances, init)
 import System.Internal.PID exposing (PID)
 import System.Internal.Render exposing (view, viewApplication)
@@ -60,6 +60,9 @@ element :
     , view :
         List output
         -> Html.Html (Message address actorName wrappedMsg)
+    , onLogMessage :
+        LogMessage address actorName wrappedMsg
+        -> Message address actorName wrappedMsg
     }
     -> Program flags address actorName actorModel wrappedMsg
 element implementation =
@@ -110,6 +113,9 @@ application :
         -> Message address actorName wrappedMsg
     , onUrlChange :
         Url
+        -> Message address actorName wrappedMsg
+    , onLogMessage :
+        LogMessage address actorName wrappedMsg
         -> Message address actorName wrappedMsg
     }
     -> Program flags address actorName actorModel wrappedMsg

@@ -1,20 +1,12 @@
 # System Actor Model
 
-First let me say that this is heavily inspired by the work on the ["Actor model in Elm"](https://package.elm-lang.org/packages/webbhuset/elm-actor-model/latest/)
-package
-
-This package has derived from the facts:
-  - [webbhuset/elm-actor-model](https://package.elm-lang.org/packages/webbhuset/elm-actor-model/latest/) Is currently still in Alpha.
-    large API changes are meant to be expected.
-  - I personally wanted to understand the inner workings of said package better.
-  - To be more of a minimal implementation
+An Actor Model implementation on top of the Elm Application Framework
 
 ## The Actor Model
 
-You can think of an Actor as an Elm application whit in an Elm application.
+You can think of an Actor as an Elm application whitin an Elm application.
 
 ### Characteristics
-
   - An Actor get's spawned by the System or by another Actor.
   - An active Actor a.k.a a Process is identified by the System using a PID.
   - An Actor can talk to another Actor when it knows it PID.

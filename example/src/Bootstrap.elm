@@ -3,12 +3,14 @@ module Bootstrap exposing (AppModel(..), bootstrap)
 import ActorName exposing (ActorName(..))
 import Actors.Counter as Counter exposing (Model, actor)
 import Actors.Counters as Counters exposing (Model, actor)
+import Actors.Snackbar as Snackbar exposing (Model, actor)
 import System.Actor exposing (toSystemActor)
 
 
 type AppModel
     = CountersModel Counters.Model
     | CounterModel Counter.Model
+    | SnackbarModel Snackbar.Model
 
 
 bootstrap =
@@ -20,6 +22,7 @@ bootstrap =
 actors =
     { counters = Counters.actor CountersModel
     , counter = Counter.actor CounterModel
+    , snackbar = Snackbar.actor SnackbarModel
     }
 
 
@@ -31,6 +34,9 @@ factory actorName =
         Counter ->
             actors.counter.init
 
+        Snackbar ->
+            actors.snackbar.init
+
 
 apply model =
     case model of
@@ -39,3 +45,6 @@ apply model =
 
         CounterModel m ->
             toSystemActor actors.counter m
+
+        SnackbarModel m ->
+            toSystemActor actors.snackbar m
