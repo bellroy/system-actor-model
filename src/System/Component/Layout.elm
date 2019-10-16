@@ -41,17 +41,17 @@ type alias Layout model msgIn msgOut msg =
 {-| Create an Actor from a Layout
 -}
 toActor :
-    Layout model msgIn msgOut (Message address actorName wrappedMsg)
+    Layout model msgIn msgOut (Message address actorName appMsg)
     ->
         { wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> wrappedMsg
-        , mapIn : wrappedMsg -> Maybe msgIn
+        , wrapMsg : msgIn -> appMsg
+        , mapIn : appMsg -> Maybe msgIn
         , mapOut :
             PID
             -> msgOut
-            -> Message address actorName wrappedMsg
+            -> Message address actorName appMsg
         }
-    -> Actor model actorModel (Html (Message address actorName wrappedMsg)) (Message address actorName wrappedMsg)
+    -> Actor model actorModel (Html (Message address actorName appMsg)) (Message address actorName appMsg)
 toActor layout args =
     { init = wrapInit args layout.init
     , update = wrapUpdate args layout.update

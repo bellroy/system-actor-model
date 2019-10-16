@@ -49,22 +49,22 @@ import Url exposing (Url)
 element :
     { apply :
         actorModel
-        -> SystemActor actorModel output (Message address actorName wrappedMsg)
+        -> SystemActor actorModel output (Message address actorName appMsg)
     , factory :
         actorName
         -> ( PID, Decode.Value )
-        -> ( actorModel, Message address actorName wrappedMsg )
+        -> ( actorModel, Message address actorName appMsg )
     , init :
         flags
-        -> List (Message address actorName wrappedMsg)
+        -> List (Message address actorName appMsg)
     , view :
         List output
-        -> Html.Html (Message address actorName wrappedMsg)
+        -> Html.Html (Message address actorName appMsg)
     , onLogMessage :
-        LogMessage address actorName wrappedMsg
-        -> Message address actorName wrappedMsg
+        LogMessage address actorName appMsg
+        -> Message address actorName appMsg
     }
-    -> Program flags address actorName actorModel wrappedMsg
+    -> Program flags address actorName actorModel appMsg
 element implementation =
     Browser.element
         { init =
@@ -95,30 +95,30 @@ element implementation =
 application :
     { apply :
         actorModel
-        -> SystemActor actorModel output (Message address actorName wrappedMsg)
+        -> SystemActor actorModel output (Message address actorName appMsg)
     , factory :
         actorName
         -> ( PID, Decode.Value )
-        -> ( actorModel, Message address actorName wrappedMsg )
+        -> ( actorModel, Message address actorName appMsg )
     , init :
         flags
         -> Url
         -> Key
-        -> List (Message address actorName wrappedMsg)
+        -> List (Message address actorName appMsg)
     , view :
         List output
-        -> List (Html (Message address actorName wrappedMsg))
+        -> List (Html (Message address actorName appMsg))
     , onUrlRequest :
         Browser.UrlRequest
-        -> Message address actorName wrappedMsg
+        -> Message address actorName appMsg
     , onUrlChange :
         Url
-        -> Message address actorName wrappedMsg
+        -> Message address actorName appMsg
     , onLogMessage :
-        LogMessage address actorName wrappedMsg
-        -> Message address actorName wrappedMsg
+        LogMessage address actorName appMsg
+        -> Message address actorName appMsg
     }
-    -> Program flags address actorName actorModel wrappedMsg
+    -> Program flags address actorName actorModel appMsg
 application implementation =
     Browser.application
         { init =

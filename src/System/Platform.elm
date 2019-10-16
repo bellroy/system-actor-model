@@ -17,9 +17,9 @@ Checkout out the `element` and `application` functions in the System.Browser mod
 _A [Program](https://package.elm-lang.org/packages/elm/core/latest/Platform#Program) describes an Elm program! How does it react to input? Does it show anything on screen? Etc._
 
 -}
-type alias Program flags address actorName actorModel wrappedMsg =
+type alias Program flags address actorName actorModel appMsg =
     Platform.Program
         --
         flags
         (Model address actorName actorModel)
-        (Message address actorName wrappedMsg)
+        (Message address actorName appMsg)

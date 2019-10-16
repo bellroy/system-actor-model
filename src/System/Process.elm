@@ -1,6 +1,6 @@
 module System.Process exposing
     ( PID
-    , equals
+    , equals, pidToInt, pidToString, pidSpawnedBy
     )
 
 {-|
@@ -13,11 +13,11 @@ module System.Process exposing
 
 # Helpers
 
-@docs equals
+@docs equals, pidToInt, pidToString, pidSpawnedBy
 
 -}
 
-import System.Internal.PID as PID exposing (PID, equals)
+import System.Internal.PID as PID exposing (PID(..), equals, toInt)
 
 
 {-| Each Process has an unique identifier ([PID](https://en.wikipedia.org/wiki/Process_identifier)).
@@ -26,7 +26,7 @@ type alias PID =
     PID.PID
 
 
-{-| Check if two PID's are the same
+{-| Check if two PIDs are the same
 -}
 equals :
     PID
@@ -34,3 +34,40 @@ equals :
     -> Bool
 equals =
     PID.equals
+
+
+{-| Represent a PID as an Int
+-}
+pidToInt :
+    PID
+    -> Int
+pidToInt =
+    PID.toInt
+
+
+{-| Represent a PID as a String
+-}
+pidToString :
+    PID
+    -> String
+pidToString pid =
+    case pid of
+        PID.System ->
+            "System"
+
+        _ ->
+            String.fromInt <| pidToInt pid
+
+
+{-| Get the PID responsible for spawing the given PID
+-}
+pidSpawnedBy :
+    PID
+    -> PID
+pidSpawnedBy pid =
+    case pid of
+        PID.System ->
+            pid
+
+        PID.PID { spawnedBy } ->
+            spawnedBy

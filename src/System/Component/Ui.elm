@@ -44,14 +44,14 @@ toActor :
     Ui model msgIn msgOut
     ->
         { wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> wrappedMsg
-        , mapIn : wrappedMsg -> Maybe msgIn
+        , wrapMsg : msgIn -> appMsg
+        , mapIn : appMsg -> Maybe msgIn
         , mapOut :
             PID
             -> msgOut
-            -> Message address actorName wrappedMsg
+            -> Message address actorName appMsg
         }
-    -> Actor model actorModel (Html (Message address actorName wrappedMsg)) (Message address actorName wrappedMsg)
+    -> Actor model actorModel (Html (Message address actorName appMsg)) (Message address actorName appMsg)
 toActor ui args =
     { init = wrapInit args ui.init
     , update = wrapUpdate args ui.update

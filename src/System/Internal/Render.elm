@@ -16,7 +16,7 @@ view :
     { a
         | apply :
             actorModel
-            -> SystemActor actorModel output (Message address actorName wrappedMsg)
+            -> SystemActor actorModel output (Message address actorName appMsg)
     }
     -> Model address actorName actorModel
     -> List output
@@ -39,12 +39,12 @@ view { apply } model =
 viewApplication :
     { a
         | apply :
-            actorModel -> SystemActor actorModel output (Message address actorName wrappedMsg)
+            actorModel -> SystemActor actorModel output (Message address actorName appMsg)
         , view :
-            List output -> List (Html (Message address actorName wrappedMsg))
+            List output -> List (Html (Message address actorName appMsg))
     }
     -> Model address actorName actorModel
-    -> Browser.Document (Message address actorName wrappedMsg)
+    -> Browser.Document (Message address actorName appMsg)
 viewApplication impl model =
     view impl model
         |> impl.view

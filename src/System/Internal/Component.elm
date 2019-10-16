@@ -9,50 +9,50 @@ import System.Internal.PID exposing (PID)
 import System.Message exposing (sendToPid)
 
 
-type alias Args a address actorName model actorModel msgIn msgOut wrappedMsg =
+type alias Args a address actorName model actorModel msgIn msgOut appMsg =
     { a
         | wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> wrappedMsg
-        , mapIn : wrappedMsg -> Maybe msgIn
-        , mapOut : PID -> msgOut -> Message address actorName wrappedMsg
+        , wrapMsg : msgIn -> appMsg
+        , mapIn : appMsg -> Maybe msgIn
+        , mapOut : PID -> msgOut -> Message address actorName appMsg
     }
 
 
 wrapInit :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     -> (( PID, Decode.Value ) -> ( model, List msgOut, Cmd msgIn ))
     -> ( PID, Decode.Value )
-    -> ( actorModel, Message address actorName wrappedMsg )
+    -> ( actorModel, Message address actorName appMsg )
 wrapInit args init ( pid, flags ) =
     init ( pid, flags )
         |> wrapToTuple args pid
 
 
 wrapUpdate :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     -> (msgIn -> model -> ( model, List msgOut, Cmd msgIn ))
-    -> (model -> Message address actorName wrappedMsg -> PID -> ( actorModel, Message address actorName wrappedMsg ))
+    -> (model -> Message address actorName appMsg -> PID -> ( actorModel, Message address actorName appMsg ))
 wrapUpdate args update model msg pid =
     case msg of
-        ActorMsg wrappedMsg ->
-            case args.mapIn wrappedMsg of
+        ActorMsg appMsg ->
+            case args.mapIn appMsg of
                 Just msgIn ->
                     update msgIn model
                         |> wrapToTuple args pid
 
                 Nothing ->
-                    ( args.wrapModel model, UnmappedMsg wrappedMsg )
+                    ( args.wrapModel model, UnmappedMsg appMsg )
 
         _ ->
             ( args.wrapModel model, NoOp )
 
 
 wrapSubscriptions :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     -> (model -> Sub msgIn)
     -> model
     -> PID
-    -> Sub (Message address actorName wrappedMsg)
+    -> Sub (Message address actorName appMsg)
 wrapSubscriptions { wrapMsg } subs model pid =
     if subs model == Sub.none then
         Sub.none
@@ -62,11 +62,11 @@ wrapSubscriptions { wrapMsg } subs model pid =
 
 
 wrapEvents :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     -> ComponentEventHandlers msgIn
     -> Event
     -> PID
-    -> EventHandler (Message address actorName wrappedMsg)
+    -> EventHandler (Message address actorName appMsg)
 wrapEvents { wrapMsg } { onPIDNotFound, onKill } event pid =
     case event of
         OnPIDNotFound pidNotFound ->
@@ -77,10 +77,10 @@ wrapEvents { wrapMsg } { onPIDNotFound, onKill } event pid =
 
 
 wrapToTuple :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     -> PID
     -> ( model, List msgOut, Cmd msgIn )
-    -> ( actorModel, Message address actorName wrappedMsg )
+    -> ( actorModel, Message address actorName appMsg )
 wrapToTuple { wrapModel, wrapMsg, mapOut } pid ( model, msgsOut, cmd ) =
     let
         msgCmd =
@@ -108,17 +108,17 @@ wrapToTuple { wrapModel, wrapMsg, mapOut } pid ( model, msgsOut, cmd ) =
 
 
 wrapLayoutView :
-    Args a address actorName model actorModel msgIn msgOut wrappedMsg
+    Args a address actorName model actorModel msgIn msgOut appMsg
     ->
-        ((msgIn -> Message address actorName wrappedMsg)
+        ((msgIn -> Message address actorName appMsg)
          -> model
-         -> (PID -> Html (Message address actorName wrappedMsg))
-         -> Html (Message address actorName wrappedMsg)
+         -> (PID -> Html (Message address actorName appMsg))
+         -> Html (Message address actorName appMsg)
         )
     -> model
     -> PID
-    -> (PID -> Maybe (Html (Message address actorName wrappedMsg)))
-    -> Html (Message address actorName wrappedMsg)
+    -> (PID -> Maybe (Html (Message address actorName appMsg)))
+    -> Html (Message address actorName appMsg)
 wrapLayoutView { wrapMsg } view model pid renderPID =
     view
         (sendToPid pid << wrapMsg)

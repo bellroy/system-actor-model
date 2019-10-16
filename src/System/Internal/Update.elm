@@ -46,7 +46,7 @@ update impl maybePid msg model =
                 Just ( actorName, appModel ) ->
                     let
                         appMsgs =
-                            collectwrappedMsgs sendToPidMsg
+                            collectappMsgs sendToPidMsg
 
                         ( updatedModel, newMsg ) =
                             List.foldl
@@ -55,11 +55,11 @@ update impl maybePid msg model =
                                         (SystemActor appliedActor) =
                                             impl.apply model_
 
-                                        ( actorModelUpdated, wrappedMsg_ ) =
+                                        ( actorModelUpdated, appMsg_ ) =
                                             appliedActor.update appMsg pid
                                     in
                                     ( actorModelUpdated
-                                    , composeSysMsg msg_ wrappedMsg_
+                                    , composeSysMsg msg_ appMsg_
                                     )
                                 )
                                 ( appModel, NoOp )
@@ -233,16 +233,16 @@ handleKill impl maybePid pid model =
             ( model, Cmd.none )
 
 
-collectwrappedMsgs :
+collectappMsgs :
     Message address actorName appMsg
     -> List (Message address actorName appMsg)
-collectwrappedMsgs msg =
+collectappMsgs msg =
     case msg of
         ActorMsg _ ->
             [ msg ]
 
         Control (Batch list) ->
-            List.concatMap collectwrappedMsgs list
+            List.concatMap collectappMsgs list
 
         _ ->
             []

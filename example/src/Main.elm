@@ -44,11 +44,9 @@ view contents =
         [ node "link" [ rel "stylesheet", href "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" ] []
         , div [ class "jumbotron" ]
             [ div [ class "container" ]
-                [ h1 [ class "display-4" ] [ text "System Actor Model Demo" ]
+                [ h1 [ class "display-4" ] [ text "System Actor Model" ]
                 , p [ class "lead" ] [ text "An Actor Model implementation for Elm" ]
                 , node "hr" [ class "my-4" ] []
-                , p []
-                    [ text "Check out the Demo below or jump to Source or Documentation." ]
                 , a
                     [ class "btn btn-primary btn-lg", href "https://package.elm-lang.org/packages/tricycle/system-actor-model/latest" ]
                     [ text "documentation" ]

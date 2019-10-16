@@ -45,14 +45,14 @@ toActor :
     Worker model msgIn msgOut
     ->
         { wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> wrappedMsg
-        , mapIn : wrappedMsg -> Maybe msgIn
+        , wrapMsg : msgIn -> appMsg
+        , mapIn : appMsg -> Maybe msgIn
         , mapOut :
             PID
             -> msgOut
-            -> Message address actorName wrappedMsg
+            -> Message address actorName appMsg
         }
-    -> Actor model actorModel (Html msg) (Message address actorName wrappedMsg)
+    -> Actor model actorModel (Html msg) (Message address actorName appMsg)
 toActor worker args =
     { init = wrapInit args worker.init
     , update = wrapUpdate args worker.update

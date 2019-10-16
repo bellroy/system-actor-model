@@ -2,6 +2,10 @@
 
 An Actor Model implementation on top of the Elm Application Framework
 
+## Demo
+
+The example Application can be found in action [here](https://tricycle.github.io/system-actor-model/).
+
 ## The Actor Model
 
 You can think of an Actor as an Elm application whitin an Elm application.
@@ -17,10 +21,6 @@ You can think of an Actor as an Elm application whitin an Elm application.
 ## Documentation
 
 The documentation is hosted on the [Elm package website](https://package.elm-lang.org/packages/tricycle/system-actor-model/latest).
-
-## Demo
-
-The example Application can be found in action [here](https://tricycle.github.io/system-actor-model/).
 
 ## Example Application
 
