@@ -18,7 +18,7 @@ import System.Internal.Model
         , updateDocumentTitle
         , updateInstance
         )
-import System.Internal.PID exposing (PID)
+import System.Internal.PID exposing (PID, toInt)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 

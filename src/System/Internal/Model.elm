@@ -101,7 +101,16 @@ getAddress :
     -> Model address actorName actorModel
     -> ( address, List PID )
 getAddress address (Model modelRecord) =
-    ( address, List.map Tuple.second modelRecord.addresses )
+    List.foldl
+        (\( xaddress, xpid ) ( _, listOfPids ) ->
+            if xaddress == address then
+                ( address, xpid :: listOfPids )
+
+            else
+                ( address, listOfPids )
+        )
+        ( address, [] )
+        modelRecord.addresses
 
 
 {-| Get a new PID and Model based on the current Model
