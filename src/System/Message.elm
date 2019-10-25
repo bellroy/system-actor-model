@@ -1,8 +1,8 @@
 module System.Message exposing
     ( SystemMessage
     , spawn, spawnWithFlags, populateView, populateAddress
-    , kill
-    , sendToPid, sendToAddress
+    , kill, removeFromView, removeFromAddress
+    , sendToPid, sendToAddress, sendToPidOnAddress
     , batch, noOperation, toCmd
     , updateDocumentTitle
     , log, ignoreLog
@@ -36,14 +36,14 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 @docs spawn, spawnWithFlags, populateView, populateAddress
 
 
-# Destroying
+# Removing and Destroying
 
-@docs kill
+@docs kill, removeFromView, removeFromAddress
 
 
 # Actor Communication
 
-@docs sendToPid, sendToAddress
+@docs sendToPid, sendToAddress, sendToPidOnAddress
 
 
 # Utility
@@ -111,9 +111,9 @@ populateView =
     Control << AddView
 
 
-{-| Add a PID to the System's view
+{-| Add a PID to a given address
 
-The System will render views in the order it receives it.
+You can send messages to Addresses just like you can send messages to a PID.
 
 -}
 populateAddress :
@@ -142,6 +142,25 @@ kill =
     Control << Kill
 
 
+{-| Remove a PID from a given address
+-}
+removeFromAddress :
+    address
+    -> PID
+    -> Message address actorName appMsg
+removeFromAddress address =
+    Control << RemoveFromAddress address
+
+
+{-| Remove a PID from the System view
+-}
+removeFromView :
+    PID
+    -> Message address actorName appMsg
+removeFromView =
+    Control << RemoveFromView
+
+
 
 -- Actor Communication
 
@@ -158,14 +177,29 @@ sendToPid pid =
         >> Control
 
 
-{-| Send a message to an Address
+{-| Send a message to an _address_.
 -}
 sendToAddress :
     address
     -> appMsg
     -> Message address actorName appMsg
-sendToAddress address appMsg =
-    Control <| SendToAddress address <| ActorMsg appMsg
+sendToAddress address =
+    ActorMsg
+        >> SendToAddress address
+        >> Control
+
+
+{-| Send a message to a PID **only** when it's on the given _address_.
+-}
+sendToPidOnAddress :
+    PID
+    -> address
+    -> appMsg
+    -> Message address actorName appMsg
+sendToPidOnAddress pid address =
+    ActorMsg
+        >> SendToPidOnAddress pid address
+        >> Control
 
 
 

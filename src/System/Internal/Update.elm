@@ -3,7 +3,21 @@ module System.Internal.Update exposing (update)
 import Json.Encode as Encode
 import System.Internal.Event exposing (Event(..), EventHandler(..))
 import System.Internal.Message exposing (Control(..), LogMessage(..), Message(..), Severity(..), toString)
-import System.Internal.Model exposing (Model, addAddress, addView, getAddress, getChildren, getInstance, getNewPID, removePID, updateDocumentTitle, updateInstance)
+import System.Internal.Model
+    exposing
+        ( Model
+        , addAddress
+        , addView
+        , getAddress
+        , getChildren
+        , getInstance
+        , getNewPID
+        , removeFromAddress
+        , removeFromView
+        , removePID
+        , updateDocumentTitle
+        , updateInstance
+        )
 import System.Internal.PID exposing (PID, system)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
@@ -112,6 +126,22 @@ update impl maybePid msg model =
                 )
                 model
 
+        Control (SendToPidOnAddress pid address sendToPidOnAddressMsg) ->
+            let
+                pidIsOnAddress =
+                    getAddress address model
+                        |> Tuple.second
+                        |> List.member pid
+            in
+            if pidIsOnAddress then
+                ( model, Cmd.none )
+
+            else
+                update impl
+                    maybePid
+                    (Control (SendToPID pid sendToPidOnAddressMsg))
+                    model
+
         Control (Spawn actorName replyMsg) ->
             let
                 ( newPID, updateModel ) =
@@ -149,6 +179,16 @@ update impl maybePid msg model =
 
         Control (PopulateAddress address pid) ->
             ( addAddress address pid model
+            , Cmd.none
+            )
+
+        Control (RemoveFromView pid) ->
+            ( removeFromView pid model
+            , Cmd.none
+            )
+
+        Control (RemoveFromAddress address pid) ->
+            ( removeFromAddress address pid model
             , Cmd.none
             )
 

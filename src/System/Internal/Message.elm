@@ -41,14 +41,19 @@ type Control address actorName message
     | Command (Cmd message)
     | SendToPID PID message
     | SendToAddress address message
+    | SendToPidOnAddress PID address message
     | Spawn actorName (PID -> message)
     | SpawnWithFlags Value actorName (PID -> message)
     | AddView PID
     | PopulateAddress address PID
+    | RemoveFromView PID
+    | RemoveFromAddress address PID
     | Kill PID
 
 
-toString : Message address actorName appMsg -> Maybe String
+toString :
+    Message address actorName appMsg
+    -> Maybe String
 toString msg =
     case msg of
         NoOp ->
@@ -74,7 +79,9 @@ toString msg =
             Nothing
 
 
-controlToString : Control address actorName message -> Maybe String
+controlToString :
+    Control address actorName message
+    -> Maybe String
 controlToString control =
     case control of
         Batch _ ->
@@ -89,6 +96,9 @@ controlToString control =
         SendToAddress _ _ ->
             Just <| "SendToAddress address"
 
+        SendToPidOnAddress _ _ _ ->
+            Just <| "SendToPidOnAddress pid address"
+
         Spawn _ _ ->
             Just "Spawn"
 
@@ -100,6 +110,12 @@ controlToString control =
 
         PopulateAddress _ pid ->
             Just <| "PopulateAddress address " ++ String.fromInt (toInt pid)
+
+        RemoveFromView pid ->
+            Just <| "RemoveFromView " ++ String.fromInt (toInt pid)
+
+        RemoveFromAddress _ pid ->
+            Just <| "RemoveFromAddress address " ++ String.fromInt (toInt pid)
 
         Kill pid ->
             Just <| "Kill " ++ String.fromInt (toInt pid)
@@ -156,7 +172,9 @@ logMessageToMeta (LogMessage meta) =
     meta
 
 
-pidToString : PID -> String
+pidToString :
+    PID
+    -> String
 pidToString pid =
     case pid of
         System ->
@@ -171,7 +189,9 @@ pidToString pid =
                     String.fromInt id ++ "(" ++ String.fromInt parent.id ++ ")"
 
 
-severityToString : Severity -> String
+severityToString :
+    Severity
+    -> String
 severityToString severity =
     case severity of
         Emergency ->
@@ -199,7 +219,9 @@ severityToString severity =
             "debug"
 
 
-toUtcString : Time.Posix -> String
+toUtcString :
+    Time.Posix
+    -> String
 toUtcString time =
     let
         monthToString month =

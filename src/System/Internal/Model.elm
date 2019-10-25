@@ -11,6 +11,8 @@ module System.Internal.Model exposing
     , getNewPID
     , getViews
     , init
+    , removeFromAddress
+    , removeFromView
     , removePID
     , updateDocumentTitle
     , updateInstance
@@ -183,7 +185,20 @@ addView :
     -> Model address actorName actorModel
     -> Model address actorName actorModel
 addView pid (Model modelRecord) =
-    Model { modelRecord | views = pid :: modelRecord.views }
+    Model
+        { modelRecord
+            | views =
+                List.foldr
+                    (\a r ->
+                        if equals pid a then
+                            r
+
+                        else
+                            a :: r
+                    )
+                    []
+                    modelRecord.views
+        }
 
 
 addAddress :
@@ -192,7 +207,10 @@ addAddress :
     -> Model address actorName actorModel
     -> Model address actorName actorModel
 addAddress address pid (Model modelRecord) =
-    Model { modelRecord | addresses = ( address, pid ) :: modelRecord.addresses }
+    Model
+        { modelRecord
+            | addresses = ( address, pid ) :: modelRecord.addresses
+        }
 
 
 
@@ -217,6 +235,36 @@ removePID pid (Model modelRecord) =
                         (\_ a -> List.filter (not << equals pid) a)
             , views = List.filter (not << equals pid) modelRecord.views
             , addresses = List.filter (not << equals pid << Tuple.second) modelRecord.addresses
+        }
+
+
+removeFromView :
+    PID
+    -> Model address actorName actorModel
+    -> Model address actorName actorModel
+removeFromView pid (Model modelRecord) =
+    Model { modelRecord | views = pid :: modelRecord.views }
+
+
+removeFromAddress :
+    address
+    -> PID
+    -> Model address actorName actorModel
+    -> Model address actorName actorModel
+removeFromAddress address pid (Model modelRecord) =
+    Model
+        { modelRecord
+            | addresses =
+                List.foldr
+                    (\( a, b ) r ->
+                        if a == address && equals pid b then
+                            r
+
+                        else
+                            ( a, b ) :: r
+                    )
+                    []
+                    modelRecord.addresses
         }
 
 

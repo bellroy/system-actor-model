@@ -58,8 +58,8 @@ import Time exposing (Posix)
 You can create LogMessages using the helper function available
 
 -}
-type alias LogMessage address actorName appMsg =
-    Internal.LogMessage address actorName appMsg
+type alias LogMessage address actorName wrappedMsg =
+    Internal.LogMessage address actorName wrappedMsg
 
 
 {-| The Severity of the log message
@@ -73,7 +73,7 @@ type alias Severity =
 emergency :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 emergency =
     create Emergency
 
@@ -83,7 +83,7 @@ emergency =
 alert :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 alert =
     create Alert
 
@@ -93,7 +93,7 @@ alert =
 critical :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 critical =
     create Critical
 
@@ -103,7 +103,7 @@ critical =
 error :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 error =
     create Error
 
@@ -113,7 +113,7 @@ error =
 warning :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 warning =
     create Warning
 
@@ -123,7 +123,7 @@ warning =
 notice :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 notice =
     create Notice
 
@@ -133,7 +133,7 @@ notice =
 info :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 info =
     create Informational
 
@@ -143,7 +143,7 @@ info =
 debug :
     PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 debug =
     create Debug
 
@@ -152,7 +152,7 @@ create :
     Severity
     -> PID
     -> String
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 create severity pid description =
     LogMessage
         { posix = Nothing
@@ -166,9 +166,9 @@ create severity pid description =
 {-| Add a Posix (elm/time) to your LogMessage
 -}
 withPosix :
-    LogMessage address actorName appMsg
+    LogMessage address actorName wrappedMsg
     -> Posix
-    -> LogMessage address actorName appMsg
+    -> LogMessage address actorName wrappedMsg
 withPosix (LogMessage meta) posix =
     LogMessage { meta | posix = Just posix }
 
@@ -179,21 +179,21 @@ You could use this to retry a failed command for instance.
 
 -}
 withMessage :
-    SystemMessage address actorName appMsg
-    -> LogMessage address actorName appMsg
-    -> LogMessage address actorName appMsg
+    SystemMessage address actorName wrappedMsg
+    -> LogMessage address actorName wrappedMsg
+    -> LogMessage address actorName wrappedMsg
 withMessage message (LogMessage meta) =
     LogMessage { meta | message = Just message }
 
 
 {-| Turn a LogMessage into a String
 
-    error pid appMsg "I'm sorry Dave, I'm afraid I can't do that"
+    error pid wrappedMsg "I'm sorry Dave, I'm afraid I can't do that"
         |> toString
 
     -- error | 2(1) | I'm sorry Dave, I'm afraid I can't do that
 
-    error system appMsg "I'm sorry Dave, I'm afraid I can't do that"
+    error system wrappedMsg "I'm sorry Dave, I'm afraid I can't do that"
         |> withPosix now
         |> toString
 
@@ -201,7 +201,7 @@ withMessage message (LogMessage meta) =
 
 -}
 toString :
-    LogMessage address actorName appMsg
+    LogMessage address actorName wrappedMsg
     -> String
 toString =
     Internal.logMessageToString
