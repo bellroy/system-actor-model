@@ -2,7 +2,7 @@ module System.Internal.Update exposing (update)
 
 import Json.Encode as Encode
 import System.Internal.Event exposing (Event(..), EventHandler(..))
-import System.Internal.Message exposing (Control(..), LogMessage(..), Message(..), Severity(..), toString)
+import System.Internal.Message exposing (Control(..), LogMessage(..), Message(..), Severity(..))
 import System.Internal.Model
     exposing
         ( Model
@@ -18,7 +18,7 @@ import System.Internal.Model
         , updateDocumentTitle
         , updateInstance
         )
-import System.Internal.PID exposing (PID, system)
+import System.Internal.PID exposing (PID)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 
@@ -134,13 +134,13 @@ update impl maybePid msg model =
                         |> List.member pid
             in
             if pidIsOnAddress then
-                ( model, Cmd.none )
-
-            else
                 update impl
                     maybePid
                     (Control (SendToPID pid sendToPidOnAddressMsg))
                     model
+
+            else
+                ( model, Cmd.none )
 
         Control (Spawn actorName replyMsg) ->
             let
