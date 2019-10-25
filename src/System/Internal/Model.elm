@@ -185,20 +185,7 @@ addView :
     -> Model address actorName actorModel
     -> Model address actorName actorModel
 addView pid (Model modelRecord) =
-    Model
-        { modelRecord
-            | views =
-                List.foldr
-                    (\a r ->
-                        if equals pid a then
-                            r
-
-                        else
-                            a :: r
-                    )
-                    []
-                    modelRecord.views
-        }
+    Model { modelRecord | views = pid :: modelRecord.views }
 
 
 addAddress :
@@ -243,7 +230,20 @@ removeFromView :
     -> Model address actorName actorModel
     -> Model address actorName actorModel
 removeFromView pid (Model modelRecord) =
-    Model { modelRecord | views = pid :: modelRecord.views }
+    Model
+        { modelRecord
+            | views =
+                List.foldr
+                    (\a r ->
+                        if equals pid a then
+                            r
+
+                        else
+                            a :: r
+                    )
+                    []
+                    modelRecord.views
+        }
 
 
 removeFromAddress :
