@@ -65,7 +65,7 @@ update msg (Snackbar snacks) =
                     ( Snackbar [], [], Cmd.none )
 
         NewSnack snack ->
-            ( Snackbar (snacks ++ [ ( 3, snack ) ])
+            ( Snackbar ((List.reverse <| List.take 2 (List.reverse snacks)) ++ [ ( 2, snack ) ])
             , []
             , Cmd.none
             )

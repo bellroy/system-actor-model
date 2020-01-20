@@ -4,19 +4,23 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
+import Json.Encode as Encode
 import System.Component.Ui exposing (Ui)
-import System.Debug exposing (pidToString)
 import System.Event exposing (systemDefault)
-import System.Process exposing (PID)
+import System.Process exposing (PID, pidToString)
 
 
 {-| Our model will hold the current Count and the PID the System will assign to this component
 -}
 type Model
-    = Counter PID Count
+    = Counter PID Steps Count
 
 
 type alias Count =
+    Int
+
+
+type alias Steps =
     Int
 
 
@@ -52,11 +56,38 @@ init :
     -> ( Model, List MsgOut, Cmd MsgIn )
 init ( pid, flags ) =
     let
-        initialCounterValue =
+        maybeCount =
             Decode.decodeValue Decode.int flags
-                |> Result.withDefault 0
+                |> Result.toMaybe
+
+        maybeValue =
+            Decode.decodeValue (Decode.at [ "attributes", "value" ] Decode.string) flags
+                |> Result.toMaybe
+                |> Maybe.andThen String.toInt
+
+        maybeSteps =
+            Decode.decodeValue (Decode.at [ "attributes", "steps" ] Decode.string) flags
+                |> Result.toMaybe
+                |> Maybe.andThen String.toInt
+
+        value =
+            case ( maybeCount, maybeValue ) of
+                ( Just _, Just a ) ->
+                    a
+
+                ( Just a, Nothing ) ->
+                    a
+
+                ( Nothing, Just a ) ->
+                    a
+
+                _ ->
+                    0
+
+        steps =
+            Maybe.withDefault 1 maybeSteps
     in
-    ( Counter pid initialCounterValue
+    ( Counter pid steps value
     , [ LogCreated ]
     , Cmd.none
     )
@@ -66,19 +97,25 @@ update :
     MsgIn
     -> Model
     -> ( Model, List MsgOut, Cmd MsgIn )
-update msgIn (Counter pid count) =
+update msgIn (Counter pid steps count) =
     case msgIn of
         Increment ->
-            ( Counter pid (count + 1), [], Cmd.none )
+            ( Counter pid steps (count + steps)
+            , []
+            , Cmd.none
+            )
 
         Decrement ->
-            ( Counter pid (count - 1), [], Cmd.none )
+            ( Counter pid steps (count - steps)
+            , []
+            , Cmd.none
+            )
 
 
 view :
     Model
     -> Html MsgIn
-view (Counter pid count) =
+view (Counter pid steps count) =
     tr []
         [ td [] [ text (pidToString pid) ]
         , td []

@@ -5,9 +5,8 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import System.Component.Layout exposing (Layout)
-import System.Debug exposing (pidToString)
 import System.Event exposing (ignoreAll)
-import System.Process exposing (PID, equals)
+import System.Process exposing (PID, equals, pidToString)
 
 
 type Model
@@ -91,8 +90,18 @@ view wrap (Counters pid initialValue counters) renderPid =
         , div [ class "container clearfix" ]
             [ div [ class "row float-right" ]
                 [ div [ class "btn-group", style "margin-bottom" "20px" ]
-                    [ button [ class "btn btn-secondary", onClick <| wrap OnKillCounterClick ] [ text "Kill first Counter" ]
-                    , button [ class "btn btn-primary", onClick <| wrap (OnSpawnCounterClick initialValue) ] [ text "Spawn a Counter" ]
+                    [ button
+                        [ class "btn btn-secondary"
+                        , onClick <| wrap OnKillCounterClick
+                        ]
+                        [ text "Kill first Counter"
+                        ]
+                    , button
+                        [ class "btn btn-primary"
+                        , onClick <| wrap (OnSpawnCounterClick initialValue)
+                        ]
+                        [ text "Spawn a Counter"
+                        ]
                     ]
                 ]
             ]

@@ -3,13 +3,12 @@ module Actors.Snackbar exposing (Model, actor)
 import ActorName
 import Components.Snackbar as Snackbar
 import Html exposing (Html)
-import Msg as Msg exposing (Msg)
+import Msg exposing (Msg)
 import System.Actor exposing (Actor)
 import System.Component.Ui exposing (toActor)
-import System.Debug exposing (pidToString)
 import System.Log exposing (toMeta)
 import System.Message exposing (noOperation, populateView, spawn)
-import System.Process exposing (PID)
+import System.Process exposing (PID, pidToString)
 
 
 type alias Model =

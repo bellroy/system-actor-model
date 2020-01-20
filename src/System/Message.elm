@@ -84,8 +84,8 @@ spawn :
     actorName
     -> (PID -> Message address actorName appMsg)
     -> Message address actorName appMsg
-spawn actorName f =
-    Control <| Spawn actorName f
+spawn actorName callback =
+    Control <| Spawn actorName callback
 
 
 {-| Spawn an Actor with given flags (as an encoded JSON Value)
@@ -95,8 +95,8 @@ spawnWithFlags :
     -> actorName
     -> (PID -> Message address actorName appMsg)
     -> Message address actorName appMsg
-spawnWithFlags flags actorName f =
-    Control <| SpawnWithFlags flags actorName f
+spawnWithFlags flags actorName callback =
+    Control <| SpawnWithFlags flags actorName callback
 
 
 {-| Add a PID to the System's view

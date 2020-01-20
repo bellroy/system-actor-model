@@ -5,7 +5,7 @@ import Address as Address exposing (Address(..))
 import Bootstrap exposing (AppModel, bootstrap)
 import Components.Snackbar as Snackbar exposing (MsgIn(..))
 import Html exposing (Html, a, div, h1, node, p, text)
-import Html.Attributes exposing (class, href, rel)
+import Html.Attributes exposing (class, href, rel, src)
 import Json.Encode as Encode
 import Msg as Msg exposing (AppMsg(..), Msg)
 import System.Browser exposing (element)
@@ -28,6 +28,7 @@ main =
 init : () -> List Msg
 init _ =
     [ spawnWithFlags (Encode.int 1) ActorName.Counters populateView
+    , spawn ActorName.Templating populateView
     , spawn ActorName.Snackbar
         (\pid ->
             batch

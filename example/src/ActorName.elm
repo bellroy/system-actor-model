@@ -5,3 +5,4 @@ type ActorName
     = Counter
     | Counters
     | Snackbar
+    | Templating
