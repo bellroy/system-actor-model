@@ -7210,6 +7210,9 @@ var $elm$parser$Parser$deadEndsToString = function (deadEnds) {
 var $author$project$System$Html$Internal$Template$Component = function (a) {
 	return {$: 'Component', a: a};
 };
+var $author$project$System$Html$Internal$Template$Error = function (a) {
+	return {$: 'Error', a: a};
+};
 var $author$project$System$Html$Internal$Template$Node = F3(
 	function (a, b, c) {
 		return {$: 'Node', a: a, b: b, c: c};
@@ -7257,21 +7260,28 @@ var $author$project$System$Html$Internal$Template$htmlParserNodeToTemplateElemen
 				var _v1 = A2($elm$core$Dict$get, nodeName, htmlComponents);
 				if (_v1.$ === 'Just') {
 					var factory = _v1.a;
-					return $elm$core$Maybe$Just(
-						$author$project$System$Html$Internal$Template$Component(
-							A2(
-								factory,
-								A2(
-									$elm$core$List$map,
-									function (_v2) {
-										var k = _v2.a;
-										var v = _v2.b;
-										return _Utils_Tuple2(
-											k,
-											$elm$json$Json$Encode$string(v));
-									},
-									domAttributes),
-								htmlTemplate)));
+					var factoryResult = A2(
+						factory,
+						A2(
+							$elm$core$List$map,
+							function (_v3) {
+								var k = _v3.a;
+								var v = _v3.b;
+								return _Utils_Tuple2(
+									k,
+									$elm$json$Json$Encode$string(v));
+							},
+							domAttributes),
+						htmlTemplate);
+					if (factoryResult.$ === 'Ok') {
+						var htmlComponent = factoryResult.a;
+						return $elm$core$Maybe$Just(
+							$author$project$System$Html$Internal$Template$Component(htmlComponent));
+					} else {
+						var err = factoryResult.a;
+						return $elm$core$Maybe$Just(
+							$author$project$System$Html$Internal$Template$Error(err));
+					}
 				} else {
 					return $elm$core$Maybe$Just(
 						A3($author$project$System$Html$Internal$Template$Node, nodeName, domAttributes, htmlTemplate));
@@ -10964,6 +10974,18 @@ var $author$project$System$Html$Internal$Template$templateElementToHtml = F4(
 				var string = templateElement.a;
 				return $elm$html$Html$text(
 					fprint(string));
+			case 'Error':
+				var string = templateElement.a;
+				return A2(
+					$elm$html$Html$div,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('template-error')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(string)
+						]));
 			case 'Node':
 				var nodeName = templateElement.a;
 				var domAttributes = templateElement.b;
@@ -10985,7 +11007,16 @@ var $author$project$System$Html$Internal$Template$templateElementToHtml = F4(
 				var htmlComponent = templateElement.a.a;
 				return A2(
 					$elm$core$Maybe$withDefault,
-					$elm$html$Html$text('Unable to find component with the id ' + (htmlComponent.id + '. Are you sure you have spawned this component prior to rendering this template?')),
+					A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('template-error')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Unable to find component with the id \"' + (htmlComponent.id + '\" on the supplied instances Dict.'))
+							])),
 					A2(
 						$elm$core$Maybe$map,
 						renderPid,
@@ -11614,6 +11645,7 @@ var $truqu$elm_md5$MD5$hex = function (s) {
 		'',
 		$truqu$elm_md5$MD5$bytes(s));
 };
+var $elm$core$Debug$log = _Debug_log;
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
 		A3(
@@ -11629,7 +11661,15 @@ var $elm$json$Json$Encode$object = function (pairs) {
 };
 var $author$project$System$Html$Internal$Template$htmlComponentFactory = F3(
 	function (configuration, attributes, children) {
+		var suppliedAttributes = _Utils_ap(configuration.defaultAttributes, attributes);
+		var suppliedAttributeKeys = A2($elm$core$List$map, $elm$core$Tuple$first, suppliedAttributes);
 		var nodeName = configuration.prefix + ('-' + configuration.name);
+		var missingAttributeErrors = A2(
+			$elm$core$List$filterMap,
+			function (a) {
+				return A2($elm$core$List$member, a, suppliedAttributeKeys) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just('Error: Missing attribute \"' + (a + ('\" on node \"' + (nodeName + '\".'))));
+			},
+			configuration.requiredAtributes);
 		var attributesAsObject = $elm$json$Json$Encode$object(
 			$elm$core$List$concat(
 				_List_fromArray(
@@ -11655,9 +11695,12 @@ var $author$project$System$Html$Internal$Template$htmlComponentFactory = F3(
 					'data-x-id',
 					$elm$json$Json$Encode$string(htmlComponentIdHash))
 				]),
-			_Utils_ap(configuration.defaultAttributes, attributes));
-		return $author$project$System$Html$Internal$Template$HtmlComponent(
-			{actorName: configuration.actorName, address: configuration.address, attributes: htmlComponentAttributes, htmlTemplate: children, id: htmlComponentIdHash, nodeName: nodeName});
+			suppliedAttributes);
+		var _v0 = A2($elm$core$Debug$log, '?', missingAttributeErrors);
+		return ($elm$core$List$length(missingAttributeErrors) > 0) ? $elm$core$Result$Err(
+			A2($elm$core$String$join, ' ', missingAttributeErrors)) : $elm$core$Result$Ok(
+			$author$project$System$Html$Internal$Template$HtmlComponent(
+				{actorName: configuration.actorName, address: configuration.address, attributes: htmlComponentAttributes, htmlTemplate: children, id: htmlComponentIdHash, nodeName: nodeName}));
 	});
 var $author$project$System$Html$Template$htmlComponentFactory = function (configuration) {
 	return _Utils_Tuple2(
@@ -11671,12 +11714,7 @@ var $author$project$Actors$Templating$htmlComponents = $elm$core$Dict$fromList(
 			{
 				actorName: $author$project$ActorName$Counter,
 				address: $elm$core$Maybe$Nothing,
-				defaultAttributes: _List_fromArray(
-					[
-						_Utils_Tuple2(
-						'value',
-						$elm$json$Json$Encode$int(0))
-					]),
+				defaultAttributes: _List_Nil,
 				name: 'counter',
 				prefix: 'app',
 				requiredAtributes: _List_fromArray(
@@ -11753,6 +11791,19 @@ var $author$project$System$Html$Internal$Template$toHtmlParserNode = function (t
 		case 'Text':
 			var string = templateElement.a;
 			return $hecrj$html_parser$Html$Parser$Text(string);
+		case 'Error':
+			var string = templateElement.a;
+			return A3(
+				$hecrj$html_parser$Html$Parser$Element,
+				'div',
+				_List_fromArray(
+					[
+						_Utils_Tuple2('class', 'template-error')
+					]),
+				_List_fromArray(
+					[
+						$hecrj$html_parser$Html$Parser$Text(string)
+					]));
 		case 'Node':
 			var nodeName = templateElement.a;
 			var domAttributes = templateElement.b;
@@ -16457,6 +16508,14 @@ var $author$project$Main$view = function (contents) {
 						$elm$html$Html$Attributes$href('https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css')
 					]),
 				_List_Nil),
+				A3(
+				$elm$html$Html$node,
+				'style',
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('.template-error { padding: 10px; background-color: #c00; color: #fff; }')
+					])),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(

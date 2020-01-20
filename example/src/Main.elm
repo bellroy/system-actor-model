@@ -43,6 +43,7 @@ view : List (Html Msg) -> Html Msg
 view contents =
     div []
         [ node "link" [ rel "stylesheet", href "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" ] []
+        , node "style" [] [ text ".template-error { padding: 10px; background-color: #c00; color: #fff; }" ]
         , div [ class "jumbotron" ]
             [ div [ class "container" ]
                 [ h1 [ class "display-4" ] [ text "System Actor Model" ]

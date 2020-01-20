@@ -33,6 +33,7 @@ type HtmlTemplate actorName address
 
 type TemplateElement actorName address
     = Text String
+    | Error String
     | Node String (List ( String, String )) (HtmlTemplate actorName address)
     | Component (HtmlComponent actorName address)
 
@@ -61,7 +62,7 @@ type alias SpawnableHtmlComponent actorName address =
 type alias HtmlComponentFactory actorName address =
     List ( String, Encode.Value )
     -> HtmlTemplate actorName address
-    -> HtmlComponent actorName address
+    -> Result String (HtmlComponent actorName address)
 
 
 type alias HtmlComponentId =
@@ -78,7 +79,7 @@ htmlComponentFactory :
     }
     -> List ( String, Encode.Value )
     -> HtmlTemplate actorName address
-    -> HtmlComponent actorName address
+    -> Result String (HtmlComponent actorName address)
 htmlComponentFactory configuration attributes children =
     let
         nodeName =
@@ -98,21 +99,45 @@ htmlComponentFactory configuration attributes children =
                 |> List.map MD5.hex
                 |> String.join ":"
 
+        suppliedAttributes =
+            configuration.defaultAttributes ++ attributes
+
+        suppliedAttributeKeys =
+            List.map Tuple.first suppliedAttributes
+
+        missingAttributeErrors =
+            List.filterMap
+                (\a ->
+                    if List.member a suppliedAttributeKeys then
+                        Nothing
+
+                    else
+                        Just <| "Error: Missing attribute \"" ++ a ++ "\" on node \"" ++ nodeName ++ "\"."
+                )
+                configuration.requiredAtributes
+
+        _ =
+            Debug.log "?" missingAttributeErrors
+
         htmlComponentAttributes =
             [ ( "data-x-name", Encode.string nodeName )
             , ( "data-x-id", Encode.string htmlComponentIdHash )
             ]
-                ++ configuration.defaultAttributes
-                ++ attributes
+                ++ suppliedAttributes
     in
-    HtmlComponent
-        { actorName = configuration.actorName
-        , address = configuration.address
-        , attributes = htmlComponentAttributes
-        , htmlTemplate = children
-        , id = htmlComponentIdHash
-        , nodeName = nodeName
-        }
+    if List.length missingAttributeErrors > 0 then
+        Err (String.join " " missingAttributeErrors)
+
+    else
+        Ok <|
+            HtmlComponent
+                { actorName = configuration.actorName
+                , address = configuration.address
+                , attributes = htmlComponentAttributes
+                , htmlTemplate = children
+                , id = htmlComponentIdHash
+                , nodeName = nodeName
+                }
 
 
 decode :
@@ -172,8 +197,7 @@ htmlParserNodeToTemplateElement htmlComponents parserNode =
                 Nothing
 
             else
-                Text a
-                    |> Just
+                Just <| Text a
 
         HtmlParser.Element nodeName domAttributes children ->
             let
@@ -182,15 +206,21 @@ htmlParserNodeToTemplateElement htmlComponents parserNode =
             in
             case Dict.get nodeName htmlComponents of
                 Just factory ->
-                    factory
-                        (List.map (\( k, v ) -> ( k, Encode.string v )) domAttributes)
-                        htmlTemplate
-                        |> Component
-                        |> Just
+                    let
+                        factoryResult =
+                            factory
+                                (List.map (\( k, v ) -> ( k, Encode.string v )) domAttributes)
+                                htmlTemplate
+                    in
+                    case factoryResult of
+                        Ok htmlComponent ->
+                            Just <| Component htmlComponent
+
+                        Err err ->
+                            Just <| Error err
 
                 Nothing ->
-                    Node nodeName domAttributes htmlTemplate
-                        |> Just
+                    Just <| Node nodeName domAttributes htmlTemplate
 
 
 encode :
@@ -233,6 +263,12 @@ toHtmlParserNode templateElement =
     case templateElement of
         Text string ->
             HtmlParser.Text string
+
+        Error string ->
+            HtmlParser.Element "div"
+                [ ( "class", "template-error" ) ]
+                [ HtmlParser.Text string
+                ]
 
         Node nodeName domAttributes (HtmlTemplate listOfTemplateElements) ->
             List.map toHtmlParserNode listOfTemplateElements
@@ -297,6 +333,11 @@ templateElementToHtml renderPid instances interpolate templateElement =
             fprint string
                 |> Html.text
 
+        Error string ->
+            Html.div [ HtmlA.class "template-error" ]
+                [ Html.text string
+                ]
+
         Node nodeName domAttributes htmlTemplate ->
             render
                 { renderPid = renderPid
@@ -309,7 +350,11 @@ templateElementToHtml renderPid instances interpolate templateElement =
         Component (HtmlComponent htmlComponent) ->
             Dict.get htmlComponent.id instances
                 |> Maybe.map renderPid
-                |> Maybe.withDefault (Html.text <| "Unable to find component with the id " ++ htmlComponent.id ++ ". Are you sure you have spawned this component prior to rendering this template?")
+                |> Maybe.withDefault
+                    (Html.div [ HtmlA.class "template-error" ]
+                        [ Html.text <| "Unable to find component with the id \"" ++ htmlComponent.id ++ "\" on the supplied instances Dict."
+                        ]
+                    )
 
 
 htmlTemplateToSpawnableHtmlComponentsDict :

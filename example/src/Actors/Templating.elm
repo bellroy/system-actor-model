@@ -34,7 +34,7 @@ htmlComponents =
             , name = "counter"
             , actorName = ActorName.Counter
             , address = Nothing
-            , defaultAttributes = [ ( "value", Encode.int 0 ) ]
+            , defaultAttributes = []
             , requiredAtributes = [ "value" ]
             }
         ]
