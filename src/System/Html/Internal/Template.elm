@@ -116,9 +116,6 @@ htmlComponentFactory configuration attributes children =
                 )
                 configuration.requiredAtributes
 
-        _ =
-            Debug.log "?" missingAttributeErrors
-
         htmlComponentAttributes =
             [ ( "data-x-name", Encode.string nodeName )
             , ( "data-x-id", Encode.string htmlComponentIdHash )
