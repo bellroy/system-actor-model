@@ -3,7 +3,7 @@
     "name": "tricycle/system-actor-model",
     "summary": "Implements an Actor Model Framework",
     "license": "BSD-3-Clause",
-    "version": "4.2.1",
+    "version": "4.2.2",
     "exposed-modules": [
         "System.Actor",
         "System.Browser",
