@@ -11713,98 +11713,6 @@ var $truqu$elm_md5$MD5$hex = function (s) {
 		'',
 		$truqu$elm_md5$MD5$bytes(s));
 };
-var $elm$core$Debug$log = _Debug_log;
-var $elm$json$Json$Encode$object = function (pairs) {
-	return _Json_wrap(
-		A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v0, obj) {
-					var k = _v0.a;
-					var v = _v0.b;
-					return A3(_Json_addField, k, v, obj);
-				}),
-			_Json_emptyObject(_Utils_Tuple0),
-			pairs));
-};
-var $author$project$System$Html$Internal$Template$htmlComponentFactory = F3(
-	function (configuration, attributes, children) {
-		var suppliedAttributes = _Utils_ap(configuration.defaultAttributes, attributes);
-		var suppliedAttributeKeys = A2($elm$core$List$map, $elm$core$Tuple$first, suppliedAttributes);
-		var nodeName = configuration.prefix + ('-' + configuration.name);
-		var missingAttributeErrors = A2(
-			$elm$core$List$filterMap,
-			function (a) {
-				return A2($elm$core$List$member, a, suppliedAttributeKeys) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just('Error: Missing attribute \"' + (a + ('\" on node \"' + (nodeName + '\".'))));
-			},
-			configuration.requiredAtributes);
-		var attributesAsObject = $elm$json$Json$Encode$object(
-			$elm$core$List$concat(
-				_List_fromArray(
-					[configuration.defaultAttributes, attributes])));
-		var htmlComponentIdHash = A2(
-			$elm$core$String$join,
-			':',
-			A2(
-				$elm$core$List$map,
-				$truqu$elm_md5$MD5$hex,
-				_List_fromArray(
-					[
-						nodeName,
-						A2($elm$json$Json$Encode$encode, 0, attributesAsObject)
-					])));
-		var htmlComponentAttributes = _Utils_ap(
-			_List_fromArray(
-				[
-					_Utils_Tuple2(
-					'data-x-name',
-					$elm$json$Json$Encode$string(nodeName)),
-					_Utils_Tuple2(
-					'data-x-id',
-					$elm$json$Json$Encode$string(htmlComponentIdHash))
-				]),
-			suppliedAttributes);
-		var _v0 = A2($elm$core$Debug$log, '?', missingAttributeErrors);
-		return ($elm$core$List$length(missingAttributeErrors) > 0) ? $elm$core$Result$Err(
-			A2($elm$core$String$join, ' ', missingAttributeErrors)) : $elm$core$Result$Ok(
-			$author$project$System$Html$Internal$Template$HtmlComponent(
-				{actorName: configuration.actorName, address: configuration.address, attributes: htmlComponentAttributes, htmlTemplate: children, id: htmlComponentIdHash, nodeName: nodeName}));
-	});
-var $author$project$System$Html$Template$htmlComponentFactory = function (configuration) {
-	return _Utils_Tuple2(
-		configuration.prefix + ('-' + configuration.name),
-		$author$project$System$Html$Internal$Template$htmlComponentFactory(configuration));
-};
-var $author$project$Actors$Templating$htmlComponents = $elm$core$Dict$fromList(
-	_List_fromArray(
-		[
-			$author$project$System$Html$Template$htmlComponentFactory(
-			{
-				actorName: $author$project$ActorName$Counter,
-				address: $elm$core$Maybe$Nothing,
-				defaultAttributes: _List_Nil,
-				name: 'counter',
-				prefix: 'app',
-				requiredAtributes: _List_fromArray(
-					['value'])
-			})
-		]));
-var $author$project$Actors$Templating$mapIn = function (appMsg) {
-	if (appMsg.$ === 'Templating') {
-		var msgIn = appMsg.a;
-		return $elm$core$Maybe$Just(msgIn);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Components$Templating$OnSpawnedComponent = F2(
-	function (a, b) {
-		return {$: 'OnSpawnedComponent', a: a, b: b};
-	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
@@ -11912,11 +11820,102 @@ var $author$project$System$Html$Internal$Template$templateElementsToString = A2(
 	$elm$core$Basics$composeR,
 	$elm$core$List$map($author$project$System$Html$Internal$Template$templateElementToString),
 	$elm$core$String$join('\n'));
-var $author$project$System$Html$Internal$Template$encode = function (_v0) {
+var $author$project$System$Html$Internal$Template$htmlTemplateToString = function (_v0) {
 	var templateElements = _v0.a;
-	return $elm$json$Json$Encode$string(
-		$author$project$System$Html$Internal$Template$templateElementsToString(templateElements));
+	return $author$project$System$Html$Internal$Template$templateElementsToString(templateElements);
 };
+var $elm$json$Json$Encode$object = function (pairs) {
+	return _Json_wrap(
+		A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v0, obj) {
+					var k = _v0.a;
+					var v = _v0.b;
+					return A3(_Json_addField, k, v, obj);
+				}),
+			_Json_emptyObject(_Utils_Tuple0),
+			pairs));
+};
+var $author$project$System$Html$Internal$Template$htmlComponentFactory = F3(
+	function (configuration, attributes, children) {
+		var suppliedAttributes = _Utils_ap(configuration.defaultAttributes, attributes);
+		var suppliedAttributeKeys = A2($elm$core$List$map, $elm$core$Tuple$first, suppliedAttributes);
+		var nodeName = configuration.prefix + ('-' + configuration.name);
+		var missingAttributeErrors = A2(
+			$elm$core$List$filterMap,
+			function (a) {
+				return A2($elm$core$List$member, a, suppliedAttributeKeys) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just('Error: Missing attribute \"' + (a + ('\" on node \"' + (nodeName + '\".'))));
+			},
+			configuration.requiredAtributes);
+		var attributesAsObject = $elm$json$Json$Encode$object(
+			$elm$core$List$concat(
+				_List_fromArray(
+					[configuration.defaultAttributes, attributes])));
+		var htmlComponentIdHash = A2(
+			$elm$core$String$join,
+			':',
+			A2(
+				$elm$core$List$map,
+				$truqu$elm_md5$MD5$hex,
+				_List_fromArray(
+					[
+						nodeName,
+						A2($elm$json$Json$Encode$encode, 0, attributesAsObject),
+						$author$project$System$Html$Internal$Template$htmlTemplateToString(children)
+					])));
+		var htmlComponentAttributes = _Utils_ap(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(
+					'data-x-name',
+					$elm$json$Json$Encode$string(nodeName)),
+					_Utils_Tuple2(
+					'data-x-id',
+					$elm$json$Json$Encode$string(htmlComponentIdHash))
+				]),
+			suppliedAttributes);
+		return ($elm$core$List$length(missingAttributeErrors) > 0) ? $elm$core$Result$Err(
+			A2($elm$core$String$join, ' ', missingAttributeErrors)) : $elm$core$Result$Ok(
+			$author$project$System$Html$Internal$Template$HtmlComponent(
+				{actorName: configuration.actorName, address: configuration.address, attributes: htmlComponentAttributes, htmlTemplate: children, id: htmlComponentIdHash, nodeName: nodeName}));
+	});
+var $author$project$System$Html$Template$htmlComponentFactory = function (configuration) {
+	return _Utils_Tuple2(
+		configuration.prefix + ('-' + configuration.name),
+		$author$project$System$Html$Internal$Template$htmlComponentFactory(configuration));
+};
+var $author$project$Actors$Templating$htmlComponents = $elm$core$Dict$fromList(
+	_List_fromArray(
+		[
+			$author$project$System$Html$Template$htmlComponentFactory(
+			{
+				actorName: $author$project$ActorName$Counter,
+				address: $elm$core$Maybe$Nothing,
+				defaultAttributes: _List_Nil,
+				name: 'counter',
+				prefix: 'app',
+				requiredAtributes: _List_fromArray(
+					['value'])
+			})
+		]));
+var $author$project$Actors$Templating$mapIn = function (appMsg) {
+	if (appMsg.$ === 'Templating') {
+		var msgIn = appMsg.a;
+		return $elm$core$Maybe$Just(msgIn);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Components$Templating$OnSpawnedComponent = F2(
+	function (a, b) {
+		return {$: 'OnSpawnedComponent', a: a, b: b};
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $author$project$System$Html$Internal$Template$encode = A2($elm$core$Basics$composeR, $author$project$System$Html$Internal$Template$htmlTemplateToString, $elm$json$Json$Encode$string);
 var $author$project$System$Html$Internal$Template$encodeSpawnableHtmlComponent = function (_v0) {
 	var attributes = _v0.attributes;
 	var htmlTemplate = _v0.htmlTemplate;

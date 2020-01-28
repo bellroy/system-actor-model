@@ -95,6 +95,7 @@ htmlComponentFactory configuration attributes children =
         htmlComponentIdHash =
             [ nodeName
             , Encode.encode 0 attributesAsObject
+            , htmlTemplateToString children
             ]
                 |> List.map MD5.hex
                 |> String.join ":"
@@ -220,12 +221,19 @@ htmlParserNodeToTemplateElement htmlComponents parserNode =
                     Just <| Node nodeName domAttributes htmlTemplate
 
 
+htmlTemplateToString :
+    HtmlTemplate actorName address
+    -> String
+htmlTemplateToString (HtmlTemplate templateElements) =
+    templateElementsToString templateElements
+
+
 encode :
     HtmlTemplate actorName address
     -> Encode.Value
-encode (HtmlTemplate templateElements) =
-    templateElementsToString templateElements
-        |> Encode.string
+encode =
+    htmlTemplateToString
+        >> Encode.string
 
 
 encodeSpawnableHtmlComponent :
