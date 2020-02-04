@@ -350,7 +350,7 @@ templateElementToHtml renderPid instances interpolate templateElement =
                 , interpolate = interpolate
                 , htmlTemplate = htmlTemplate
                 }
-                |> Html.node nodeName (List.map (\( k, v ) -> HtmlA.attribute k v) domAttributes)
+                |> Html.node nodeName (List.map (\( k, v ) -> HtmlA.attribute k (fprint v)) domAttributes)
 
         Component (HtmlComponent htmlComponent) ->
             Dict.get htmlComponent.id instances
