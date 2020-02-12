@@ -163,10 +163,10 @@ getNewPID maybeSpawendBy (Model ({ lastPID, children } as modelRecord)) =
 updateInstance :
     PID
     -> actorName
+    -> Model address actorName actorModel
     -> actorModel
     -> Model address actorName actorModel
-    -> Model address actorName actorModel
-updateInstance pid actorName actorModel (Model modelRecord) =
+updateInstance pid actorName (Model modelRecord) actorModel =
     Model
         { modelRecord
             | instances =

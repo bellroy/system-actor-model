@@ -23,12 +23,12 @@ view :
 view { apply } model =
     List.filterMap
         (renderPID
-            (\processModel pid ->
+            (\processModel ->
                 let
                     (SystemActor systemActor) =
                         apply processModel
                 in
-                systemActor.view pid
+                systemActor.view
             )
             model
         )

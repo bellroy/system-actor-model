@@ -18,8 +18,4 @@ _A [Program](https://package.elm-lang.org/packages/elm/core/latest/Platform#Prog
 
 -}
 type alias Program flags address actorName actorModel appMsg =
-    Platform.Program
-        --
-        flags
-        (Model address actorName actorModel)
-        (Message address actorName appMsg)
+    Platform.Program flags (Model address actorName actorModel) (Message address actorName appMsg)

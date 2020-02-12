@@ -327,8 +327,8 @@ templateElementToHtml renderPid instances interpolate templateElement =
     let
         fprint string =
             List.foldl
-                (\( k, v ) result ->
-                    String.replace k v result
+                (\( k, v ) ->
+                    String.replace k v
                 )
                 string
                 (Dict.toList interpolate)
@@ -350,7 +350,13 @@ templateElementToHtml renderPid instances interpolate templateElement =
                 , interpolate = interpolate
                 , htmlTemplate = htmlTemplate
                 }
-                |> Html.node nodeName (List.map (\( k, v ) -> HtmlA.attribute k (fprint v)) domAttributes)
+                |> Html.node nodeName
+                    (List.map
+                        (\( k, v ) ->
+                            HtmlA.attribute k <| fprint v
+                        )
+                        domAttributes
+                    )
 
         Component (HtmlComponent htmlComponent) ->
             Dict.get htmlComponent.id instances

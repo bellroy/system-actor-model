@@ -67,7 +67,7 @@ toString msg =
 
         Control control ->
             controlToString control
-                |> Maybe.map (\a -> "Control " ++ a)
+                |> Maybe.map ((++) "Control ")
 
         Context _ _ ->
             Nothing

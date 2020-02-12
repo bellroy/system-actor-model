@@ -18,7 +18,7 @@ import System.Internal.Model
         , updateDocumentTitle
         , updateInstance
         )
-import System.Internal.PID exposing (PID, toInt)
+import System.Internal.PID exposing (PID)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
 
@@ -46,9 +46,7 @@ update impl maybePid msg model =
 
         Control (Batch listOfMsgs) ->
             List.foldl
-                (\batchMsg previous ->
-                    cmdAndThen (update impl maybePid batchMsg) previous
-                )
+                (cmdAndThen << update impl maybePid)
                 ( model, Cmd.none )
                 listOfMsgs
 
@@ -79,7 +77,7 @@ update impl maybePid msg model =
                                 ( appModel, NoOp )
                                 appMsgs
                                 |> Tuple.mapFirst
-                                    (\actorModel -> updateInstance pid actorName actorModel model)
+                                    (updateInstance pid actorName model)
                     in
                     update impl maybePid newMsg updatedModel
 
@@ -150,9 +148,7 @@ update impl maybePid msg model =
                 ( m3, newMsg ) =
                     impl.factory actorName ( newPID, Encode.null )
                         |> Tuple.mapFirst
-                            (\actorModel ->
-                                updateInstance newPID actorName actorModel updateModel
-                            )
+                            (updateInstance newPID actorName updateModel)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
@@ -165,9 +161,7 @@ update impl maybePid msg model =
                 ( m3, newMsg ) =
                     impl.factory actorName ( newPID, flags )
                         |> Tuple.mapFirst
-                            (\actorModel ->
-                                updateInstance newPID actorName actorModel updateModel
-                            )
+                            (updateInstance newPID actorName updateModel)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
@@ -254,9 +248,7 @@ handleKill impl maybePid pid model =
                     getChildren pid model
                         |> Maybe.withDefault []
                         |> List.foldl
-                            (\childPID previous ->
-                                cmdAndThen (handleKill impl maybePid childPID) previous
-                            )
+                            (handleKill impl maybePid >> cmdAndThen)
                             ( model, Cmd.none )
                         |> Tuple.mapFirst (removePID pid)
 

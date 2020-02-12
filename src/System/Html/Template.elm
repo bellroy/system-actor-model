@@ -71,7 +71,7 @@ Quick Example
     init _ =
         case HtmlTemplate.parse htmlComponents template of
             Err _ ->
-                Debug.todo "Handle error"
+               --  Handle error
 
             Ok htmlTemplate ->
                 ( Model Dict.empty htmlTemplate

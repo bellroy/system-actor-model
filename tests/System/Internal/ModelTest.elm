@@ -2,7 +2,6 @@ module System.Internal.ModelTest exposing (suite)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
-import System.Debug exposing (pidToInt)
 import System.Internal.Model as Model
 import System.Internal.PID as PID
 import Test exposing (..)
@@ -17,7 +16,7 @@ suite =
                     Expect.equal
                         (Model.getNewPID Nothing Model.init
                             |> Tuple.first
-                            |> pidToInt
+                            |> PID.toInt
                         )
                         2
                 )
@@ -28,7 +27,7 @@ suite =
                             |> Tuple.second
                             |> Model.getNewPID Nothing
                             |> Tuple.first
-                            |> pidToInt
+                            |> PID.toInt
                         )
                         3
                 )
@@ -41,7 +40,7 @@ suite =
                             Model.getNewPID Nothing Model.init
                     in
                     Expect.equal
-                        (Model.updateInstance newPid "actorName" "actorModel" modelWithNewPid
+                        (Model.updateInstance newPid "actorName" modelWithNewPid "actorModel"
                             |> Model.getInstance newPid
                         )
                         (Just ( "actorName", "actorModel" ))
@@ -50,9 +49,9 @@ suite =
                 (\_ ->
                     Expect.equal
                         (Model.getNewPID Nothing Model.init
-                            |> (\( newPid, model ) -> Model.updateInstance newPid "actorName" "actorModel" model)
+                            |> (\( newPid, model ) -> Model.updateInstance newPid "actorName" model "actorModel")
                             |> Model.getInstances
-                            |> List.map pidToInt
+                            |> List.map PID.toInt
                         )
                         [ 2 ]
                 )
@@ -65,17 +64,17 @@ suite =
                             Model.getNewPID Nothing Model.init
 
                         modelWithInstanceA =
-                            Model.updateInstance pidA "actorNameA" "actorModelA" modelWithPidA
+                            Model.updateInstance pidA "actorNameA" modelWithPidA "actorModelA"
 
                         ( pidB, modelWithPidAandB ) =
                             Model.getNewPID (Just pidA) modelWithInstanceA
 
                         modelWithInstanceAandB =
-                            Model.updateInstance pidB "actorNameB" "actorModelB" modelWithPidAandB
+                            Model.updateInstance pidB "actorNameB" modelWithPidAandB "actorModelB"
                     in
                     Expect.equal
                         (Model.getChildren pidA modelWithInstanceAandB
-                            |> Maybe.map (List.map pidToInt)
+                            |> Maybe.map (List.map PID.toInt)
                         )
                         (Just [ 3 ])
                 )
@@ -92,7 +91,7 @@ suite =
                     in
                     Expect.equal
                         (Model.getViews modelWithPidAasAView
-                            |> List.map pidToInt
+                            |> List.map PID.toInt
                         )
                         [ 2 ]
                 )
@@ -112,7 +111,7 @@ suite =
                     in
                     Expect.equal
                         (Model.getAddress address modelWithPidAPopulatedAddress
-                            |> Tuple.mapSecond (List.map pidToInt)
+                            |> Tuple.mapSecond (List.map PID.toInt)
                         )
                         ( address, [ 2 ] )
                 )
@@ -136,9 +135,9 @@ suite =
                     in
                     Expect.equal
                         (Model.getAddress address modelWithPidAandBPopulatedAddress
-                            |> Tuple.mapSecond (List.map pidToInt)
+                            |> Tuple.mapSecond (List.map PID.toInt)
                         )
-                        ( address, [ 3, 2 ] )
+                        ( address, [ 2, 3 ] )
                 )
             ]
         , describe "Model - DocumentTitle"
@@ -159,7 +158,7 @@ suite =
                             Model.getNewPID Nothing Model.init
 
                         modelWithPidBeingInUseEverywhere =
-                            Model.updateInstance pidA "actorName" "actorModel" modelWithPidA
+                            Model.updateInstance pidA "actorName" modelWithPidA "actorModel"
                                 |> Model.addAddress "address" pidA
                                 |> Model.addView pidA
 
