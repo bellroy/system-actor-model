@@ -1,17 +1,16 @@
 module System.Internal.ModelTest exposing (suite)
 
-import Expect exposing (Expectation)
-import Fuzz exposing (Fuzzer, int, list, string)
+import Expect
 import System.Internal.Model as Model
 import System.Internal.PID as PID
-import Test exposing (..)
+import Test exposing (Test)
 
 
 suite : Test
 suite =
-    describe "Model"
-        [ describe "Model - PID creation"
-            [ test "Get a new PID from a new Model."
+    Test.describe "Model"
+        [ Test.describe "Model - PID creation"
+            [ Test.test "Get a new PID from a new Model."
                 (\_ ->
                     Expect.equal
                         (Model.getNewPID Nothing Model.init
@@ -20,7 +19,7 @@ suite =
                         )
                         2
                 )
-            , test "Get a new PID from a Model that already had a PID created before/"
+            , Test.test "Get a new PID from a Model that already had a PID created before/"
                 (\_ ->
                     Expect.equal
                         (Model.getNewPID Nothing Model.init
@@ -32,8 +31,8 @@ suite =
                         3
                 )
             ]
-        , describe "Model - Instances"
-            [ test "Add a new Instance and look it up"
+        , Test.describe "Model - Instances"
+            [ Test.test "Add a new Instance and look it up"
                 (\_ ->
                     let
                         ( newPid, modelWithNewPid ) =
@@ -45,7 +44,7 @@ suite =
                         )
                         (Just ( "actorName", "actorModel" ))
                 )
-            , test "Add a new Instance and retrieve all Instances"
+            , Test.test "Add a new Instance and retrieve all Instances"
                 (\_ ->
                     Expect.equal
                         (Model.getNewPID Nothing Model.init
@@ -56,8 +55,8 @@ suite =
                         [ 2 ]
                 )
             ]
-        , describe "Model - Children"
-            [ test "Add a new Instance that was spawned by a previously spawned Instance"
+        , Test.describe "Model - Children"
+            [ Test.test "Add a new Instance that was spawned by a previously spawned Instance"
                 (\_ ->
                     let
                         ( pidA, modelWithPidA ) =
@@ -79,8 +78,8 @@ suite =
                         (Just [ 3 ])
                 )
             ]
-        , describe "Model - Views"
-            [ test "Add a PID to the system views"
+        , Test.describe "Model - Views"
+            [ Test.test "Add a PID to the system views"
                 (\_ ->
                     let
                         ( pidA, modelWithPidA ) =
@@ -96,8 +95,8 @@ suite =
                         [ 2 ]
                 )
             ]
-        , describe "Model - Address"
-            [ test "Add a PID to an Address"
+        , Test.describe "Model - Address"
+            [ Test.test "Add a PID to an Address"
                 (\_ ->
                     let
                         address =
@@ -115,7 +114,7 @@ suite =
                         )
                         ( address, [ 2 ] )
                 )
-            , test "Add multiple PIDs to an Address"
+            , Test.test "Add multiple PIDs to an Address"
                 (\_ ->
                     let
                         address =
@@ -140,8 +139,8 @@ suite =
                         ( address, [ 2, 3 ] )
                 )
             ]
-        , describe "Model - DocumentTitle"
-            [ test "Change the documentTitle"
+        , Test.describe "Model - DocumentTitle"
+            [ Test.test "Change the documentTitle"
                 (\_ ->
                     Expect.equal
                         (Model.updateDocumentTitle "new title" Model.init
@@ -150,8 +149,8 @@ suite =
                         "new title"
                 )
             ]
-        , describe "Model - PID Removal"
-            [ test "Add a PID to everything and then remove it!"
+        , Test.describe "Model - PID Removal"
+            [ Test.test "Add a PID to everything and then remove it!"
                 (\_ ->
                     let
                         ( pidA, modelWithPidA ) =

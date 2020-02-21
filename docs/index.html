@@ -6479,10 +6479,12 @@ var $author$project$System$Internal$Message$SpawnWithFlags = F3(
 	function (a, b, c) {
 		return {$: 'SpawnWithFlags', a: a, b: b, c: c};
 	});
-var $author$project$System$Message$spawnWithFlags = F3(
-	function (flags, actorName, callback) {
-		return $author$project$System$Internal$Message$Control(
-			A3($author$project$System$Internal$Message$SpawnWithFlags, flags, actorName, callback));
+var $author$project$System$Message$spawnWithFlags = F2(
+	function (flags, actorName) {
+		return A2(
+			$elm$core$Basics$composeL,
+			$author$project$System$Internal$Message$Control,
+			A2($author$project$System$Internal$Message$SpawnWithFlags, flags, actorName));
 	});
 var $author$project$Actors$Counters$mapOut = F2(
 	function (pid, msgOut) {
@@ -11028,12 +11030,11 @@ var $author$project$System$Html$Internal$Template$templateElementToHtml = F4(
 		var fprint = function (string) {
 			return A3(
 				$elm$core$List$foldl,
-				F2(
-					function (_v2, result) {
-						var k = _v2.a;
-						var v = _v2.b;
-						return A3($elm$core$String$replace, k, v, result);
-					}),
+				function (_v2) {
+					var k = _v2.a;
+					var v = _v2.b;
+					return A2($elm$core$String$replace, k, v);
+				},
 				string,
 				$elm$core$Dict$toList(interpolate));
 		};
@@ -11066,7 +11067,10 @@ var $author$project$System$Html$Internal$Template$templateElementToHtml = F4(
 						function (_v1) {
 							var k = _v1.a;
 							var v = _v1.b;
-							return A2($elm$html$Html$Attributes$attribute, k, v);
+							return A2(
+								$elm$html$Html$Attributes$attribute,
+								k,
+								fprint(v));
 						},
 						domAttributes),
 					$author$project$System$Html$Internal$Template$render(
@@ -16897,7 +16901,7 @@ var $author$project$System$Internal$Model$updateDocumentTitle = F2(
 				{documentTitle: documentTitle}));
 	});
 var $author$project$System$Internal$Model$updateInstance = F4(
-	function (pid, actorName, actorModel, _v0) {
+	function (pid, actorName, _v0, actorModel) {
 		var modelRecord = _v0.a;
 		return $author$project$System$Internal$Model$Model(
 			_Utils_update(
@@ -16931,13 +16935,10 @@ var $author$project$System$Internal$Update$handleKill = F4(
 						$author$project$System$Internal$Model$removePID(pid),
 						A3(
 							$elm$core$List$foldl,
-							F2(
-								function (childPID, previous) {
-									return A2(
-										$author$project$System$Internal$Update$cmdAndThen,
-										A3($author$project$System$Internal$Update$handleKill, impl, maybePid, childPID),
-										previous);
-								}),
+							A2(
+								$elm$core$Basics$composeR,
+								A2($author$project$System$Internal$Update$handleKill, impl, maybePid),
+								$author$project$System$Internal$Update$cmdAndThen),
 							_Utils_Tuple2(model, $elm$core$Platform$Cmd$none),
 							A2(
 								$elm$core$Maybe$withDefault,
@@ -16970,13 +16971,10 @@ var $author$project$System$Internal$Update$update = F4(
 								var listOfMsgs = msg.a.a;
 								return A3(
 									$elm$core$List$foldl,
-									F2(
-										function (batchMsg, previous) {
-											return A2(
-												$author$project$System$Internal$Update$cmdAndThen,
-												A3($author$project$System$Internal$Update$update, impl, maybePid, batchMsg),
-												previous);
-										}),
+									A2(
+										$elm$core$Basics$composeL,
+										$author$project$System$Internal$Update$cmdAndThen,
+										A2($author$project$System$Internal$Update$update, impl, maybePid)),
 									_Utils_Tuple2(model, $elm$core$Platform$Cmd$none),
 									listOfMsgs);
 							}
@@ -16995,9 +16993,7 @@ var $author$project$System$Internal$Update$update = F4(
 								var appMsgs = $author$project$System$Internal$Update$collectappMsgs(sendToPidMsg);
 								var _v4 = A2(
 									$elm$core$Tuple$mapFirst,
-									function (actorModel) {
-										return A4($author$project$System$Internal$Model$updateInstance, pid, actorName, actorModel, model);
-									},
+									A3($author$project$System$Internal$Model$updateInstance, pid, actorName, model),
 									A3(
 										$elm$core$List$foldl,
 										F2(
@@ -17114,9 +17110,7 @@ var $author$project$System$Internal$Update$update = F4(
 							var updateModel = _v15.b;
 							var _v16 = A2(
 								$elm$core$Tuple$mapFirst,
-								function (actorModel) {
-									return A4($author$project$System$Internal$Model$updateInstance, newPID, actorName, actorModel, updateModel);
-								},
+								A3($author$project$System$Internal$Model$updateInstance, newPID, actorName, updateModel),
 								A2(
 									impl.factory,
 									actorName,
@@ -17141,9 +17135,7 @@ var $author$project$System$Internal$Update$update = F4(
 							var updateModel = _v18.b;
 							var _v19 = A2(
 								$elm$core$Tuple$mapFirst,
-								function (actorModel) {
-									return A4($author$project$System$Internal$Model$updateInstance, newPID, actorName, actorModel, updateModel);
-								},
+								A3($author$project$System$Internal$Model$updateInstance, newPID, actorName, updateModel),
 								A2(
 									impl.factory,
 									actorName,
@@ -17248,12 +17240,11 @@ var $author$project$System$Internal$Render$view = F2(
 			$elm$core$List$filterMap,
 			A2(
 				$author$project$System$Internal$Render$renderPID,
-				F2(
-					function (processModel, pid) {
-						var _v1 = apply(processModel);
-						var systemActor = _v1.a;
-						return systemActor.view(pid);
-					}),
+				function (processModel) {
+					var _v1 = apply(processModel);
+					var systemActor = _v1.a;
+					return systemActor.view;
+				},
 				model),
 			$elm$core$List$reverse(
 				$author$project$System$Internal$Model$getViews(model)));
@@ -17308,11 +17299,12 @@ var $author$project$System$Internal$Message$Spawn = F2(
 	function (a, b) {
 		return {$: 'Spawn', a: a, b: b};
 	});
-var $author$project$System$Message$spawn = F2(
-	function (actorName, callback) {
-		return $author$project$System$Internal$Message$Control(
-			A2($author$project$System$Internal$Message$Spawn, actorName, callback));
-	});
+var $author$project$System$Message$spawn = function (actorName) {
+	return A2(
+		$elm$core$Basics$composeL,
+		$author$project$System$Internal$Message$Control,
+		$author$project$System$Internal$Message$Spawn(actorName));
+};
 var $author$project$Main$init = function (_v0) {
 	return _List_fromArray(
 		[

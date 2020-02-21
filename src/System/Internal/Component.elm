@@ -20,7 +20,10 @@ type alias Args a address actorName model actorModel msgIn msgOut appMsg =
 
 wrapInit :
     Args a address actorName model actorModel msgIn msgOut appMsg
-    -> (( PID, Decode.Value ) -> ( model, List msgOut, Cmd msgIn ))
+    ->
+        (( PID, Decode.Value )
+         -> ( model, List msgOut, Cmd msgIn )
+        )
     -> ( PID, Decode.Value )
     -> ( actorModel, Message address actorName appMsg )
 wrapInit args init ( pid, flags ) =
@@ -30,8 +33,15 @@ wrapInit args init ( pid, flags ) =
 
 wrapUpdate :
     Args a address actorName model actorModel msgIn msgOut appMsg
-    -> (msgIn -> model -> ( model, List msgOut, Cmd msgIn ))
-    -> (model -> Message address actorName appMsg -> PID -> ( actorModel, Message address actorName appMsg ))
+    ->
+        (msgIn
+         -> model
+         -> ( model, List msgOut, Cmd msgIn )
+        )
+    -> model
+    -> Message address actorName appMsg
+    -> PID
+    -> ( actorModel, Message address actorName appMsg )
 wrapUpdate args update model msg pid =
     case msg of
         ActorMsg appMsg ->

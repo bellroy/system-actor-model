@@ -1,4 +1,4 @@
-module Components.Counter exposing (Model, MsgIn, MsgOut(..), component)
+module Components.Counter exposing (Model(..), MsgIn(..), MsgOut(..), component)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
