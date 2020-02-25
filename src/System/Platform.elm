@@ -6,8 +6,8 @@ module System.Platform exposing (Program)
 
 -}
 
-import System.Internal.Message exposing (Message)
-import System.Internal.Model exposing (Model)
+import System.Internal.Message exposing (SystemMessage)
+import System.Internal.Model exposing (SystemModel)
 
 
 {-| This will be the type of your program when you create it using this package.
@@ -17,5 +17,5 @@ Checkout out the `element` and `application` functions in the System.Browser mod
 _A [Program](https://package.elm-lang.org/packages/elm/core/latest/Platform#Program) describes an Elm program! How does it react to input? Does it show anything on screen? Etc._
 
 -}
-type alias Program flags address actorName actorModel appMsg =
-    Platform.Program flags (Model address actorName actorModel) (Message address actorName appMsg)
+type alias Program flags applicationAddress applicationActorName applicationModel applicationMsg =
+    Platform.Program flags (SystemModel applicationAddress applicationActorName applicationModel) (SystemMessage applicationAddress applicationActorName applicationMsg)

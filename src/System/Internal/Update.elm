@@ -1,11 +1,11 @@
 module System.Internal.Update exposing (update)
 
-import Json.Encode as Encode
+import Json.Encode as Encode exposing (Value)
 import System.Internal.Event exposing (Event(..), EventHandler(..))
-import System.Internal.Message exposing (Control(..), LogMessage(..), Message(..), Severity(..))
+import System.Internal.Message exposing (Control(..), LogMessage(..), Severity(..), SystemMessage(..))
 import System.Internal.Model
     exposing
-        ( Model
+        ( SystemModel
         , addAddress
         , addView
         , getAddress
@@ -25,59 +25,59 @@ import System.Internal.SystemActor exposing (SystemActor(..))
 update :
     { a
         | apply :
-            appModel
-            -> SystemActor appModel output (Message address actorName appMsg)
+            applicationModel
+            -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
         , factory :
-            actorName
-            -> ( PID, Encode.Value )
-            -> ( appModel, Message address actorName appMsg )
+            applicationActorName
+            -> ( PID, Value )
+            -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
         , onLogMessage :
-            LogMessage address actorName appMsg
-            -> Message address actorName appMsg
+            LogMessage applicationAddress applicationActorName applicationMessage
+            -> SystemMessage applicationAddress applicationActorName applicationMessage
     }
     -> Maybe PID
-    -> Message address actorName appMsg
-    -> Model address actorName appModel
-    -> ( Model address actorName appModel, Cmd (Message address actorName appMsg) )
-update impl maybePid msg model =
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+update impl maybePid msg systemModel =
     case msg of
         Control (Batch []) ->
-            ( model, Cmd.none )
+            ( systemModel, Cmd.none )
 
         Control (Batch listOfMsgs) ->
             List.foldl
                 (cmdAndThen << update impl maybePid)
-                ( model, Cmd.none )
+                ( systemModel, Cmd.none )
                 listOfMsgs
 
         Control (Command cmd) ->
-            ( model, cmd )
+            ( systemModel, cmd )
 
         Control (SendToPID pid sendToPidMsg) ->
-            case getInstance pid model of
-                Just ( actorName, appModel ) ->
+            case getInstance pid systemModel of
+                Just ( applicationActorName, applicationModel ) ->
                     let
-                        appMsgs =
-                            collectappMsgs sendToPidMsg
+                        applicationMessages =
+                            collectapplicationMessages sendToPidMsg
 
                         ( updatedModel, newMsg ) =
                             List.foldl
-                                (\appMsg ( model_, msg_ ) ->
+                                (\applicationMessage ( systemModel_, msg_ ) ->
                                     let
                                         (SystemActor appliedActor) =
-                                            impl.apply model_
+                                            impl.apply systemModel_
 
-                                        ( actorModelUpdated, appMsg_ ) =
-                                            appliedActor.update appMsg pid
+                                        ( actorModelUpdated, applicationMessage_ ) =
+                                            appliedActor.update applicationMessage pid
                                     in
                                     ( actorModelUpdated
-                                    , composeSysMsg msg_ appMsg_
+                                    , composeSysMsg msg_ applicationMessage_
                                     )
                                 )
-                                ( appModel, NoOp )
-                                appMsgs
+                                ( applicationModel, NoOp )
+                                applicationMessages
                                 |> Tuple.mapFirst
-                                    (updateInstance pid actorName model)
+                                    (updateInstance pid applicationActorName systemModel)
                     in
                     update impl maybePid newMsg updatedModel
 
@@ -85,7 +85,7 @@ update impl maybePid msg model =
                     maybePid
                         |> Maybe.map
                             (\senderPID ->
-                                case getInstance senderPID model of
+                                case getInstance senderPID systemModel of
                                     Just ( _, actorModel ) ->
                                         let
                                             (SystemActor appliedActor) =
@@ -93,41 +93,41 @@ update impl maybePid msg model =
                                         in
                                         case appliedActor.events (OnPIDNotFound pid) senderPID of
                                             Default ->
-                                                ( model, Cmd.none )
+                                                ( systemModel, Cmd.none )
 
                                             Ignore ->
-                                                ( model, Cmd.none )
+                                                ( systemModel, Cmd.none )
 
                                             BeforeDefault senderMsg ->
-                                                update impl maybePid senderMsg model
+                                                update impl maybePid senderMsg systemModel
 
                                             Custom senderMsg ->
-                                                update impl maybePid senderMsg model
+                                                update impl maybePid senderMsg systemModel
 
                                     Nothing ->
-                                        ( model, Cmd.none )
+                                        ( systemModel, Cmd.none )
                             )
                         |> Maybe.withDefault
-                            ( model, Cmd.none )
+                            ( systemModel, Cmd.none )
 
-        Control (SendToAddress address sendToAddressMsg) ->
+        Control (SendToAddress applicationAddress sendToAddressMsg) ->
             update impl
                 maybePid
                 (Control
                     (Batch
-                        (getAddress address model
+                        (getAddress applicationAddress systemModel
                             |> Tuple.second
                             |> List.map
                                 (\pid -> Control (SendToPID pid sendToAddressMsg))
                         )
                     )
                 )
-                model
+                systemModel
 
-        Control (SendToPidOnAddress pid address sendToPidOnAddressMsg) ->
+        Control (SendToPidOnAddress pid applicationAddress sendToPidOnAddressMsg) ->
             let
                 pidIsOnAddress =
-                    getAddress address model
+                    getAddress applicationAddress systemModel
                         |> Tuple.second
                         |> List.member pid
             in
@@ -135,104 +135,104 @@ update impl maybePid msg model =
                 update impl
                     maybePid
                     (Control (SendToPID pid sendToPidOnAddressMsg))
-                    model
+                    systemModel
 
             else
-                ( model, Cmd.none )
+                ( systemModel, Cmd.none )
 
-        Control (Spawn actorName replyMsg) ->
+        Control (Spawn applicationActorName replyMsg) ->
             let
                 ( newPID, updateModel ) =
-                    getNewPID maybePid model
+                    getNewPID maybePid systemModel
 
                 ( m3, newMsg ) =
-                    impl.factory actorName ( newPID, Encode.null )
+                    impl.factory applicationActorName ( newPID, Encode.null )
                         |> Tuple.mapFirst
-                            (updateInstance newPID actorName updateModel)
+                            (updateInstance newPID applicationActorName updateModel)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
 
-        Control (SpawnWithFlags flags actorName replyMsg) ->
+        Control (SpawnWithFlags flags applicationActorName replyMsg) ->
             let
                 ( newPID, updateModel ) =
-                    getNewPID maybePid model
+                    getNewPID maybePid systemModel
 
                 ( m3, newMsg ) =
-                    impl.factory actorName ( newPID, flags )
+                    impl.factory applicationActorName ( newPID, flags )
                         |> Tuple.mapFirst
-                            (updateInstance newPID actorName updateModel)
+                            (updateInstance newPID applicationActorName updateModel)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
 
         Control (AddView pid) ->
-            ( addView pid model
+            ( addView pid systemModel
             , Cmd.none
             )
 
-        Control (PopulateAddress address pid) ->
-            ( addAddress address pid model
+        Control (PopulateAddress applicationAddress pid) ->
+            ( addAddress applicationAddress pid systemModel
             , Cmd.none
             )
 
         Control (RemoveFromView pid) ->
-            ( removeFromView pid model
+            ( removeFromView pid systemModel
             , Cmd.none
             )
 
-        Control (RemoveFromAddress address pid) ->
-            ( removeFromAddress address pid model
+        Control (RemoveFromAddress applicationAddress pid) ->
+            ( removeFromAddress applicationAddress pid systemModel
             , Cmd.none
             )
 
         Control (Kill pid) ->
-            handleKill impl maybePid pid model
+            handleKill impl maybePid pid systemModel
 
         Context pid systemMsg ->
-            update impl (Just pid) systemMsg model
+            update impl (Just pid) systemMsg systemModel
 
         UpdateDocumentTitle documentTitle ->
-            ( updateDocumentTitle documentTitle model
+            ( updateDocumentTitle documentTitle systemModel
             , Cmd.none
             )
 
         Log logMessage ->
-            update impl maybePid (impl.onLogMessage logMessage) model
+            update impl maybePid (impl.onLogMessage logMessage) systemModel
 
         NoOp ->
-            ( model, Cmd.none )
+            ( systemModel, Cmd.none )
 
         ActorMsg _ ->
-            ( model, Cmd.none )
+            ( systemModel, Cmd.none )
 
         UnmappedMsg _ ->
-            ( model, Cmd.none )
+            ( systemModel, Cmd.none )
 
 
 handleKill :
     { a
         | apply :
-            appModel
-            -> SystemActor appModel output (Message address actorName appMsg)
+            applicationModel
+            -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
         , factory :
-            actorName
-            -> ( PID, Encode.Value )
-            -> ( appModel, Message address actorName appMsg )
+            applicationActorName
+            -> ( PID, Value )
+            -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
         , onLogMessage :
-            LogMessage address actorName appMsg
-            -> Message address actorName appMsg
+            LogMessage applicationAddress applicationActorName applicationMessage
+            -> SystemMessage applicationAddress applicationActorName applicationMessage
     }
     -> Maybe PID
     -> PID
-    -> Model address actorName appModel
-    -> ( Model address actorName appModel, Cmd (Message address actorName appMsg) )
+    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
 handleKill impl maybePid pid model =
     case getInstance pid model of
-        Just ( _, appModel ) ->
+        Just ( _, applicationModel ) ->
             let
                 (SystemActor applied) =
-                    impl.apply appModel
+                    impl.apply applicationModel
 
                 event =
                     applied.events OnKill pid
@@ -265,25 +265,25 @@ handleKill impl maybePid pid model =
             ( model, Cmd.none )
 
 
-collectappMsgs :
-    Message address actorName appMsg
-    -> List (Message address actorName appMsg)
-collectappMsgs msg =
+collectapplicationMessages :
+    SystemMessage applicationAddress applicationActorName applicationMessage
+    -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+collectapplicationMessages msg =
     case msg of
         ActorMsg _ ->
             [ msg ]
 
         Control (Batch list) ->
-            List.concatMap collectappMsgs list
+            List.concatMap collectapplicationMessages list
 
         _ ->
             []
 
 
 composeSysMsg :
-    Message address actorName appMsg
-    -> Message address actorName appMsg
-    -> Message address actorName appMsg
+    SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 composeSysMsg a b =
     if a == NoOp then
         b

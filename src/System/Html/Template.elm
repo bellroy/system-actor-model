@@ -146,7 +146,7 @@ import System.Html.Internal.Template as Internal
         , render
         , toListSpawnableHtmlComponents
         )
-import System.Internal.Message exposing (Message)
+import System.Internal.Message exposing (SystemMessage)
 import System.Internal.PID exposing (PID)
 
 
@@ -287,9 +287,9 @@ This is a helper function, the same can be achieved by using the [System.Message
 
 -}
 spawn :
-    (HtmlComponentId -> PID -> Message address actorName appMsg)
+    (HtmlComponentId -> PID -> SystemMessage address actorName appMsg)
     -> SpawnableHtmlComponent actorName address
-    -> Message address actorName appMsg
+    -> SystemMessage address actorName appMsg
 spawn =
     Internal.spawn
 

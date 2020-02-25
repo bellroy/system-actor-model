@@ -1,5 +1,5 @@
 module System.Internal.Model exposing
-    ( Model
+    ( SystemModel
     , addAddress
     , addView
     , foldlInstances
@@ -22,104 +22,98 @@ import Dict
 import System.Internal.PID exposing (PID(..), equals, system, toInt)
 
 
-{-| The System Model
--}
-type Model address actorName actorModel
-    = Model (ModelRecord address actorName actorModel)
+type alias SystemModelRecord applicationAddress applicationActorName componentModel =
+    { instances : Dict.Dict Int ( PID, applicationActorName, componentModel )
+    , children : Dict.Dict Int (List PID)
+    , applicationAddresses : List ( applicationAddress, PID )
+    , lastPID : PID
+    , views : List PID
+    , documentTitle : String
+    }
 
 
-{-| Initialize a new System Model
--}
-init : Model address actorName actorModel
+type SystemModel applicationAddress applicationActorName componentModel
+    = SystemModel (SystemModelRecord applicationAddress applicationActorName componentModel)
+
+
+init : SystemModel applicationAddress applicationActorName componentModel
 init =
-    Model
+    SystemModel
         { instances = Dict.empty
         , children = Dict.empty
-        , addresses = []
+        , applicationAddresses = []
         , lastPID = system
         , views = []
         , documentTitle = ""
         }
 
 
-{-| Retrieve instance with given PID from the Model
--}
 getInstance :
     PID
-    -> Model address actorName actorModel
-    -> Maybe ( actorName, actorModel )
-getInstance pid (Model { instances }) =
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> Maybe ( applicationActorName, componentModel )
+getInstance pid (SystemModel { instances }) =
     Dict.get (toInt pid) instances
         |> Maybe.map
-            (\( _, actorName, actorModel ) ->
-                ( actorName, actorModel )
+            (\( _, applicationActorName, componentModel ) ->
+                ( applicationActorName, componentModel )
             )
 
 
-{-| Retrieve all instance PIDs currently active
--}
 getInstances :
-    Model address actorName actorModel
+    SystemModel applicationAddress applicationActorName componentModel
     -> List PID
-getInstances (Model { instances }) =
+getInstances (SystemModel { instances }) =
     Dict.toList instances
         |> List.map (\( _, ( pid, _, _ ) ) -> pid)
 
 
-{-| Retrieve possible children of given PID
--}
 getChildren :
     PID
-    -> Model address actorName actorModel
+    -> SystemModel applicationAddress applicationActorName componentModel
     -> Maybe (List PID)
-getChildren pid (Model { children }) =
+getChildren pid (SystemModel { children }) =
     Dict.get (toInt pid) children
 
 
-{-| Retrieve views
--}
 getViews :
-    Model address actorName actorModel
+    SystemModel applicationAddress applicationActorName componentModel
     -> List PID
-getViews (Model { views }) =
+getViews (SystemModel { views }) =
     views
 
 
 {-| Retrieve the document title
 -}
 getDocumentTitle :
-    Model address actorName actorModel
+    SystemModel applicationAddress applicationActorName componentModel
     -> String
-getDocumentTitle (Model { documentTitle }) =
+getDocumentTitle (SystemModel { documentTitle }) =
     documentTitle
 
 
-{-| Retrieve an Address and it's PIDs
--}
 getAddress :
-    address
-    -> Model address actorName actorModel
-    -> ( address, List PID )
-getAddress address (Model modelRecord) =
+    applicationAddress
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> ( applicationAddress, List PID )
+getAddress applicationAddress (SystemModel systemModelRecord) =
     List.foldl
-        (\( xaddress, xpid ) ( _, listOfPids ) ->
-            if xaddress == address then
-                ( address, xpid :: listOfPids )
+        (\( xapplicationAddress, xpid ) ( _, listOfPids ) ->
+            if xapplicationAddress == applicationAddress then
+                ( applicationAddress, xpid :: listOfPids )
 
             else
-                ( address, listOfPids )
+                ( applicationAddress, listOfPids )
         )
-        ( address, [] )
-        modelRecord.addresses
+        ( applicationAddress, [] )
+        systemModelRecord.applicationAddresses
 
 
-{-| Get a new PID and Model based on the current Model
--}
 getNewPID :
     Maybe PID
-    -> Model address actorName actorModel
-    -> ( PID, Model address actorName actorModel )
-getNewPID maybeSpawendBy (Model ({ lastPID, children } as modelRecord)) =
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> ( PID, SystemModel applicationAddress applicationActorName componentModel )
+getNewPID maybeSpawendBy (SystemModel ({ lastPID, children } as systemModelRecord)) =
     let
         spawnedBy =
             Maybe.withDefault system maybeSpawendBy
@@ -148,99 +142,87 @@ getNewPID maybeSpawendBy (Model ({ lastPID, children } as modelRecord)) =
                 children
     in
     ( pid
-    , Model
-        { modelRecord
+    , SystemModel
+        { systemModelRecord
             | lastPID = pid
             , children = updatedChildren
         }
     )
 
 
-
--- Update
-
-
 updateInstance :
     PID
-    -> actorName
-    -> Model address actorName actorModel
-    -> actorModel
-    -> Model address actorName actorModel
-updateInstance pid actorName (Model modelRecord) actorModel =
-    Model
-        { modelRecord
+    -> applicationActorName
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+updateInstance pid applicationActorName (SystemModel systemModelRecord) componentModel =
+    SystemModel
+        { systemModelRecord
             | instances =
                 Dict.insert
                     (toInt pid)
-                    ( pid, actorName, actorModel )
-                    modelRecord.instances
+                    ( pid, applicationActorName, componentModel )
+                    systemModelRecord.instances
         }
 
 
 updateDocumentTitle :
     String
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-updateDocumentTitle documentTitle (Model modelRecord) =
-    Model { modelRecord | documentTitle = documentTitle }
-
-
-
--- Add
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+updateDocumentTitle documentTitle (SystemModel systemModelRecord) =
+    SystemModel { systemModelRecord | documentTitle = documentTitle }
 
 
 addView :
     PID
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-addView pid (Model modelRecord) =
-    Model { modelRecord | views = pid :: modelRecord.views }
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+addView pid (SystemModel systemModelRecord) =
+    SystemModel { systemModelRecord | views = pid :: systemModelRecord.views }
 
 
 addAddress :
-    address
+    applicationAddress
     -> PID
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-addAddress address pid (Model modelRecord) =
-    Model
-        { modelRecord
-            | addresses = ( address, pid ) :: modelRecord.addresses
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+addAddress applicationAddress pid (SystemModel systemModelRecord) =
+    SystemModel
+        { systemModelRecord
+            | applicationAddresses = ( applicationAddress, pid ) :: systemModelRecord.applicationAddresses
         }
-
-
-
--- Remove
 
 
 removePID :
     PID
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-removePID pid (Model modelRecord) =
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+removePID pid (SystemModel systemModelRecord) =
     let
         pidId =
             toInt pid
     in
-    Model <|
-        { modelRecord
-            | instances = Dict.remove pidId modelRecord.instances
+    SystemModel <|
+        { systemModelRecord
+            | instances = Dict.remove pidId systemModelRecord.instances
             , children =
-                Dict.remove pidId modelRecord.children
+                Dict.remove pidId systemModelRecord.children
                     |> Dict.map
                         (\_ a -> List.filter (not << equals pid) a)
-            , views = List.filter (not << equals pid) modelRecord.views
-            , addresses = List.filter (not << equals pid << Tuple.second) modelRecord.addresses
+            , views = List.filter (not << equals pid) systemModelRecord.views
+            , applicationAddresses = List.filter (not << equals pid << Tuple.second) systemModelRecord.applicationAddresses
         }
 
 
 removeFromView :
     PID
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-removeFromView pid (Model modelRecord) =
-    Model
-        { modelRecord
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+removeFromView pid (SystemModel systemModelRecord) =
+    SystemModel
+        { systemModelRecord
             | views =
                 List.foldr
                     (\a r ->
@@ -251,64 +233,53 @@ removeFromView pid (Model modelRecord) =
                             a :: r
                     )
                     []
-                    modelRecord.views
+                    systemModelRecord.views
         }
 
 
 removeFromAddress :
-    address
+    applicationAddress
     -> PID
-    -> Model address actorName actorModel
-    -> Model address actorName actorModel
-removeFromAddress address pid (Model modelRecord) =
-    Model
-        { modelRecord
-            | addresses =
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> SystemModel applicationAddress applicationActorName componentModel
+removeFromAddress applicationAddress pid (SystemModel systemModelRecord) =
+    SystemModel
+        { systemModelRecord
+            | applicationAddresses =
                 List.foldr
                     (\( a, b ) r ->
-                        if a == address && equals pid b then
+                        if a == applicationAddress && equals pid b then
                             r
 
                         else
                             ( a, b ) :: r
                     )
                     []
-                    modelRecord.addresses
+                    systemModelRecord.applicationAddresses
         }
 
 
-
--- Helpers
-
-
 foldlInstances :
-    ({ actorName : actorName, actorModel : actorModel, pid : PID } -> x -> x)
-    -> x
-    -> Model address actorName actorModel
-    -> x
-foldlInstances f initial (Model { instances }) =
+    ({ applicationActorName : applicationActorName
+     , componentModel :
+        componentModel
+     , pid : PID
+     }
+     -> List (Sub systemMessage)
+     -> List (Sub systemMessage)
+    )
+    -> List (Sub systemMessage)
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> List (Sub systemMessage)
+foldlInstances f initial (SystemModel { instances }) =
     Dict.foldl
-        (\_ ( pid, actorName, actorModel ) x ->
+        (\_ ( pid, applicationActorName, componentModel ) x ->
             f
                 { pid = pid
-                , actorName = actorName
-                , actorModel = actorModel
+                , applicationActorName = applicationActorName
+                , componentModel = componentModel
                 }
                 x
         )
         initial
         instances
-
-
-
--- Types
-
-
-type alias ModelRecord address actorName actorModel =
-    { instances : Dict.Dict Int ( PID, actorName, actorModel )
-    , children : Dict.Dict Int (List PID)
-    , addresses : List ( address, PID )
-    , lastPID : PID
-    , views : List PID
-    , documentTitle : String
-    }

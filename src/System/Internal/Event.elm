@@ -24,11 +24,11 @@ type Event
 
 {-| A System Event Handler
 -}
-type EventHandler msgIn
+type EventHandler componentMsgIn
     = Default
     | Ignore
-    | BeforeDefault msgIn
-    | Custom msgIn
+    | BeforeDefault componentMsgIn
+    | Custom componentMsgIn
 
 
 {-| Map a function over eventHandler

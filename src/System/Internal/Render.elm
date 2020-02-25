@@ -4,10 +4,10 @@ module System.Internal.Render exposing
     , viewApplication
     )
 
-import Browser
+import Browser exposing (Document)
 import Html exposing (Html)
-import System.Internal.Message exposing (Message(..))
-import System.Internal.Model exposing (Model, getDocumentTitle, getInstance, getViews)
+import System.Internal.Message exposing (SystemMessage(..))
+import System.Internal.Model as SystemModel exposing (SystemModel)
 import System.Internal.PID exposing (PID)
 import System.Internal.SystemActor exposing (SystemActor(..))
 
@@ -15,12 +15,12 @@ import System.Internal.SystemActor exposing (SystemActor(..))
 view :
     { a
         | apply :
-            actorModel
-            -> SystemActor actorModel output (Message address actorName appMsg)
+            componentModel
+            -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     }
-    -> Model address actorName actorModel
-    -> List output
-view { apply } model =
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> List componentOutput
+view { apply } systemModel =
     List.filterMap
         (renderPID
             (\processModel ->
@@ -30,46 +30,49 @@ view { apply } model =
                 in
                 systemActor.view
             )
-            model
+            systemModel
         )
     <|
-        List.reverse (getViews model)
+        List.reverse (SystemModel.getViews systemModel)
 
 
 viewApplication :
     { a
         | apply :
-            actorModel -> SystemActor actorModel output (Message address actorName appMsg)
+            componentModel
+            -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
         , view :
-            List output -> List (Html (Message address actorName appMsg))
+            List componentOutput
+            -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
     }
-    -> Model address actorName actorModel
-    -> Browser.Document (Message address actorName appMsg)
-viewApplication impl model =
-    view impl model
+    -> SystemModel applicationAddress applicationActorName componentModel
+    -> Document (SystemMessage applicationAddress applicationActorName applicationMessage)
+viewApplication impl systemModel =
+    view impl systemModel
         |> impl.view
         |> (\body ->
-                { title = getDocumentTitle model
+                { title = SystemModel.getDocumentTitle systemModel
                 , body = body
                 }
            )
 
 
 renderPID :
-    (actorModel
+    (componentModel
      -> PID
-     -> (PID -> Maybe output)
-     -> output
+     ->
+        (PID
+         -> Maybe componentOutput
+        )
+     -> componentOutput
     )
-    -> Model address actorName actorModel
+    -> SystemModel applicationAddress applicationActorName componentModel
     -> PID
-    -> Maybe output
-renderPID renderActor model pid =
-    getInstance pid model
+    -> Maybe componentOutput
+renderPID renderActor systemModel pid =
+    SystemModel.getInstance pid systemModel
         |> Maybe.map
-            (\( _, actorModel ) ->
-                renderActor
-                    actorModel
-                    pid
-                    (renderPID renderActor model)
+            (\( _, componentModel ) ->
+                renderPID renderActor systemModel
+                    |> renderActor componentModel pid
             )

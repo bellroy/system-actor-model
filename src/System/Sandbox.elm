@@ -19,13 +19,13 @@ module System.Sandbox exposing
 
 import Json.Encode as Encode exposing (Value)
 import System.Actor exposing (Actor)
-import System.Internal.Message exposing (Message(..))
+import System.Internal.Message exposing (SystemMessage(..))
 import System.Internal.PID as PID
 
 
 {-| -}
 type alias SandboxActor actorModel actorMsgIn output =
-    Actor actorModel actorModel output (Message () () actorMsgIn)
+    Actor actorModel actorModel output (SystemMessage () () actorMsgIn)
 
 
 {-| -}
@@ -33,7 +33,7 @@ type Sandbox actorModel actorMsgIn output
     = Sandbox
         { actor : SandboxActor actorModel actorMsgIn output
         , model : actorModel
-        , outMsgs : List (Message () () actorMsgIn)
+        , outMsgs : List (SystemMessage () () actorMsgIn)
         }
 
 
@@ -89,6 +89,6 @@ getModel (Sandbox { model }) =
 {-| -}
 getLastOutMsg :
     Sandbox actorModel actorMsgIn output
-    -> Maybe (Message () () actorMsgIn)
+    -> Maybe (SystemMessage () () actorMsgIn)
 getLastOutMsg (Sandbox { outMsgs }) =
     List.head outMsgs

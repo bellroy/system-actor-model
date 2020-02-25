@@ -3,10 +3,13 @@ module System.Process exposing
     , equals, pidToInt, pidToString, pidSpawnedBy
     )
 
-{-|
+{-| A Process in the context of this package represents a spawned/active Actor.
+
+Each Process gets assigned an unique identifier ([PID](https://en.wikipedia.org/wiki/Process_identifier)).
+The PID also holds information about who spawned, or started, the process.
 
 
-# Process ID
+# ProcessIDentifier
 
 @docs PID
 
@@ -17,16 +20,15 @@ module System.Process exposing
 
 -}
 
-import System.Internal.PID as PID exposing (PID(..), equals, toInt)
+import System.Internal.PID as PID
 
 
-{-| Each Process has an unique identifier ([PID](https://en.wikipedia.org/wiki/Process_identifier)).
--}
+{-| -}
 type alias PID =
     PID.PID
 
 
-{-| Check if two PIDs are the same
+{-| Check if two PIDs are identical.
 -}
 equals :
     PID
@@ -50,13 +52,8 @@ pidToInt =
 pidToString :
     PID
     -> String
-pidToString pid =
-    case pid of
-        PID.System ->
-            "System"
-
-        _ ->
-            String.fromInt <| pidToInt pid
+pidToString =
+    PID.toString
 
 
 {-| Get the PID responsible for spawing the given PID
@@ -64,10 +61,5 @@ pidToString pid =
 pidSpawnedBy :
     PID
     -> PID
-pidSpawnedBy pid =
-    case pid of
-        PID.System ->
-            pid
-
-        PID.PID { spawnedBy } ->
-            spawnedBy
+pidSpawnedBy =
+    PID.toSpawnedBy

@@ -11,7 +11,7 @@ The example Application can be found in action [here](https://tricycle.github.io
 You can think of an Actor as an Elm application whitin an Elm application.
 
 ### Characteristics
-  - An Actor get's spawned by the System or by another Actor.
+  - An Actor is spawned by the System on init or during runtime by another Actor.
   - An active Actor a.k.a a Process is identified by the System using a PID.
   - An Actor can talk to another Actor when it knows it PID.
   - An Actor can populate an Address

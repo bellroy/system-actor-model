@@ -22,7 +22,7 @@ import Json.Decode as Decode
 import Json.Encode as Encode
 import MD5
 import Parser exposing (deadEndsToString)
-import System.Internal.Message exposing (Control(..), Message(..))
+import System.Internal.Message exposing (Control(..), SystemMessage(..))
 import System.Internal.PID exposing (PID)
 import System.Message as SystemMessage
 
@@ -409,9 +409,9 @@ toListSpawnableHtmlComponents =
 
 
 spawn :
-    (HtmlComponentId -> PID -> Message address actorName appMsg)
+    (HtmlComponentId -> PID -> SystemMessage address actorName applicationMessage)
     -> SpawnableHtmlComponent actorName address
-    -> Message address actorName appMsg
+    -> SystemMessage address actorName applicationMessage
 spawn callback spawnableHtmlComponent =
     let
         flags =

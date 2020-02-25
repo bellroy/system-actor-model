@@ -3,10 +3,9 @@ module System.Internal.PID exposing
     , equals
     , system
     , toInt
+    , toSpawnedBy
+    , toString
     )
-
-{-| Each Process has an unique identifier ([PID](https://en.wikipedia.org/wiki/Process_identifier)).
--}
 
 
 type PID
@@ -17,25 +16,16 @@ type PID
     | System
 
 
-{-| The System is represented by this PID.
-
-It's represented as an Integer by 1.
-
--}
 system : PID
 system =
     System
 
 
-{-| Compare two PIDs
--}
 equals : PID -> PID -> Bool
 equals a b =
     toInt a == toInt b
 
 
-{-| Cast as int
--}
 toInt : PID -> Int
 toInt pid =
     case pid of
@@ -44,3 +34,25 @@ toInt pid =
 
         PID { id } ->
             id
+
+
+toString : PID -> String
+toString pid =
+    case pid of
+        System ->
+            "System"
+
+        _ ->
+            String.fromInt <| toInt pid
+
+
+toSpawnedBy :
+    PID
+    -> PID
+toSpawnedBy pid =
+    case pid of
+        System ->
+            pid
+
+        PID { spawnedBy } ->
+            spawnedBy

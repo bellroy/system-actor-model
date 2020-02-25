@@ -1,19 +1,21 @@
 module System.Browser exposing
-    ( element
-    , application
+    ( application
+    , element
     )
 
 {-| This module helps you set up an System Program.
 
 
-# Elements
+## Type Prefixes
 
-Create an HTML element managed by Elm.
+when a type variable is prefixed with
 
-@docs element
+  - `component*` Your component should provide this type
+  - `application*` Your application should provide this type
+  - `system*` The system will provide this type
 
 
-# Applications
+## Applications
 
 Create an application that manages Url changes.
 
@@ -27,120 +29,80 @@ Applications always use the Browser.Navigation module for precise control over U
 
 @docs application
 
+
+## Elements
+
+Create an HTML element managed by Elm.
+
+@docs element
+
 -}
 
-import Browser as Browser exposing (application, element)
+import Browser exposing (UrlRequest)
 import Browser.Navigation exposing (Key)
 import Html exposing (Html)
 import Json.Decode as Decode
-import System.Internal.Message exposing (LogMessage, Message)
-import System.Internal.Model exposing (foldlInstances, init)
+import System.Internal.Browser as SystemBrowser
+import System.Internal.Message exposing (LogMessage, SystemMessage)
 import System.Internal.PID exposing (PID)
-import System.Internal.Render exposing (view, viewApplication)
 import System.Internal.SystemActor exposing (SystemActor(..))
-import System.Internal.Update exposing (update)
-import System.Message exposing (batch)
 import System.Platform exposing (Program)
 import Url exposing (Url)
-
-
-{-| Create an HTML element managed by Elm through a System.
--}
-element :
-    { apply :
-        actorModel
-        -> SystemActor actorModel output (Message address actorName appMsg)
-    , factory :
-        actorName
-        -> ( PID, Decode.Value )
-        -> ( actorModel, Message address actorName appMsg )
-    , init :
-        flags
-        -> List (Message address actorName appMsg)
-    , view :
-        List output
-        -> Html.Html (Message address actorName appMsg)
-    , onLogMessage :
-        LogMessage address actorName appMsg
-        -> Message address actorName appMsg
-    }
-    -> Program flags address actorName actorModel appMsg
-element implementation =
-    Browser.element
-        { init =
-            \flags ->
-                update implementation Nothing (batch (implementation.init flags)) init
-        , update = update implementation Nothing
-        , subscriptions =
-            Sub.batch
-                << foldlInstances
-                    (\{ pid, actorModel } subs ->
-                        let
-                            (SystemActor systemActor) =
-                                implementation.apply actorModel
-                        in
-                        if systemActor.subscriptions pid == Sub.none then
-                            subs
-
-                        else
-                            systemActor.subscriptions pid :: subs
-                    )
-                    []
-        , view = implementation.view << view implementation
-        }
 
 
 {-| Create an Application managed by Elm through a System
 -}
 application :
     { apply :
-        actorModel
-        -> SystemActor actorModel output (Message address actorName appMsg)
+        componentModel
+        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     , factory :
-        actorName
+        applicationActorName
         -> ( PID, Decode.Value )
-        -> ( actorModel, Message address actorName appMsg )
+        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
     , init :
         flags
         -> Url
         -> Key
-        -> List (Message address actorName appMsg)
+        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
     , view :
-        List output
-        -> List (Html (Message address actorName appMsg))
+        List componentOutput
+        -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
     , onUrlRequest :
-        Browser.UrlRequest
-        -> Message address actorName appMsg
+        UrlRequest
+        -> SystemMessage applicationAddress applicationActorName applicationMessage
     , onUrlChange :
         Url
-        -> Message address actorName appMsg
+        -> SystemMessage applicationAddress applicationActorName applicationMessage
     , onLogMessage :
-        LogMessage address actorName appMsg
-        -> Message address actorName appMsg
+        LogMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage applicationAddress applicationActorName applicationMessage
     }
-    -> Program flags address actorName actorModel appMsg
-application implementation =
-    Browser.application
-        { init =
-            \flags url key ->
-                update implementation Nothing (batch (implementation.init flags url key)) init
-        , update = update implementation Nothing
-        , subscriptions =
-            Sub.batch
-                << foldlInstances
-                    (\{ pid, actorModel } subs ->
-                        let
-                            (SystemActor systemActor) =
-                                implementation.apply actorModel
-                        in
-                        if systemActor.subscriptions pid == Sub.none then
-                            subs
+    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+application =
+    SystemBrowser.application
 
-                        else
-                            systemActor.subscriptions pid :: subs
-                    )
-                    []
-        , view = viewApplication implementation
-        , onUrlRequest = implementation.onUrlRequest
-        , onUrlChange = implementation.onUrlChange
-        }
+
+{-| Create an HTML element managed by Elm through a System.
+-}
+element :
+    { apply :
+        componentModel
+        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+    , factory :
+        applicationActorName
+        -> ( PID, Decode.Value )
+        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+    , init :
+        flags
+        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+    , view :
+        List componentOutput
+        -> Html.Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+    , onLogMessage :
+        LogMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage applicationAddress applicationActorName applicationMessage
+    }
+    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+element =
+    SystemBrowser.element

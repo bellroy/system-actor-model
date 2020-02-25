@@ -30,34 +30,34 @@ import System.Internal.PID exposing (PID)
 
 {-| A System Event Handler
 -}
-type alias EventHandler msgIn =
-    Event.EventHandler msgIn
+type alias EventHandler componentMsgIn =
+    Event.EventHandler componentMsgIn
 
 
 {-| Let the System decide what to do
 -}
-default : EventHandler msgIn
+default : EventHandler componentMsgIn
 default =
     Event.Default
 
 
 {-| Ignore the event
 -}
-ignore : EventHandler msgIn
+ignore : EventHandler componentMsgIn
 ignore =
     Event.Ignore
 
 
-{-| Before the default behaviour respond with a custom msgIn
+{-| Before the default behaviour respond with a custom componentMsgIn
 -}
-beforeDefault : msgIn -> EventHandler msgIn
+beforeDefault : componentMsgIn -> EventHandler componentMsgIn
 beforeDefault =
     Event.BeforeDefault
 
 
-{-| Ignore the default behaviour and respond with a custom msgIn
+{-| Ignore the default behaviour and respond with a custom componentMsgIn
 -}
-custom : msgIn -> EventHandler msgIn
+custom : componentMsgIn -> EventHandler componentMsgIn
 custom =
     Event.Custom
 
@@ -68,9 +68,9 @@ custom =
 
 {-| Components need to supply the following event handlers
 -}
-type alias ComponentEventHandlers msgIn =
-    { onPIDNotFound : PID -> EventHandler msgIn
-    , onKill : EventHandler msgIn
+type alias ComponentEventHandlers componentMsgIn =
+    { onPIDNotFound : PID -> EventHandler componentMsgIn
+    , onKill : EventHandler componentMsgIn
     }
 
 
@@ -81,7 +81,7 @@ It might be easy to start with systemDefault when specifying your components eve
     { systemDefault | onKill = beforeDefault SaveProgress }
 
 -}
-systemDefault : ComponentEventHandlers msgIn
+systemDefault : ComponentEventHandlers componentMsgIn
 systemDefault =
     { onPIDNotFound = always default
     , onKill = default
@@ -90,7 +90,7 @@ systemDefault =
 
 {-| You can choose to ignore all events
 -}
-ignoreAll : ComponentEventHandlers msgIn
+ignoreAll : ComponentEventHandlers componentMsgIn
 ignoreAll =
     { onPIDNotFound = always ignore
     , onKill = ignore
