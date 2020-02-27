@@ -1,13 +1,87 @@
-module System.Component.Layout exposing (Layout, toActor)
+module System.Component.Layout exposing
+    ( Layout
+    , toActor
+    )
 
 {-|
 
 
 # Layout
 
-A Layout is a component that can spawn, hold and render other components.
+A Layout is a component that can render other components.
 
-@docs Layout, toActor
+
+## Example usage
+
+    type alias Model =
+        { instances : List System.Process.PID
+        }
+
+    type MsgIn
+        = AddProcess System.Process.PID
+        | OnClickKillProcess System.Process.PID
+        | ProcessKilled System.Process.PID
+
+    type MsgOut
+        = KillProcess System.Process.PID
+
+    component : Layout Model MsgIn MsgOut layoutChildMsgs
+    component =
+        { init =
+            \_ ->
+                ( { instances = [] }
+                , []
+                , Cmd.none
+                )
+        , update =
+            \msgIn model ->
+                case msgIn of
+                    AddProcess pid ->
+                        ( { model
+                            | instances = pid :: model.instances
+                          }
+                        , []
+                        , Cmd.none
+                        )
+
+                    OnClickKillProcess pid ->
+                        ( model
+                        , [ KillProcess pid ]
+                        , Cmd.none
+                        )
+
+                    ProcessKilled pid ->
+                        ( { model
+                            | instances = List.filter (not << System.Process.equals pid)
+                          }
+                        , []
+                        , Cmd.none
+                        )
+        , view =
+            \toSelf model renderPid ->
+                model.instances
+                    |> List.map
+                        (\pid ->
+                            Html.div []
+                                [ Html.button [ Html.Events.onClick (OnClickKillProcess pid) ] [ Html.text "kill process" ]
+                                    |> Html.map toSelf
+                                , renderPid pid
+                                ]
+                        )
+                    |> Html.div []
+        , subscriptions = always Sub.none
+        , events = System.Event.ignoreAll
+        }
+
+
+## Types
+
+@docs Layout
+
+
+## Creation
+
+@docs toActor
 
 -}
 
@@ -15,47 +89,51 @@ import Html exposing (Html)
 import Json.Decode exposing (Value)
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
-import System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapUpdate)
-import System.Internal.Message exposing (Message)
+import System.Internal.Component as Component
+import System.Internal.Message exposing (SystemMessage)
 import System.Process exposing (PID)
 
 
 {-| The Type of a Layout Component
 -}
-type alias Layout model msgIn msgOut msg =
+type alias Layout componentModel componentMsgIn componentMsgOut layoutChildMsgs =
     { init :
         ( PID, Value )
-        -> ( model, List msgOut, Cmd msgIn )
+        -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
     , update :
-        msgIn
-        -> model
-        -> ( model, List msgOut, Cmd msgIn )
+        componentMsgIn
+        -> componentModel
+        -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
     , subscriptions :
-        model
-        -> Sub msgIn
-    , events : ComponentEventHandlers msgIn
-    , view : (msgIn -> msg) -> model -> (PID -> Html.Html msg) -> Html.Html msg
+        componentModel
+        -> Sub componentMsgIn
+    , events : ComponentEventHandlers componentMsgIn
+    , view :
+        (componentMsgIn -> layoutChildMsgs)
+        -> componentModel
+        -> (PID -> Html.Html layoutChildMsgs)
+        -> Html.Html layoutChildMsgs
     }
 
 
-{-| Create an Actor from a Layout
+{-| Create an Actor from a Layout Component
 -}
 toActor :
-    Layout model msgIn msgOut (Message address actorName appMsg)
+    Layout componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
     ->
-        { wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> appMsg
-        , mapIn : appMsg -> Maybe msgIn
+        { wrapModel : componentModel -> applicationModel
+        , wrapMsg : componentMsgIn -> appMsg
+        , mapIn : appMsg -> Maybe componentMsgIn
         , mapOut :
             PID
-            -> msgOut
-            -> Message address actorName appMsg
+            -> componentMsgOut
+            -> SystemMessage address actorName appMsg
         }
-    -> Actor model actorModel (Html (Message address actorName appMsg)) (Message address actorName appMsg)
+    -> Actor componentModel applicationModel (Html (SystemMessage address actorName appMsg)) (SystemMessage address actorName appMsg)
 toActor layout args =
-    { init = wrapInit args layout.init
-    , update = wrapUpdate args layout.update
-    , subscriptions = wrapSubscriptions args layout.subscriptions
-    , events = wrapEvents args layout.events
-    , view = wrapLayoutView args layout.view
+    { init = Component.wrapInit args layout.init
+    , update = Component.wrapUpdate args layout.update
+    , subscriptions = Component.wrapSubscriptions args layout.subscriptions
+    , events = Component.wrapEvents args layout.events
+    , view = Component.wrapLayoutView args layout.view
     }

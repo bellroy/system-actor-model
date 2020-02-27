@@ -3,7 +3,7 @@ module System.Internal.ComponentTest exposing (suite)
 import Expect
 import Json.Encode as Encode
 import System.Internal.Component as Component
-import System.Internal.Message exposing (Control(..), Message(..))
+import System.Internal.Message exposing (Control(..), SystemMessage(..))
 import System.Internal.PID as PID exposing (PID)
 import Test exposing (Test)
 
@@ -65,7 +65,7 @@ mockedArgs :
     { wrapModel : String -> String
     , wrapMsg : String -> String
     , mapIn : String -> Maybe String
-    , mapOut : PID -> msgOut -> Message address actorName String
+    , mapOut : PID -> msgOut -> SystemMessage address actorName String
     }
 mockedArgs =
     { wrapModel = identity

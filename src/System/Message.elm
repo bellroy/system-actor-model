@@ -62,16 +62,16 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 
 -}
 
-import Json.Encode as Encode
-import System.Internal.Message exposing (Control(..), LogMessage, Message(..))
+import Json.Encode exposing (Value)
+import System.Internal.Message as Internal exposing (Control(..), LogMessage, SystemMessage(..))
 import System.Internal.PID exposing (PID)
-import Task as Task exposing (perform, succeed)
+import Task as Task
 
 
 {-| The type of the System Messages
 -}
-type alias SystemMessage address actorName appMsg =
-    Message address actorName appMsg
+type alias SystemMessage applicationAddress applicationActorName applicationMessage =
+    Internal.SystemMessage applicationAddress applicationActorName applicationMessage
 
 
 
@@ -81,22 +81,22 @@ type alias SystemMessage address actorName appMsg =
 {-| Spawn an Actor
 -}
 spawn :
-    actorName
-    -> (PID -> Message address actorName appMsg)
-    -> Message address actorName appMsg
-spawn actorName =
-    Control << Spawn actorName
+    applicationActorName
+    -> (PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+spawn applicationActorName =
+    Control << Spawn applicationActorName
 
 
 {-| Spawn an Actor with given flags (as an encoded JSON Value)
 -}
 spawnWithFlags :
-    Encode.Value
-    -> actorName
-    -> (PID -> Message address actorName appMsg)
-    -> Message address actorName appMsg
-spawnWithFlags flags actorName =
-    Control << SpawnWithFlags flags actorName
+    Value
+    -> applicationActorName
+    -> (PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+spawnWithFlags flags applicationActorName =
+    Control << SpawnWithFlags flags applicationActorName
 
 
 {-| Add a PID to the System's view
@@ -106,22 +106,22 @@ The System will render views in the order it receives it.
 -}
 populateView :
     PID
-    -> Message address actorName appMsg
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 populateView =
     Control << AddView
 
 
-{-| Add a PID to a given address
+{-| Add a PID to a given applicationAddress
 
 You can send messages to Addresses just like you can send messages to a PID.
 
 -}
 populateAddress :
-    address
+    applicationAddress
     -> PID
-    -> Message address actorName appMsg
-populateAddress address =
-    Control << PopulateAddress address
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+populateAddress applicationAddress =
+    Control << PopulateAddress applicationAddress
 
 
 
@@ -137,26 +137,26 @@ There is a Default behaviour available that will remove the Process from the Sys
 -}
 kill :
     PID
-    -> Message address actorName appMsg
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 kill =
     Control << Kill
 
 
-{-| Remove a PID from a given address
+{-| Remove a PID from a given applicationAddress
 -}
 removeFromAddress :
-    address
+    applicationAddress
     -> PID
-    -> Message address actorName appMsg
-removeFromAddress address =
-    Control << RemoveFromAddress address
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+removeFromAddress applicationAddress =
+    Control << RemoveFromAddress applicationAddress
 
 
 {-| Remove a PID from the System view
 -}
 removeFromView :
     PID
-    -> Message address actorName appMsg
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 removeFromView =
     Control << RemoveFromView
 
@@ -169,36 +169,36 @@ removeFromView =
 -}
 sendToPid :
     PID
-    -> appMsg
-    -> Message address actorName appMsg
+    -> applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 sendToPid pid =
     ActorMsg
         >> SendToPID pid
         >> Control
 
 
-{-| Send a message to an _address_.
+{-| Send a message to an _applicationAddress_.
 -}
 sendToAddress :
-    address
-    -> appMsg
-    -> Message address actorName appMsg
-sendToAddress address =
+    applicationAddress
+    -> applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+sendToAddress applicationAddress =
     ActorMsg
-        >> SendToAddress address
+        >> SendToAddress applicationAddress
         >> Control
 
 
-{-| Send a message to a PID **only** when it's on the given _address_.
+{-| Send a message to a PID **only** when it's on the given _applicationAddress_.
 -}
 sendToPidOnAddress :
     PID
-    -> address
-    -> appMsg
-    -> Message address actorName appMsg
-sendToPidOnAddress pid address =
+    -> applicationAddress
+    -> applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+sendToPidOnAddress pid applicationAddress =
     ActorMsg
-        >> SendToPidOnAddress pid address
+        >> SendToPidOnAddress pid applicationAddress
         >> Control
 
 
@@ -207,33 +207,40 @@ sendToPidOnAddress pid address =
 
 
 {-| Batch perform a list of messages
+
+    spawn MyActorWorker
+        (\pid ->
+            batch
+                [ populateAddress pid
+                , populateView pid
+                ]
+        )
+
 -}
 batch :
-    List (Message address actorName appMsg)
-    -> Message address actorName appMsg
+    List (SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 batch =
     Control << Batch
 
 
-{-| Don't do anythinge
-
-This can be handy for instance when you want to spawn an Actor but don't do anything with it's resulting PID.
+{-| Don't do anything
 
     spaw MyActorWorker (always noOperation)
 
 -}
-noOperation : Message address actorName appMsg
+noOperation : SystemMessage applicationAddress applicationActorName applicationMessage
 noOperation =
     NoOp
 
 
-{-| Converts a msg in to Cmd.
+{-| Converts a generic msg into Cmd.
 -}
 toCmd :
     msg
     -> Cmd msg
-toCmd msg =
-    Task.perform identity (Task.succeed msg)
+toCmd =
+    Task.perform identity << Task.succeed
 
 
 
@@ -244,7 +251,7 @@ toCmd msg =
 -}
 updateDocumentTitle :
     String
-    -> Message address actorName appMsg
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 updateDocumentTitle =
     UpdateDocumentTitle
 
@@ -253,11 +260,11 @@ updateDocumentTitle =
 -- Log
 
 
-{-| convenience function that ignores all logs
+{-| Convenience function that ignores all logs
 -}
 ignoreLog :
-    LogMessage address actorName appMsg
-    -> Message address actorName appMsg
+    LogMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 ignoreLog =
     always noOperation
 
@@ -268,7 +275,7 @@ This will trigger the onLogMessage function you provided while initializing your
 
 -}
 log :
-    LogMessage address actorName appMsg
-    -> Message address actorName appMsg
+    LogMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
 log =
     Log

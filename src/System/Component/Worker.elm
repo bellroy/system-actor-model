@@ -1,64 +1,105 @@
-module System.Component.Worker exposing (Worker, toActor)
+module System.Component.Worker exposing
+    ( Worker
+    , toActor
+    )
 
 {-|
 
 
 # Worker
 
-A Worker is a [headless](https://en.wikipedia.org/wiki/Headless_software) Actor, it has no user interface.
+A Worker is a [headless](https://en.wikipedia.org/wiki/Headless_software) Actor, it has no User Interface.
 
 This is great if you want to use an Actor as the “brain” for something else.
 
-@docs Worker, toActor
+
+## Example usage
+
+    type alias Model =
+        String
+
+    type MsgIn
+        = OnStuff
+
+    type MsgOut
+        = DoStuff
+
+    component : Worker Model MsgIn MsgOut
+    component =
+        { init =
+            \_ ->
+                ( "Worker Model"
+                , []
+                , Cmd.none
+                )
+        , update =
+            \msgIn model ->
+                case msgIn of
+                    onStuff ->
+                        ( model
+                        , [ DoStuff ]
+                        , Cmd.none
+                        )
+        , subscriptions = always Sub.none
+        , events = System.Event.ignoreAll
+        }
+
+
+## Types
+
+@docs Worker
+
+
+## Creation
+
+@docs toActor
 
 -}
 
-import Html exposing (Html, text)
+import Html as Html exposing (Html)
 import Json.Decode exposing (Value)
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
-import System.Internal.Component exposing (wrapEvents, wrapInit, wrapSubscriptions, wrapUpdate)
-import System.Internal.Message exposing (Message)
+import System.Internal.Component as Component
+import System.Internal.Message exposing (SystemMessage)
 import System.Process exposing (PID)
 
 
 {-| The Type of a Worker Component
 -}
-type alias Worker model msgIn msgOut =
+type alias Worker componentModel componentMsgIn componentMsgOut =
     { init :
         ( PID, Value )
-        -> ( model, List msgOut, Cmd msgIn )
+        -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
     , update :
-        msgIn
-        -> model
-        -> ( model, List msgOut, Cmd msgIn )
+        componentMsgIn
+        -> componentModel
+        -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
     , subscriptions :
-        model
-        -> Sub msgIn
-    , events : ComponentEventHandlers msgIn
+        componentModel
+        -> Sub componentMsgIn
+    , events : ComponentEventHandlers componentMsgIn
     }
 
 
 {-| Create an Actor from a Worker
 -}
 toActor :
-    Worker model msgIn msgOut
+    Worker componentModel componentMsgIn componentMsgOut
     ->
-        { wrapModel : model -> actorModel
-        , wrapMsg : msgIn -> appMsg
-        , mapIn : appMsg -> Maybe msgIn
+        { wrapModel : componentModel -> model
+        , wrapMsg : componentMsgIn -> applicationMessage
+        , mapIn : applicationMessage -> Maybe componentMsgIn
         , mapOut :
             PID
-            -> msgOut
-            -> Message address actorName appMsg
+            -> componentMsgOut
+            -> SystemMessage address actorName applicationMessage
         }
-    -> Actor model actorModel (Html msg) (Message address actorName appMsg)
+    -> Actor componentModel model (Html msg) (SystemMessage address actorName applicationMessage)
 toActor worker args =
-    { init = wrapInit args worker.init
-    , update = wrapUpdate args worker.update
-    , subscriptions = wrapSubscriptions args worker.subscriptions
-    , events = wrapEvents args worker.events
-
-    -- Disable the view by always rendering an empty string
-    , view = \_ _ _ -> text ""
+    { init = Component.wrapInit args worker.init
+    , update = Component.wrapUpdate args worker.update
+    , subscriptions = Component.wrapSubscriptions args worker.subscriptions
+    , events = Component.wrapEvents args worker.events
+    , view = \_ _ _ -> Html.text ""
     }
