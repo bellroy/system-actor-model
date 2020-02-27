@@ -3,7 +3,7 @@ module System.Internal.Browser exposing (ApplicationArguments, ElementArguments,
 import Browser as Browser exposing (Document, UrlRequest)
 import Browser.Navigation exposing (Key)
 import Html exposing (Html)
-import Json.Decode as Decode
+import Json.Decode exposing (Value)
 import System.Internal.Message exposing (LogMessage, SystemMessage)
 import System.Internal.Model as SystemModel exposing (SystemModel)
 import System.Internal.PID exposing (PID)
@@ -21,7 +21,7 @@ type alias ElementArguments flags applicationAddress applicationActorName applic
         -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     , factory :
         applicationActorName
-        -> ( PID, Decode.Value )
+        -> ( PID, Value )
         -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
     , init :
         flags
@@ -41,7 +41,7 @@ type alias ApplicationArguments flags applicationAddress applicationActorName ap
         -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     , factory :
         applicationActorName
-        -> ( PID, Decode.Value )
+        -> ( PID, Value )
         -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
     , init :
         flags

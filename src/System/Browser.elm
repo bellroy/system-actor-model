@@ -54,7 +54,7 @@ import System.Internal.Browser as SystemBrowser
 import System.Internal.Message exposing (LogMessage, SystemMessage)
 import System.Internal.Model exposing (SystemModel)
 import System.Internal.PID exposing (PID)
-import System.Internal.SystemActor exposing (SystemActor(..))
+import System.Internal.SystemActor exposing (SystemActor)
 import System.Platform exposing (Program)
 import Url exposing (Url)
 

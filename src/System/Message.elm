@@ -207,6 +207,15 @@ sendToPidOnAddress pid applicationAddress =
 
 
 {-| Batch perform a list of messages
+
+    spawn MyActorWorker
+        (\pid ->
+            batch
+                [ populateAddress pid
+                , populateView pid
+                ]
+        )
+
 -}
 batch :
     List (SystemMessage applicationAddress applicationActorName applicationMessage)
@@ -215,9 +224,7 @@ batch =
     Control << Batch
 
 
-{-| Don't do anythinge
-
-This can be handy for instance when you want to spawn an Actor but don't do anything with it's resulting PID.
+{-| Don't do anything
 
     spaw MyActorWorker (always noOperation)
 
@@ -232,8 +239,8 @@ noOperation =
 toCmd :
     msg
     -> Cmd msg
-toCmd msg =
-    Task.perform identity (Task.succeed msg)
+toCmd =
+    Task.perform identity << Task.succeed
 
 
 
@@ -253,7 +260,7 @@ updateDocumentTitle =
 -- Log
 
 
-{-| convenience function that ignores all logs
+{-| Convenience function that ignores all logs
 -}
 ignoreLog :
     LogMessage applicationAddress applicationActorName applicationMessage
