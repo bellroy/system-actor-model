@@ -15,14 +15,14 @@ import System.Platform exposing (Program)
 import Url exposing (Url)
 
 
-type alias ElementArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage =
+type alias ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage =
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        applicationModel
+        -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     , factory :
         applicationActorName
         -> ( PID, Decode.Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
     , init :
         flags
         -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
@@ -35,14 +35,14 @@ type alias ElementArguments flags applicationAddress applicationActorName compon
     }
 
 
-type alias ApplicationArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage =
+type alias ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage =
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        applicationModel
+        -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
     , factory :
         applicationActorName
         -> ( PID, Decode.Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
     , init :
         flags
         -> Url
@@ -64,34 +64,34 @@ type alias ApplicationArguments flags applicationAddress applicationActorName co
 
 
 element :
-    ElementArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage
-    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+    ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
+    -> Program flags applicationAddress applicationActorName applicationModel applicationMessage
 element =
     Browser.element << toProgramElementRecord
 
 
 application :
-    ApplicationArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage
-    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+    ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
+    -> Program flags applicationAddress applicationActorName applicationModel applicationMessage
 application =
     Browser.application << toProgramApplicationRecord
 
 
 toProgramElementRecord :
-    ElementArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage
+    ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
     ->
         { init :
             flags
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
         , subscriptions :
-            SystemModel applicationAddress applicationActorName componentModel
+            SystemModel applicationAddress applicationActorName applicationModel
             -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
         , update :
             SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName componentModel
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> SystemModel applicationAddress applicationActorName applicationModel
+            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
         , view :
-            SystemModel applicationAddress applicationActorName componentModel
+            SystemModel applicationAddress applicationActorName applicationModel
             -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
         }
 toProgramElementRecord implementation =
@@ -102,10 +102,10 @@ toProgramElementRecord implementation =
     , subscriptions =
         Sub.batch
             << SystemModel.foldlInstances
-                (\{ pid, componentModel } subs ->
+                (\{ pid, applicationModel } subs ->
                     let
                         (SystemActor systemActor) =
-                            implementation.apply componentModel
+                            implementation.apply applicationModel
                     in
                     if systemActor.subscriptions pid == Sub.none then
                         subs
@@ -119,24 +119,24 @@ toProgramElementRecord implementation =
 
 
 toProgramApplicationRecord :
-    ApplicationArguments flags applicationAddress applicationActorName componentModel componentOutput applicationMessage
+    ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
     ->
         { init :
             flags
             -> Url
             -> Key
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
         , onUrlChange : Url -> SystemMessage applicationAddress applicationActorName applicationMessage
         , onUrlRequest : UrlRequest -> SystemMessage applicationAddress applicationActorName applicationMessage
         , subscriptions :
-            SystemModel applicationAddress1 applicationActorName1 componentModel
+            SystemModel applicationAddress1 applicationActorName1 applicationModel
             -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
         , update :
             SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName componentModel
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> SystemModel applicationAddress applicationActorName applicationModel
+            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
         , view :
-            SystemModel applicationAddress applicationActorName componentModel
+            SystemModel applicationAddress applicationActorName applicationModel
             -> Document (SystemMessage applicationAddress applicationActorName applicationMessage)
         }
 toProgramApplicationRecord implementation =
@@ -147,10 +147,10 @@ toProgramApplicationRecord implementation =
     , subscriptions =
         Sub.batch
             << SystemModel.foldlInstances
-                (\{ pid, componentModel } subs ->
+                (\{ pid, applicationModel } subs ->
                     let
                         (SystemActor systemActor) =
-                            implementation.apply componentModel
+                            implementation.apply applicationModel
                     in
                     if systemActor.subscriptions pid == Sub.none then
                         subs
