@@ -43,8 +43,8 @@ type Control applicationAddress applicationActorName systemMessage
     | SendToPID PID systemMessage
     | SendToAddress applicationAddress systemMessage
     | SendToPidOnAddress PID applicationAddress systemMessage
-    | Spawn applicationActorName (PID -> systemMessage)
     | SpawnWithFlags Value applicationActorName (PID -> systemMessage)
+    | SpawnMultipleWithFlags (List ( applicationActorName, Value )) (List PID -> systemMessage)
     | AddView PID
     | PopulateAddress applicationAddress PID
     | RemoveFromView PID
@@ -100,11 +100,11 @@ controlToString control =
         SendToPidOnAddress _ _ _ ->
             Just <| "SendToPidOnAddress pid applicationAddress"
 
-        Spawn _ _ ->
-            Just "Spawn"
-
         SpawnWithFlags _ _ _ ->
             Just "SpawnWithFlags"
+
+        SpawnMultipleWithFlags _ _ ->
+            Just "SpawnMultipleWithFlags"
 
         AddView pid ->
             Just <| "AddView " ++ String.fromInt (toInt pid)

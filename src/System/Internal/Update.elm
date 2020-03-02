@@ -140,31 +140,46 @@ update impl maybePid msg systemModel =
             else
                 ( systemModel, Cmd.none )
 
-        Control (Spawn applicationActorName replyMsg) ->
-            let
-                ( newPID, updateModel ) =
-                    getNewPID maybePid systemModel
-
-                ( m3, newMsg ) =
-                    impl.factory applicationActorName ( newPID, Encode.null )
-                        |> Tuple.mapFirst
-                            (updateInstance newPID applicationActorName updateModel)
-            in
-            update impl maybePid newMsg m3
-                |> cmdAndThen (update impl maybePid (replyMsg newPID))
-
         Control (SpawnWithFlags flags applicationActorName replyMsg) ->
             let
-                ( newPID, updateModel ) =
+                ( newPID, m2 ) =
                     getNewPID maybePid systemModel
 
                 ( m3, newMsg ) =
                     impl.factory applicationActorName ( newPID, flags )
                         |> Tuple.mapFirst
-                            (updateInstance newPID applicationActorName updateModel)
+                            (updateInstance newPID applicationActorName m2)
             in
             update impl maybePid newMsg m3
                 |> cmdAndThen (update impl maybePid (replyMsg newPID))
+
+        Control (SpawnMultipleWithFlags listActorNamesAndFlags replyMsg) ->
+            let
+                ( updatedModel, cmds, pids ) =
+                    listActorNamesAndFlags
+                        |> List.foldl
+                            (\( actorName, flags ) ( m_, cmds_, pids_ ) ->
+                                let
+                                    ( newPID, m2_ ) =
+                                        getNewPID maybePid m_
+
+                                    ( m3_, newMsg ) =
+                                        impl.factory actorName ( newPID, flags )
+                                            |> Tuple.mapFirst
+                                                (updateInstance newPID actorName m2_)
+
+                                    ( m4_, cmd ) =
+                                        update impl maybePid newMsg m3_
+                                in
+                                ( m4_
+                                , Cmd.batch [ cmds_, cmd ]
+                                , List.append pids_ [ newPID ]
+                                )
+                            )
+                            ( systemModel, Cmd.none, [] )
+            in
+            cmdAndThen (update impl maybePid (replyMsg pids))
+                ( updatedModel, cmds )
 
         Control (AddView pid) ->
             ( addView pid systemModel

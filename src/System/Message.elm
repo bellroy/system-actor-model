@@ -1,6 +1,6 @@
 module System.Message exposing
     ( SystemMessage
-    , spawn, spawnWithFlags, populateView, populateAddress
+    , spawn, spawnWithFlags, populateView, populateAddress, spawnMultiple, spawnMultipleWithFlags
     , kill, removeFromView, removeFromAddress
     , sendToPid, sendToAddress, sendToPidOnAddress
     , batch, noOperation, toCmd
@@ -33,7 +33,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
                 ]
         )
 
-@docs spawn, spawnWithFlags, populateView, populateAddress
+@docs spawn, spawnWithFlags, populateView, populateAddress, spawnMultiple, spawnMultipleWithFlags
 
 
 # Removing and Destroying
@@ -62,7 +62,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 
 -}
 
-import Json.Encode exposing (Value)
+import Json.Encode as Encode exposing (Value)
 import System.Internal.Message as Internal exposing (Control(..), LogMessage, SystemMessage(..))
 import System.Internal.PID exposing (PID)
 import Task as Task
@@ -85,7 +85,7 @@ spawn :
     -> (PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
     -> SystemMessage applicationAddress applicationActorName applicationMessage
 spawn applicationActorName =
-    Control << Spawn applicationActorName
+    Control << SpawnWithFlags Encode.null applicationActorName
 
 
 {-| Spawn an Actor with given flags (as an encoded JSON Value)
@@ -97,6 +97,26 @@ spawnWithFlags :
     -> SystemMessage applicationAddress applicationActorName applicationMessage
 spawnWithFlags flags applicationActorName =
     Control << SpawnWithFlags flags applicationActorName
+
+
+{-| Spawn multiple Actors
+-}
+spawnMultiple :
+    List applicationActorName
+    -> (List PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+spawnMultiple listApplicationActorName =
+    Control << SpawnMultipleWithFlags (List.map (\a -> ( a, Encode.null )) listApplicationActorName)
+
+
+{-| Spawn multiple Actors with given flags
+-}
+spawnMultipleWithFlags :
+    List ( applicationActorName, Value )
+    -> (List PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemMessage applicationAddress applicationActorName applicationMessage
+spawnMultipleWithFlags listActorNamesAndFlags =
+    Control << SpawnMultipleWithFlags listActorNamesAndFlags
 
 
 {-| Add a PID to the System's view
