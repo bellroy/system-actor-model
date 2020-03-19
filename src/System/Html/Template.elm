@@ -50,7 +50,7 @@ Quick Example
                 { prefix = "app"
                 , name = "counter"
                 , actorName = ActorName.Counter
-                , address = Nothing
+                , addresses = []
                 , defaultAttributes = [ ( "value", Encode.int 0 ) ]
                 , requiredAtributes = [ "value" ]
                 }
@@ -201,7 +201,7 @@ SpawnableHtmlComponent record
 -}
 type alias SpawnableHtmlComponent actorName address =
     { actorName : actorName
-    , address : Maybe address
+    , addresses : List address
     , attributes : List ( String, Value )
     , htmlTemplate : HtmlTemplate actorName address
     , id : String
@@ -240,7 +240,7 @@ htmlComponentFactory :
     { prefix : String
     , name : String
     , actorName : actorName
-    , address : Maybe address
+    , addresses : List address
     , requiredAtributes : List String
     , defaultAttributes : List ( String, Value )
     }

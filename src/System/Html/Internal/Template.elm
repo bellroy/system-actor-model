@@ -41,7 +41,7 @@ type TemplateElement actorName address
 type HtmlComponent actorName address
     = HtmlComponent
         { actorName : actorName
-        , address : Maybe address
+        , addresses : List address
         , attributes : List ( String, Encode.Value )
         , htmlTemplate : HtmlTemplate actorName address
         , id : String
@@ -51,7 +51,7 @@ type HtmlComponent actorName address
 
 type alias SpawnableHtmlComponent actorName address =
     { actorName : actorName
-    , address : Maybe address
+    , addresses : List address
     , attributes : List ( String, Encode.Value )
     , htmlTemplate : HtmlTemplate actorName address
     , id : String
@@ -73,7 +73,7 @@ htmlComponentFactory :
     { prefix : String
     , name : String
     , actorName : actorName
-    , address : Maybe address
+    , addresses : List address
     , requiredAtributes : List String
     , defaultAttributes : List ( String, Encode.Value )
     }
@@ -130,7 +130,7 @@ htmlComponentFactory configuration attributes children =
         Ok <|
             HtmlComponent
                 { actorName = configuration.actorName
-                , address = configuration.address
+                , addresses = configuration.addresses
                 , attributes = htmlComponentAttributes
                 , htmlTemplate = children
                 , id = htmlComponentIdHash
@@ -420,13 +420,16 @@ spawn callback spawnableHtmlComponent =
     SystemMessage.spawnWithFlags flags
         spawnableHtmlComponent.actorName
         (\pid ->
-            case spawnableHtmlComponent.address of
-                Just address ->
-                    SystemMessage.batch
-                        [ SystemMessage.populateAddress address pid
-                        , callback spawnableHtmlComponent.id pid
-                        ]
-
-                Nothing ->
+            case spawnableHtmlComponent.addresses of
+                [] ->
                     callback spawnableHtmlComponent.id pid
+
+                addresses ->
+                    addresses
+                        |> List.map
+                            (\address -> SystemMessage.populateAddress address pid)
+                        |> List.append
+                            [ callback spawnableHtmlComponent.id pid
+                            ]
+                        |> SystemMessage.batch
         )

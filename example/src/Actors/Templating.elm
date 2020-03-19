@@ -33,7 +33,7 @@ htmlComponents =
             { prefix = "app"
             , name = "counter"
             , actorName = ActorName.Counter
-            , address = Nothing
+            , addresses = []
             , defaultAttributes = []
             , requiredAtributes = [ "value" ]
             }
