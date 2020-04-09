@@ -10,7 +10,7 @@ type SystemActor applicationModel componentOutput componentMsgIn
     = SystemActor
         { init : ( PID, Value ) -> ( applicationModel, componentMsgIn )
         , update : componentMsgIn -> PID -> ( applicationModel, componentMsgIn )
-        , view : PID -> (PID -> Maybe componentOutput) -> componentOutput
+        , view : Maybe (PID -> (PID -> Maybe componentOutput) -> componentOutput)
         , subscriptions : PID -> Sub componentMsgIn
         , events : Event -> PID -> EventHandler componentMsgIn
         }

@@ -94,11 +94,11 @@ toActor :
             -> componentMsgOut
             -> SystemMessage address actorName applicationMessage
         }
-    -> Actor componentModel model () (SystemMessage address actorName applicationMessage)
+    -> Actor componentModel model componentOutput (SystemMessage address actorName applicationMessage)
 toActor worker args =
     { init = Component.wrapInit args worker.init
     , update = Component.wrapUpdate args worker.update
     , subscriptions = Component.wrapSubscriptions args worker.subscriptions
     , events = Component.wrapEvents args worker.events
-    , view = \_ _ _ -> ()
+    , view = Nothing
     }

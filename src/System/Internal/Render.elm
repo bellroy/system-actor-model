@@ -57,22 +57,29 @@ viewApplication impl systemModel =
            )
 
 
+type alias RenderActor componentModel componentOutput =
+    componentModel
+    ->
+        Maybe
+            (PID
+             -> (PID -> Maybe componentOutput)
+             -> componentOutput
+            )
+
+
 renderPID :
-    (componentModel
-     -> PID
-     ->
-        (PID
-         -> Maybe componentOutput
-        )
-     -> componentOutput
-    )
+    RenderActor componentModel componentOutput
     -> SystemModel applicationAddress applicationActorName componentModel
     -> PID
     -> Maybe componentOutput
 renderPID renderActor systemModel pid =
     SystemModel.getInstance pid systemModel
-        |> Maybe.map
-            (\( _, componentModel ) ->
-                renderPID renderActor systemModel
-                    |> renderActor componentModel pid
+        |> Maybe.andThen
+            (Tuple.second
+                >> renderActor
+                >> Maybe.map
+                    (\f ->
+                        renderPID renderActor systemModel
+                            |> f pid
+                    )
             )

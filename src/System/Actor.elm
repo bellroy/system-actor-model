@@ -53,18 +53,21 @@ import System.Internal.SystemActor as Internal
 
 
 {-| An Actor looks a lot like a Browser.element!
-Therefore it is quite easy to grab an existing Elm application and make it part of your new System Actor Model powered application.
+
+It's quite easy to grab an existing Elm application and make it part of an application that is setup to use this package.
+
 -}
 type alias Actor componentModel applicationModel componentOutput componentMsgIn =
     { init : ( PID, Value ) -> ( applicationModel, componentMsgIn )
     , update : componentModel -> componentMsgIn -> PID -> ( applicationModel, componentMsgIn )
-    , view : componentModel -> PID -> (PID -> Maybe componentOutput) -> componentOutput
     , subscriptions : componentModel -> PID -> Sub componentMsgIn
     , events : Event -> PID -> EventHandler componentMsgIn
+    , view : Maybe (componentModel -> PID -> (PID -> Maybe componentOutput) -> componentOutput)
     }
 
 
 {-| An Actor within the System has a different Type,
+
 it no longer has the `componentModel` in the type definition, this is because the `componentModel` is no wrapped using the `applicationModel`.
 
 You can create a SystemActor using the `toSystemActor` function.
@@ -84,7 +87,7 @@ toSystemActor actor componentModel =
     Internal.SystemActor
         { init = actor.init
         , update = actor.update componentModel
-        , view = actor.view componentModel
+        , view = Maybe.map (\v -> v componentModel) actor.view
         , subscriptions = actor.subscriptions componentModel
         , events = actor.events
         }

@@ -134,5 +134,5 @@ toActor layout args =
     , update = Component.wrapUpdate args layout.update
     , subscriptions = Component.wrapSubscriptions args layout.subscriptions
     , events = Component.wrapEvents args layout.events
-    , view = Component.wrapLayoutView args layout.view
+    , view = Just <| Component.wrapLayoutView args layout.view
     }

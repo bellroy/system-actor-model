@@ -112,5 +112,5 @@ toActor ui args =
     , update = Component.wrapUpdate args ui.update
     , subscriptions = Component.wrapSubscriptions args ui.subscriptions
     , events = Component.wrapEvents args ui.events
-    , view = Component.wrapUiView args ui.view
+    , view = Just <| Component.wrapUiView args ui.view
     }
