@@ -1,14 +1,13 @@
 module Actors.Snackbar exposing (Model, actor)
 
-import ActorName
 import Components.Snackbar as Snackbar
 import Html exposing (Html)
 import Msg exposing (Msg)
 import System.Actor exposing (Actor)
-import System.Component.Ui exposing (toActor)
-import System.Log exposing (toMeta)
-import System.Message exposing (noOperation, populateView, spawn)
-import System.Process exposing (PID, pidToString)
+import System.Component.Ui as Ui
+import System.Log as Log
+import System.Message as SystemMessage
+import System.Process as PID
 
 
 type alias Model =
@@ -19,15 +18,11 @@ type alias MsgIn =
     Snackbar.MsgIn
 
 
-type alias MsgOut =
-    Snackbar.MsgOut
-
-
 actor :
     (Snackbar.Model -> appModel)
     -> Actor Snackbar.Model appModel (Html Msg) Msg
 actor wrapModel =
-    toActor Snackbar.component
+    Ui.toActor Snackbar.component
         { wrapModel = wrapModel
         , wrapMsg = Msg.Snackbar
         , mapIn = mapIn
@@ -35,9 +30,7 @@ actor wrapModel =
         }
 
 
-mapIn :
-    Msg.AppMsg
-    -> Maybe MsgIn
+mapIn : Msg.AppMsg -> Maybe MsgIn
 mapIn appMsg =
     case appMsg of
         Msg.Snackbar msgIn ->
@@ -46,23 +39,21 @@ mapIn appMsg =
         Msg.LogMsg logMessage ->
             let
                 logMessageMeta =
-                    toMeta logMessage
+                    Log.toMeta logMessage
 
                 logPid =
-                    pidToString logMessageMeta.pid
+                    PID.pidToString logMessageMeta.pid
 
                 logDescription =
                     logMessageMeta.description
             in
-            Just <| Snackbar.NewSnack { message = logDescription ++ " with PID: " ++ logPid }
+            Snackbar.NewSnackMessage (logDescription ++ " with PID: " ++ logPid)
+                |> Just
 
         _ ->
             Nothing
 
 
-mapOut :
-    PID
-    -> MsgOut
-    -> Msg
-mapOut pid msgOut =
-    noOperation
+mapOut : a -> b -> Msg
+mapOut _ _ =
+    SystemMessage.noOperation

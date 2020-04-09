@@ -5,12 +5,11 @@ import Address exposing (Address)
 import Components.Templating as Templating
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Json.Encode as Encode
 import Msg exposing (Msg)
 import System.Actor exposing (Actor)
-import System.Component.Layout exposing (toActor)
-import System.Html.Template exposing (HtmlComponentFactory, HtmlComponentId, htmlComponentFactory, spawn, toListSpawnableHtmlComponents)
-import System.Message exposing (batch, kill, sendToPid, spawnWithFlags)
+import System.Component.Layout as Layout
+import System.Html.Template as HtmlTemplate exposing (HtmlComponentFactory, HtmlComponentId)
+import System.Message as SystemMessage
 import System.Process exposing (PID)
 
 
@@ -29,7 +28,7 @@ type alias MsgOut =
 htmlComponents : Dict HtmlComponentId (HtmlComponentFactory ActorName Address)
 htmlComponents =
     Dict.fromList
-        [ htmlComponentFactory
+        [ HtmlTemplate.htmlComponentFactory
             { prefix = "app"
             , name = "counter"
             , actorName = ActorName.Counter
@@ -44,7 +43,7 @@ actor :
     (Model -> appModel)
     -> Actor Model appModel (Html Msg) Msg
 actor wrapModel =
-    toActor
+    Layout.toActor
         (Templating.component htmlComponents)
         { wrapModel = wrapModel
         , wrapMsg = Msg.Templating
@@ -75,19 +74,22 @@ mapOut self msgOut =
             let
                 killMsgs =
                     Dict.toList oldInstances
-                        |> List.map (kill << Tuple.second)
+                        |> List.map
+                            (Tuple.second
+                                >> SystemMessage.kill
+                            )
 
                 spawnComponentMsgs =
-                    toListSpawnableHtmlComponents htmlTemplate
+                    HtmlTemplate.toListSpawnableHtmlComponents htmlTemplate
                         |> List.map
-                            (spawn
+                            (HtmlTemplate.spawn
                                 (\instanceId instancePid ->
                                     Templating.OnSpawnedComponent instanceId instancePid
                                         |> Msg.Templating
-                                        |> sendToPid self
+                                        |> SystemMessage.sendToPid self
                                 )
                             )
             in
             killMsgs
                 ++ spawnComponentMsgs
-                |> batch
+                |> SystemMessage.batch

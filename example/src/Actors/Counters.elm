@@ -6,8 +6,8 @@ import Html exposing (Html)
 import Json.Encode as Encode
 import Msg as Msg exposing (Msg)
 import System.Actor exposing (Actor)
-import System.Component.Layout exposing (toActor)
-import System.Message exposing (batch, kill, sendToPid, spawnWithFlags)
+import System.Component.Layout as Layout
+import System.Message as SystemMessage
 import System.Process exposing (PID)
 
 
@@ -27,7 +27,7 @@ actor :
     (Model -> appModel)
     -> Actor Model appModel (Html Msg) Msg
 actor wrapModel =
-    toActor Counters.component
+    Layout.toActor Counters.component
         { wrapModel = wrapModel
         , wrapMsg = Msg.Counters
         , mapIn = mapIn
@@ -54,16 +54,18 @@ mapOut :
 mapOut pid msgOut =
     case msgOut of
         Counters.SpawnCounter intialValue ->
-            spawnWithFlags
+            SystemMessage.spawnWithFlags
                 (Encode.int intialValue)
                 ActorName.Counter
-                (sendToPid pid
-                    << Msg.Counters
-                    << Counters.ReceiveCounter
+                (Counters.ReceiveCounter
+                    >> Msg.Counters
+                    >> SystemMessage.sendToPid pid
                 )
 
         Counters.KillCounter killPid ->
-            batch
-                [ kill killPid
-                , sendToPid pid <| Msg.Counters <| Counters.KilledCounter killPid
+            SystemMessage.batch
+                [ SystemMessage.kill killPid
+                , Counters.KilledCounter killPid
+                    |> Msg.Counters
+                    |> SystemMessage.sendToPid pid
                 ]

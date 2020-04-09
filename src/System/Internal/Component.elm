@@ -1,6 +1,5 @@
 module System.Internal.Component exposing (wrapEvents, wrapInit, wrapLayoutView, wrapSubscriptions, wrapToTuple, wrapUiView, wrapUpdate)
 
-import Html as Html exposing (Html, map, text)
 import Json.Decode as Decode
 import System.Event exposing (ComponentEventHandlers)
 import System.Internal.Event exposing (Event(..), EventHandler, mapEventHandler)
@@ -122,27 +121,32 @@ wrapLayoutView :
     ->
         ((componentMsgIn -> SystemMessage applicationAddress applicationActorName applicationMessage)
          -> applicationModel
-         -> (PID -> Html (SystemMessage applicationAddress applicationActorName applicationMessage))
-         -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+         -> (PID -> Maybe componentOutput)
+         -> componentOutput
         )
     -> applicationModel
     -> PID
-    -> (PID -> Maybe (Html (SystemMessage applicationAddress applicationActorName applicationMessage)))
-    -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
-wrapLayoutView { wrapMsg } view model pid renderPID =
+    -> (PID -> Maybe componentOutput)
+    -> componentOutput
+wrapLayoutView { wrapMsg } view model pid renderPid =
     view
         (sendToPid pid << wrapMsg)
         model
-        (renderPID >> Maybe.withDefault (Html.text ""))
+        renderPid
 
 
 wrapUiView :
     Args a applicationAddress applicationActorName applicationModel componentModel componentMsgIn componentMsgOut applicationMessage
-    -> (applicationModel -> Html componentMsgIn)
+    ->
+        ((componentMsgIn -> SystemMessage applicationAddress applicationActorName applicationMessage)
+         -> applicationModel
+         -> componentOutput
+        )
     -> applicationModel
     -> PID
-    -> (PID -> Maybe output)
-    -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> (PID -> Maybe componentOutput)
+    -> componentOutput
 wrapUiView { wrapMsg } view model pid _ =
-    view model
-        |> Html.map (sendToPid pid << wrapMsg)
+    view
+        (sendToPid pid << wrapMsg)
+        model

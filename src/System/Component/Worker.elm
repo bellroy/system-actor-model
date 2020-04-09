@@ -56,7 +56,6 @@ This is great if you want to use an Actor as the “brain” for something else.
 
 -}
 
-import Html as Html exposing (Html)
 import Json.Decode exposing (Value)
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
@@ -95,11 +94,11 @@ toActor :
             -> componentMsgOut
             -> SystemMessage address actorName applicationMessage
         }
-    -> Actor componentModel model (Html msg) (SystemMessage address actorName applicationMessage)
+    -> Actor componentModel model () (SystemMessage address actorName applicationMessage)
 toActor worker args =
     { init = Component.wrapInit args worker.init
     , update = Component.wrapUpdate args worker.update
     , subscriptions = Component.wrapSubscriptions args worker.subscriptions
     , events = Component.wrapEvents args worker.events
-    , view = \_ _ _ -> Html.text ""
+    , view = \_ _ _ -> ()
     }

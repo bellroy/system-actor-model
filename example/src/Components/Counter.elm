@@ -1,13 +1,12 @@
 module Components.Counter exposing (Model(..), MsgIn(..), MsgOut(..), component)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html as Html exposing (Html)
+import Html.Attributes as HtmlA
+import Html.Events as HtmlE
 import Json.Decode as Decode
-import Json.Encode as Encode
 import System.Component.Ui exposing (Ui)
-import System.Event exposing (systemDefault)
-import System.Process exposing (PID, pidToString)
+import System.Event as SystemEvent
+import System.Process as PID exposing (PID)
 
 
 {-| Our model will hold the current Count and the PID the System will assign to this component
@@ -39,13 +38,13 @@ type MsgOut
 
 {-| Setting up a component is much like setting up a Core Browser.element
 -}
-component : Ui Model MsgIn MsgOut
+component : Ui (Html msg) Model MsgIn MsgOut msg
 component =
     { init = init
     , update = update
     , view = view
     , subscriptions = always Sub.none
-    , events = systemDefault
+    , events = SystemEvent.systemDefault
     }
 
 
@@ -113,18 +112,27 @@ update msgIn (Counter pid steps count) =
 
 
 view :
-    Model
-    -> Html MsgIn
-view (Counter pid steps count) =
-    tr []
-        [ td [] [ text (pidToString pid) ]
-        , td []
-            [ strong [] [ text (String.fromInt count) ]
+    (MsgIn -> msg)
+    -> Model
+    -> Html msg
+view toSelf (Counter pid _ count) =
+    Html.tr []
+        [ Html.td [] [ Html.text (PID.pidToString pid) ]
+        , Html.td []
+            [ Html.strong [] [ Html.text (String.fromInt count) ]
             ]
-        , td []
-            [ div [ class "btn-group" ]
-                [ button [ class "btn btn-primary", onClick Decrement ] [ text "-" ]
-                , button [ class "btn btn-primary", onClick Increment ] [ text "+" ]
+        , Html.td []
+            [ Html.div [ HtmlA.class "btn-group" ]
+                [ Html.button
+                    [ HtmlA.class "btn btn-primary"
+                    , HtmlE.onClick <| toSelf Decrement
+                    ]
+                    [ Html.text "-" ]
+                , Html.button
+                    [ HtmlA.class "btn btn-primary"
+                    , HtmlE.onClick <| toSelf Increment
+                    ]
+                    [ Html.text "+" ]
                 ]
             ]
         ]

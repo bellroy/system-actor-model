@@ -21,19 +21,19 @@ view :
     -> SystemModel applicationAddress applicationActorName componentModel
     -> List componentOutput
 view { apply } systemModel =
-    List.filterMap
-        (renderPID
-            (\processModel ->
-                let
-                    (SystemActor systemActor) =
-                        apply processModel
-                in
-                systemActor.view
+    SystemModel.getViews systemModel
+        |> List.reverse
+        |> List.filterMap
+            (renderPID
+                (\processModel ->
+                    let
+                        (SystemActor systemActor) =
+                            apply processModel
+                    in
+                    systemActor.view
+                )
+                systemModel
             )
-            systemModel
-        )
-    <|
-        List.reverse (SystemModel.getViews systemModel)
 
 
 viewApplication :

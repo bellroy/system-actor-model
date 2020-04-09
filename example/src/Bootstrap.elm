@@ -1,10 +1,10 @@
 module Bootstrap exposing (AppModel(..), bootstrap)
 
 import ActorName exposing (ActorName(..))
-import Actors.Counter as Counter exposing (Model, actor)
-import Actors.Counters as Counters exposing (Model, actor)
-import Actors.Snackbar as Snackbar exposing (Model, actor)
-import Actors.Templating as Templating exposing (Model, actor)
+import Actors.Counter as Counter
+import Actors.Counters as Counters
+import Actors.Snackbar as Snackbar
+import Actors.Templating as Templating
 import System.Actor exposing (toSystemActor)
 
 

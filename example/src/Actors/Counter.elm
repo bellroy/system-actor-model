@@ -4,9 +4,9 @@ import Components.Counter as Counter
 import Html exposing (Html)
 import Msg as Msg exposing (Msg)
 import System.Actor exposing (Actor)
-import System.Component.Ui exposing (toActor)
-import System.Log exposing (info)
-import System.Message exposing (log, noOperation)
+import System.Component.Ui as Ui
+import System.Log as Log
+import System.Message as SystemMessage
 import System.Process exposing (PID)
 
 
@@ -26,7 +26,7 @@ actor :
     (Model -> appModel)
     -> Actor Model appModel (Html Msg) Msg
 actor wrapModel =
-    toActor Counter.component
+    Ui.toActor Counter.component
         { wrapModel = wrapModel
         , wrapMsg = Msg.Counter
         , mapIn = mapIn
@@ -53,4 +53,5 @@ mapOut :
 mapOut pid msgOut =
     case msgOut of
         Counter.LogCreated ->
-            log <| info pid "New Counter Created!"
+            Log.info pid "New Counter Created!"
+                |> SystemMessage.log

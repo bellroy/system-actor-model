@@ -1,14 +1,13 @@
 module Components.Templating exposing (Model, MsgIn(..), MsgOut(..), component)
 
 import Dict exposing (Dict)
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
-import Json.Decode as Decode
+import Html exposing (Html)
+import Html.Attributes as HtmlA
+import Html.Events as HtmlE
 import System.Component.Layout exposing (Layout)
-import System.Event exposing (ignoreAll)
+import System.Event as SystemEvent
 import System.Html.Template as HtmlTemplate
-import System.Process exposing (PID, equals, pidToString)
+import System.Process as PID exposing (PID)
 
 
 type alias Instances =
@@ -56,13 +55,13 @@ startingTemplate =
 
 component :
     Dict HtmlTemplate.HtmlComponentId (HtmlTemplate.HtmlComponentFactory actorName address)
-    -> Layout (Model actorName address) MsgIn (MsgOut actorName address) msg
+    -> Layout (Html msg) (Model actorName address) MsgIn (MsgOut actorName address) msg
 component htmlComponents =
     { init = init htmlComponents
     , update = update
     , view = view
     , subscriptions = always Sub.none
-    , events = ignoreAll
+    , events = SystemEvent.ignoreAll
     }
 
 
@@ -102,13 +101,22 @@ update msgIn model =
                     )
 
                 Err _ ->
-                    ( { model | error = Just "There was an error parsing your Html Template" }
+                    ( { model
+                        | error =
+                            Just "There was an error parsing your Html Template"
+                      }
                     , []
                     , Cmd.none
                     )
 
         OnSpawnedComponent htmlComponentId pid ->
-            ( { model | instances = Dict.insert htmlComponentId pid model.instances }
+            ( { model
+                | instances =
+                    Dict.insert
+                        htmlComponentId
+                        pid
+                        model.instances
+              }
             , []
             , Cmd.none
             )
@@ -117,38 +125,51 @@ update msgIn model =
 view :
     (MsgIn -> msg)
     -> Model actorName address
-    -> (PID -> Html msg)
+    -> (PID -> Maybe (Html msg))
     -> Html msg
 view toSelf model renderPid =
-    div []
-        [ h2 [] [ text ("Templating (PID: " ++ pidToString model.pid ++ ")") ]
-        , div [ class "form-group" ]
-            [ label
-                [ for "inputTemplate"
-                ]
-                [ text "Template Input" ]
-            , Html.map toSelf <|
-                textarea
-                    [ class "form-control"
-                    , id "inputTemplate"
-                    , rows ((+) 1 <| List.length <| String.lines model.inputTemplate)
-                    , onInput OnNewTemplate
-                    ]
-                    [ text model.inputTemplate ]
+    Html.div []
+        [ Html.h2 []
+            [ Html.text ("Templating (PID: " ++ PID.pidToString model.pid ++ ")")
             ]
-        , hr [ class "my-4" ] []
+        , Html.div [ HtmlA.class "form-group" ]
+            [ Html.label
+                [ HtmlA.for "inputTemplate"
+                ]
+                [ Html.text "Template Input" ]
+            , Html.map toSelf <|
+                Html.textarea
+                    [ HtmlA.class "form-control"
+                    , HtmlA.id "inputTemplate"
+                    , HtmlA.rows
+                        (String.lines model.inputTemplate
+                            |> List.length
+                            |> (+) 1
+                        )
+                    , HtmlE.onInput OnNewTemplate
+                    ]
+                    [ Html.text model.inputTemplate ]
+            ]
+        , Html.hr [ HtmlA.class "my-4" ] []
         , case model.error of
             Just errorString ->
-                div [ class "alert alert-danger" ] [ text errorString ]
+                Html.div [ HtmlA.class "alert alert-danger" ]
+                    [ Html.text errorString
+                    ]
 
             Nothing ->
-                text ""
+                Html.text ""
         , HtmlTemplate.render
-            { renderPid = renderPid
+            { renderPid =
+                renderPid
+                    >> Maybe.withDefault (Html.text "")
             , instances = model.instances
             , interpolate = Dict.empty
             , htmlTemplate = model.htmlTemplate
             }
-            |> div [ class "container", style "background-color" "#f5f5f5" ]
-        , div [ style "margin-bottom" "100px" ] []
+            |> Html.div
+                [ HtmlA.class "container"
+                , HtmlA.style "background-color" "#f5f5f5"
+                ]
+        , Html.div [ HtmlA.style "margin-bottom" "100px" ] []
         ]

@@ -107,7 +107,7 @@ element :
         -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
     , view :
         List componentOutput
-        -> Html.Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
     , onLogMessage :
         LogMessage applicationAddress applicationActorName applicationMessage
         -> SystemMessage applicationAddress applicationActorName applicationMessage
@@ -132,7 +132,7 @@ elementRecord :
         -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
     , view :
         List componentOutput
-        -> Html.Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
     , onLogMessage :
         LogMessage applicationAddress applicationActorName applicationMessage
         -> SystemMessage applicationAddress applicationActorName applicationMessage

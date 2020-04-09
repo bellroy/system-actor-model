@@ -85,7 +85,6 @@ A Layout is a component that can render other components.
 
 -}
 
-import Html exposing (Html)
 import Json.Decode exposing (Value)
 import System.Actor exposing (Actor)
 import System.Event exposing (ComponentEventHandlers)
@@ -96,7 +95,7 @@ import System.Process exposing (PID)
 
 {-| The Type of a Layout Component
 -}
-type alias Layout componentModel componentMsgIn componentMsgOut layoutChildMsgs =
+type alias Layout componentOutput componentModel componentMsgIn componentMsgOut msg =
     { init :
         ( PID, Value )
         -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
@@ -109,17 +108,17 @@ type alias Layout componentModel componentMsgIn componentMsgOut layoutChildMsgs 
         -> Sub componentMsgIn
     , events : ComponentEventHandlers componentMsgIn
     , view :
-        (componentMsgIn -> layoutChildMsgs)
+        (componentMsgIn -> msg)
         -> componentModel
-        -> (PID -> Html.Html layoutChildMsgs)
-        -> Html.Html layoutChildMsgs
+        -> (PID -> Maybe componentOutput)
+        -> componentOutput
     }
 
 
 {-| Create an Actor from a Layout Component
 -}
 toActor :
-    Layout componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
+    Layout componentOutput componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
     ->
         { wrapModel : componentModel -> applicationModel
         , wrapMsg : componentMsgIn -> appMsg
@@ -129,7 +128,7 @@ toActor :
             -> componentMsgOut
             -> SystemMessage address actorName appMsg
         }
-    -> Actor componentModel applicationModel (Html (SystemMessage address actorName appMsg)) (SystemMessage address actorName appMsg)
+    -> Actor componentModel applicationModel componentOutput (SystemMessage address actorName appMsg)
 toActor layout args =
     { init = Component.wrapInit args layout.init
     , update = Component.wrapUpdate args layout.update

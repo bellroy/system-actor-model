@@ -1,19 +1,15 @@
-module Components.Snackbar exposing (Model, MsgIn(..), MsgOut, component)
+module Components.Snackbar exposing (Model, MsgIn(..), component)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Html)
+import Html.Attributes as HtmlA
 import System.Component.Ui exposing (Ui)
-import System.Event exposing (systemDefault)
-import Time exposing (Posix, every)
+import System.Event as SystemEvent
+import Time as Time exposing (Posix)
 
 
 type MsgIn
     = Tick Posix
-    | NewSnack Snack
-
-
-type MsgOut
-    = NoMsgOut
+    | NewSnackMessage String
 
 
 type Model
@@ -24,22 +20,25 @@ type alias Snacks =
     List ( Int, Snack )
 
 
-type alias Snack =
-    { message : String
-    }
+type Snack
+    = Snack Message
 
 
-component : Ui Model MsgIn MsgOut
+type Message
+    = Message String
+
+
+component : Ui (Html msg) Model MsgIn () msg
 component =
     { init = init
     , update = update
     , subscriptions = subscriptions
-    , events = systemDefault
+    , events = SystemEvent.systemDefault
     , view = view
     }
 
 
-init : a -> ( Model, List MsgOut, Cmd MsgIn )
+init : a -> ( Model, List (), Cmd MsgIn )
 init _ =
     ( Snackbar []
     , []
@@ -50,7 +49,7 @@ init _ =
 update :
     MsgIn
     -> Model
-    -> ( Model, List MsgOut, Cmd MsgIn )
+    -> ( Model, List (), Cmd MsgIn )
 update msg (Snackbar snacks) =
     case msg of
         Tick _ ->
@@ -64,8 +63,8 @@ update msg (Snackbar snacks) =
                 [] ->
                     ( Snackbar [], [], Cmd.none )
 
-        NewSnack snack ->
-            ( Snackbar ((List.reverse <| List.take 2 (List.reverse snacks)) ++ [ ( 2, snack ) ])
+        NewSnackMessage message ->
+            ( Snackbar ((List.reverse <| List.take 2 (List.reverse snacks)) ++ [ ( 2, Snack (Message message) ) ])
             , []
             , Cmd.none
             )
@@ -77,31 +76,32 @@ subscriptions (Snackbar snacks) =
         Sub.none
 
     else
-        every 1000 Tick
+        Time.every 1000 Tick
 
 
 view :
-    Model
-    -> Html MsgIn
-view (Snackbar snacks) =
+    a
+    -> Model
+    -> Html msg
+view _ (Snackbar snacks) =
     case snacks of
         ( int, snack ) :: _ ->
-            div [ class "fixed-bottom container" ]
+            Html.div [ HtmlA.class "fixed-bottom container" ]
                 [ viewSnack int snack
                 ]
 
         _ ->
-            text ""
+            Html.text ""
 
 
 viewSnack :
     Int
     -> Snack
-    -> Html MsgIn
-viewSnack timeRemaining snack =
-    div [ class "alert alert-info" ]
-        [ text snack.message
-        , text " ("
-        , text <| String.fromInt timeRemaining
-        , text ")"
+    -> Html msg
+viewSnack timeRemaining (Snack (Message message)) =
+    Html.div [ HtmlA.class "alert alert-info" ]
+        [ Html.text message
+        , Html.text " ("
+        , Html.text <| String.fromInt timeRemaining
+        , Html.text ")"
         ]

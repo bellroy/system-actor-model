@@ -1,12 +1,12 @@
 module Components.Counters exposing (Model, MsgIn(..), MsgOut(..), component)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html exposing (Html)
+import Html.Attributes as HtmlA
+import Html.Events as HtmlE
 import Json.Decode as Decode
 import System.Component.Layout exposing (Layout)
-import System.Event exposing (ignoreAll)
-import System.Process exposing (PID, equals, pidToString)
+import System.Event as SystemEvent
+import System.Process as PID exposing (PID)
 
 
 type Model
@@ -29,13 +29,13 @@ type MsgOut
     | KillCounter PID
 
 
-component : Layout Model MsgIn MsgOut msg
+component : Layout (Html msg) Model MsgIn MsgOut msg
 component =
     { init = init
     , update = update
     , view = view
     , subscriptions = always Sub.none
-    , events = ignoreAll
+    , events = SystemEvent.ignoreAll
     }
 
 
@@ -74,7 +74,7 @@ update msgIn ((Counters pid initialValue counters) as model) =
         KilledCounter killedPid ->
             let
                 updatedCounters =
-                    List.filter (not << equals killedPid) counters
+                    List.filter (not << PID.equals killedPid) counters
             in
             ( Counters pid initialValue updatedCounters, [], Cmd.none )
 
@@ -82,41 +82,43 @@ update msgIn ((Counters pid initialValue counters) as model) =
 view :
     (MsgIn -> msg)
     -> Model
-    -> (PID -> Html msg)
+    -> (PID -> Maybe (Html msg))
     -> Html msg
-view wrap (Counters pid initialValue counters) renderPid =
-    div []
-        [ h2 [] [ text ("Counters (PID: " ++ pidToString pid ++ ")") ]
-        , div [ class "container clearfix" ]
-            [ div [ class "row float-right" ]
-                [ div [ class "btn-group", style "margin-bottom" "20px" ]
-                    [ button
-                        [ class "btn btn-secondary"
-                        , onClick <| wrap OnKillCounterClick
+view toSelf (Counters pid initialValue counters) renderPid =
+    Html.div []
+        [ Html.h2 [] [ Html.text ("Counters (PID: " ++ PID.pidToString pid ++ ")") ]
+        , Html.div [ HtmlA.class "container clearfix" ]
+            [ Html.div [ HtmlA.class "row float-right" ]
+                [ Html.div [ HtmlA.class "btn-group", HtmlA.style "margin-bottom" "20px" ]
+                    [ Html.button
+                        [ HtmlA.class "btn btn-secondary"
+                        , HtmlE.onClick <| toSelf OnKillCounterClick
                         ]
-                        [ text "Kill first Counter"
+                        [ Html.text "Kill first Counter"
                         ]
-                    , button
-                        [ class "btn btn-primary"
-                        , onClick <| wrap (OnSpawnCounterClick initialValue)
+                    , Html.button
+                        [ HtmlA.class "btn btn-primary"
+                        , HtmlE.onClick <| toSelf (OnSpawnCounterClick initialValue)
                         ]
-                        [ text "Spawn a Counter"
+                        [ Html.text "Spawn a Counter"
                         ]
                     ]
                 ]
             ]
-        , div [ class "container" ]
-            [ div [ class "row" ]
-                [ table
-                    [ class "table" ]
-                    [ thead [ class "thead-dark" ]
-                        [ tr []
-                            [ th [] [ text "PID" ]
-                            , th [] [ text "Count" ]
-                            , th [] []
+        , Html.div [ HtmlA.class "container" ]
+            [ Html.div [ HtmlA.class "row" ]
+                [ Html.table
+                    [ HtmlA.class "table" ]
+                    [ Html.thead [ HtmlA.class "thead-dark" ]
+                        [ Html.tr []
+                            [ Html.th [] [ Html.text "PID" ]
+                            , Html.th [] [ Html.text "Count" ]
+                            , Html.th [] []
                             ]
                         ]
-                    , tbody [] (List.map renderPid <| List.reverse counters)
+                    , List.reverse counters
+                        |> List.filterMap renderPid
+                        |> Html.tbody []
                     ]
                 ]
             ]
