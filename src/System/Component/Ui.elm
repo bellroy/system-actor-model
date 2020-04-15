@@ -23,7 +23,7 @@ A Ui component **can't** render other Actors.
     type MsgOut
         = NoMsgOut
 
-    component : Ui Model MsgIn MsgOut
+    component : Ui (Html msg) Model MsgIn MsgOut msg
     component =
         { init =
             \_ ->
@@ -40,13 +40,15 @@ A Ui component **can't** render other Actors.
             \toSelf model ->
                 Html.div []
                     [ Html.button
-                        [ Html.Events.onClick Decrement
+                        [ Html.Events.onClick <|
+                            toSelf Decrement
                         ]
                         [ Html.text "-"
                         ]
                     , Html.text <| String.fromInt model
                     , Html.button
-                        [ Html.Events.onClick Increment
+                        [ Html.Events.onClick <|
+                            toSelf Increment
                         ]
                         [ Html.text "+"
                         ]

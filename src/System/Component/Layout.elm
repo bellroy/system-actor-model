@@ -25,7 +25,7 @@ A Layout is a component that can render other components.
     type MsgOut
         = KillProcess System.Process.PID
 
-    component : Layout Model MsgIn MsgOut layoutChildMsgs
+    component : Layout (Html msg) Model MsgIn MsgOut msg
     component =
         { init =
             \_ ->
@@ -66,6 +66,7 @@ A Layout is a component that can render other components.
                                 [ Html.button [ Html.Events.onClick (OnClickKillProcess pid) ] [ Html.text "kill process" ]
                                     |> Html.map toSelf
                                 , renderPid pid
+                                    |> Maybe.withDefault (Html.text "")
                                 ]
                         )
                     |> Html.div []
