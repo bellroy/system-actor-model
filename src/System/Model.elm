@@ -1,6 +1,6 @@
 module System.Model exposing (SystemModel)
 
-{-| Model
+{-|
 
 @docs SystemModel
 
@@ -9,7 +9,7 @@ module System.Model exposing (SystemModel)
 import System.Internal.Model as Model
 
 
-{-| The alias of the Internal System Message
+{-| An alias of the Model used by any application you start unsing this package.
 -}
-type alias SystemModel applicationAddress applicationActorName applicationModel =
-    Model.SystemModel applicationAddress applicationActorName applicationModel
+type alias SystemModel addresses actors appModel =
+    Model.SystemModel addresses actors appModel

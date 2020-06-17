@@ -79,7 +79,7 @@ import System.Process exposing (PID)
 
 {-| The Type of an Ui Component
 -}
-type alias Ui componentOutput componentModel componentMsgIn componentMsgOut msg =
+type alias Ui output componentModel componentMsgIn componentMsgOut msg =
     { init :
         ( PID, Value )
         -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
@@ -91,16 +91,16 @@ type alias Ui componentOutput componentModel componentMsgIn componentMsgOut msg 
         componentModel
         -> Sub componentMsgIn
     , events : ComponentEventHandlers componentMsgIn
-    , view : (componentMsgIn -> msg) -> componentModel -> componentOutput
+    , view : (componentMsgIn -> msg) -> componentModel -> output
     }
 
 
 {-| Create an Actor from an Ui Component
 -}
 toActor :
-    Ui componentOutput componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
+    Ui output componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
     ->
-        { wrapModel : componentModel -> applicationModel
+        { wrapModel : componentModel -> appModel
         , wrapMsg : componentMsgIn -> appMsg
         , mapIn : appMsg -> Maybe componentMsgIn
         , mapOut :
@@ -108,7 +108,7 @@ toActor :
             -> componentMsgOut
             -> SystemMessage address actorName appMsg
         }
-    -> Actor componentModel applicationModel componentOutput (SystemMessage address actorName appMsg)
+    -> Actor componentModel appModel output (SystemMessage address actorName appMsg)
 toActor ui args =
     { init = Component.wrapInit args ui.init
     , update = Component.wrapUpdate args ui.update

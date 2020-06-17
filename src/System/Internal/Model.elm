@@ -22,26 +22,26 @@ import Dict
 import System.Internal.PID exposing (PID(..), equals, system, toInt)
 
 
-type alias SystemModelRecord applicationAddress applicationActorName applicationModel =
-    { instances : Dict.Dict Int ( PID, applicationActorName, applicationModel )
+type alias SystemModelRecord addresses actors appModel =
+    { instances : Dict.Dict Int ( PID, actors, appModel )
     , children : Dict.Dict Int (List PID)
-    , applicationAddresses : List ( applicationAddress, PID )
+    , addresseses : List ( addresses, PID )
     , lastPID : PID
     , views : List PID
     , documentTitle : String
     }
 
 
-type SystemModel applicationAddress applicationActorName applicationModel
-    = SystemModel (SystemModelRecord applicationAddress applicationActorName applicationModel)
+type SystemModel addresses actors appModel
+    = SystemModel (SystemModelRecord addresses actors appModel)
 
 
-init : SystemModel applicationAddress applicationActorName applicationModel
+init : SystemModel addresses actors appModel
 init =
     SystemModel
         { instances = Dict.empty
         , children = Dict.empty
-        , applicationAddresses = []
+        , addresseses = []
         , lastPID = system
         , views = []
         , documentTitle = ""
@@ -50,18 +50,18 @@ init =
 
 getInstance :
     PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> Maybe ( applicationActorName, applicationModel )
+    -> SystemModel addresses actors appModel
+    -> Maybe ( actors, appModel )
 getInstance pid (SystemModel { instances }) =
     Dict.get (toInt pid) instances
         |> Maybe.map
-            (\( _, applicationActorName, applicationModel ) ->
-                ( applicationActorName, applicationModel )
+            (\( _, actors, appModel ) ->
+                ( actors, appModel )
             )
 
 
 getInstances :
-    SystemModel applicationAddress applicationActorName applicationModel
+    SystemModel addresses actors appModel
     -> List PID
 getInstances (SystemModel { instances }) =
     Dict.toList instances
@@ -70,14 +70,14 @@ getInstances (SystemModel { instances }) =
 
 getChildren :
     PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
     -> Maybe (List PID)
 getChildren pid (SystemModel { children }) =
     Dict.get (toInt pid) children
 
 
 getViews :
-    SystemModel applicationAddress applicationActorName applicationModel
+    SystemModel addresses actors appModel
     -> List PID
 getViews (SystemModel { views }) =
     views
@@ -86,33 +86,33 @@ getViews (SystemModel { views }) =
 {-| Retrieve the document title
 -}
 getDocumentTitle :
-    SystemModel applicationAddress applicationActorName applicationModel
+    SystemModel addresses actors appModel
     -> String
 getDocumentTitle (SystemModel { documentTitle }) =
     documentTitle
 
 
 getAddress :
-    applicationAddress
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> ( applicationAddress, List PID )
-getAddress applicationAddress (SystemModel systemModelRecord) =
+    addresses
+    -> SystemModel addresses actors appModel
+    -> ( addresses, List PID )
+getAddress addresses (SystemModel systemModelRecord) =
     List.foldl
-        (\( xapplicationAddress, xpid ) ( _, listOfPids ) ->
-            if xapplicationAddress == applicationAddress then
-                ( applicationAddress, xpid :: listOfPids )
+        (\( xaddresses, xpid ) ( _, listOfPids ) ->
+            if xaddresses == addresses then
+                ( addresses, xpid :: listOfPids )
 
             else
-                ( applicationAddress, listOfPids )
+                ( addresses, listOfPids )
         )
-        ( applicationAddress, [] )
-        systemModelRecord.applicationAddresses
+        ( addresses, [] )
+        systemModelRecord.addresseses
 
 
 getNewPID :
     Maybe PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> ( PID, SystemModel applicationAddress applicationActorName applicationModel )
+    -> SystemModel addresses actors appModel
+    -> ( PID, SystemModel addresses actors appModel )
 getNewPID maybeSpawendBy (SystemModel ({ lastPID, children } as systemModelRecord)) =
     let
         spawnedBy =
@@ -152,53 +152,53 @@ getNewPID maybeSpawendBy (SystemModel ({ lastPID, children } as systemModelRecor
 
 updateInstance :
     PID
-    -> applicationActorName
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
-updateInstance pid applicationActorName (SystemModel systemModelRecord) applicationModel =
+    -> actors
+    -> SystemModel addresses actors appModel
+    -> appModel
+    -> SystemModel addresses actors appModel
+updateInstance pid actors (SystemModel systemModelRecord) appModel =
     SystemModel
         { systemModelRecord
             | instances =
                 Dict.insert
                     (toInt pid)
-                    ( pid, applicationActorName, applicationModel )
+                    ( pid, actors, appModel )
                     systemModelRecord.instances
         }
 
 
 updateDocumentTitle :
     String
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
 updateDocumentTitle documentTitle (SystemModel systemModelRecord) =
     SystemModel { systemModelRecord | documentTitle = documentTitle }
 
 
 addView :
     PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
 addView pid (SystemModel systemModelRecord) =
     SystemModel { systemModelRecord | views = pid :: systemModelRecord.views }
 
 
 addAddress :
-    applicationAddress
+    addresses
     -> PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
-addAddress applicationAddress pid (SystemModel systemModelRecord) =
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
+addAddress addresses pid (SystemModel systemModelRecord) =
     SystemModel
         { systemModelRecord
-            | applicationAddresses = ( applicationAddress, pid ) :: systemModelRecord.applicationAddresses
+            | addresseses = ( addresses, pid ) :: systemModelRecord.addresseses
         }
 
 
 removePID :
     PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
 removePID pid (SystemModel systemModelRecord) =
     let
         pidId =
@@ -212,14 +212,14 @@ removePID pid (SystemModel systemModelRecord) =
                     |> Dict.map
                         (\_ a -> List.filter (not << equals pid) a)
             , views = List.filter (not << equals pid) systemModelRecord.views
-            , applicationAddresses = List.filter (not << equals pid << Tuple.second) systemModelRecord.applicationAddresses
+            , addresseses = List.filter (not << equals pid << Tuple.second) systemModelRecord.addresseses
         }
 
 
 removeFromView :
     PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
 removeFromView pid (SystemModel systemModelRecord) =
     SystemModel
         { systemModelRecord
@@ -238,46 +238,46 @@ removeFromView pid (SystemModel systemModelRecord) =
 
 
 removeFromAddress :
-    applicationAddress
+    addresses
     -> PID
-    -> SystemModel applicationAddress applicationActorName applicationModel
-    -> SystemModel applicationAddress applicationActorName applicationModel
-removeFromAddress applicationAddress pid (SystemModel systemModelRecord) =
+    -> SystemModel addresses actors appModel
+    -> SystemModel addresses actors appModel
+removeFromAddress addresses pid (SystemModel systemModelRecord) =
     SystemModel
         { systemModelRecord
-            | applicationAddresses =
+            | addresseses =
                 List.foldr
                     (\( a, b ) r ->
-                        if a == applicationAddress && equals pid b then
+                        if a == addresses && equals pid b then
                             r
 
                         else
                             ( a, b ) :: r
                     )
                     []
-                    systemModelRecord.applicationAddresses
+                    systemModelRecord.addresseses
         }
 
 
 foldlInstances :
-    ({ applicationActorName : applicationActorName
-     , applicationModel :
-        applicationModel
+    ({ actors : actors
+     , appModel :
+        appModel
      , pid : PID
      }
      -> List (Sub systemMessage)
      -> List (Sub systemMessage)
     )
     -> List (Sub systemMessage)
-    -> SystemModel applicationAddress applicationActorName applicationModel
+    -> SystemModel addresses actors appModel
     -> List (Sub systemMessage)
 foldlInstances f initial (SystemModel { instances }) =
     Dict.foldl
-        (\_ ( pid, applicationActorName, applicationModel ) x ->
+        (\_ ( pid, actors, appModel ) x ->
             f
                 { pid = pid
-                , applicationActorName = applicationActorName
-                , applicationModel = applicationModel
+                , actors = actors
+                , appModel = appModel
                 }
                 x
         )

@@ -87,14 +87,14 @@ toActor :
     Worker componentModel componentMsgIn componentMsgOut
     ->
         { wrapModel : componentModel -> model
-        , wrapMsg : componentMsgIn -> applicationMessage
-        , mapIn : applicationMessage -> Maybe componentMsgIn
+        , wrapMsg : componentMsgIn -> appMsg
+        , mapIn : appMsg -> Maybe componentMsgIn
         , mapOut :
             PID
             -> componentMsgOut
-            -> SystemMessage address actorName applicationMessage
+            -> SystemMessage address actorName appMsg
         }
-    -> Actor componentModel model componentOutput (SystemMessage address actorName applicationMessage)
+    -> Actor componentModel model output (SystemMessage address actorName appMsg)
 toActor worker args =
     { init = Component.wrapInit args worker.init
     , update = Component.wrapUpdate args worker.update

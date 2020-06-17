@@ -5868,76 +5868,78 @@ var $elm$html$Html$td = _VirtualDom_node('td');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$tr = _VirtualDom_node('tr');
-var $author$project$Components$Counter$view = function (_v0) {
-	var pid = _v0.a;
-	var steps = _v0.b;
-	var count = _v0.c;
-	return A2(
-		$elm$html$Html$tr,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$td,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						$author$project$System$Process$pidToString(pid))
-					])),
-				A2(
-				$elm$html$Html$td,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$strong,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text(
-								$elm$core$String$fromInt(count))
-							]))
-					])),
-				A2(
-				$elm$html$Html$td,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('btn-group')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('btn btn-primary'),
-										$elm$html$Html$Events$onClick($author$project$Components$Counter$Decrement)
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('-')
-									])),
-								A2(
-								$elm$html$Html$button,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('btn btn-primary'),
-										$elm$html$Html$Events$onClick($author$project$Components$Counter$Increment)
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('+')
-									]))
-							]))
-					]))
-			]));
-};
+var $author$project$Components$Counter$view = F2(
+	function (toSelf, _v0) {
+		var pid = _v0.a;
+		var count = _v0.c;
+		return A2(
+			$elm$html$Html$tr,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$td,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(
+							$author$project$System$Process$pidToString(pid))
+						])),
+					A2(
+					$elm$html$Html$td,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$strong,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									$elm$core$String$fromInt(count))
+								]))
+						])),
+					A2(
+					$elm$html$Html$td,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('btn-group')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('btn btn-primary'),
+											$elm$html$Html$Events$onClick(
+											toSelf($author$project$Components$Counter$Decrement))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('-')
+										])),
+									A2(
+									$elm$html$Html$button,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('btn btn-primary'),
+											$elm$html$Html$Events$onClick(
+											toSelf($author$project$Components$Counter$Increment))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('+')
+										]))
+								]))
+						]))
+				]));
+	});
 var $author$project$Components$Counter$component = {
 	events: $author$project$System$Event$systemDefault,
 	init: $author$project$Components$Counter$init,
@@ -6124,54 +6126,52 @@ var $author$project$System$Internal$Component$wrapInit = F3(
 	});
 var $elm$core$Platform$Sub$map = _Platform_map;
 var $author$project$System$Internal$Component$wrapSubscriptions = F4(
-	function (_v0, subs, applicationModel, pid) {
+	function (_v0, subs, appModel, pid) {
 		var wrapMsg = _v0.wrapMsg;
 		return _Utils_eq(
-			subs(applicationModel),
+			subs(appModel),
 			$elm$core$Platform$Sub$none) ? $elm$core$Platform$Sub$none : A2(
 			$elm$core$Platform$Sub$map,
 			A2(
 				$elm$core$Basics$composeL,
 				$author$project$System$Message$sendToPid(pid),
 				wrapMsg),
-			subs(applicationModel));
+			subs(appModel));
 	});
-var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
-var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
 var $author$project$System$Internal$Component$wrapUiView = F5(
 	function (_v0, view, model, pid, _v1) {
 		var wrapMsg = _v0.wrapMsg;
 		return A2(
-			$elm$html$Html$map,
+			view,
 			A2(
 				$elm$core$Basics$composeL,
 				$author$project$System$Message$sendToPid(pid),
 				wrapMsg),
-			view(model));
+			model);
 	});
 var $author$project$System$Internal$Message$UnmappedMsg = function (a) {
 	return {$: 'UnmappedMsg', a: a};
 };
 var $author$project$System$Internal$Component$wrapUpdate = F5(
-	function (args, update, applicationModel, msg, pid) {
+	function (args, update, appModel, msg, pid) {
 		if (msg.$ === 'ActorMsg') {
-			var applicationMessage = msg.a;
-			var _v1 = args.mapIn(applicationMessage);
+			var appMsg = msg.a;
+			var _v1 = args.mapIn(appMsg);
 			if (_v1.$ === 'Just') {
 				var componentMsgIn = _v1.a;
 				return A3(
 					$author$project$System$Internal$Component$wrapToTuple,
 					args,
 					pid,
-					A2(update, componentMsgIn, applicationModel));
+					A2(update, componentMsgIn, appModel));
 			} else {
 				return _Utils_Tuple2(
-					args.wrapModel(applicationModel),
-					$author$project$System$Internal$Message$UnmappedMsg(applicationMessage));
+					args.wrapModel(appModel),
+					$author$project$System$Internal$Message$UnmappedMsg(appMsg));
 			}
 		} else {
 			return _Utils_Tuple2(
-				args.wrapModel(applicationModel),
+				args.wrapModel(appModel),
 				$author$project$System$Internal$Message$NoOp);
 		}
 	});
@@ -6182,7 +6182,8 @@ var $author$project$System$Component$Ui$toActor = F2(
 			init: A2($author$project$System$Internal$Component$wrapInit, args, ui.init),
 			subscriptions: A2($author$project$System$Internal$Component$wrapSubscriptions, args, ui.subscriptions),
 			update: A2($author$project$System$Internal$Component$wrapUpdate, args, ui.update),
-			view: A2($author$project$System$Internal$Component$wrapUiView, args, ui.view)
+			view: $elm$core$Maybe$Just(
+				A2($author$project$System$Internal$Component$wrapUiView, args, ui.view))
 		};
 	});
 var $author$project$Actors$Counter$actor = function (wrapModel) {
@@ -6303,6 +6304,24 @@ var $author$project$Components$Counters$OnKillCounterClick = {$: 'OnKillCounterC
 var $author$project$Components$Counters$OnSpawnCounterClick = function (a) {
 	return {$: 'OnSpawnCounterClick', a: a};
 };
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
@@ -6311,7 +6330,7 @@ var $elm$html$Html$tbody = _VirtualDom_node('tbody');
 var $elm$html$Html$th = _VirtualDom_node('th');
 var $elm$html$Html$thead = _VirtualDom_node('thead');
 var $author$project$Components$Counters$view = F3(
-	function (wrap, _v0, renderPid) {
+	function (toSelf, _v0, renderPid) {
 		var pid = _v0.a;
 		var initialValue = _v0.b;
 		var counters = _v0.c;
@@ -6359,7 +6378,7 @@ var $author$project$Components$Counters$view = F3(
 												[
 													$elm$html$Html$Attributes$class('btn btn-secondary'),
 													$elm$html$Html$Events$onClick(
-													wrap($author$project$Components$Counters$OnKillCounterClick))
+													toSelf($author$project$Components$Counters$OnKillCounterClick))
 												]),
 											_List_fromArray(
 												[
@@ -6371,7 +6390,7 @@ var $author$project$Components$Counters$view = F3(
 												[
 													$elm$html$Html$Attributes$class('btn btn-primary'),
 													$elm$html$Html$Events$onClick(
-													wrap(
+													toSelf(
 														$author$project$Components$Counters$OnSpawnCounterClick(initialValue)))
 												]),
 											_List_fromArray(
@@ -6439,7 +6458,7 @@ var $author$project$Components$Counters$view = F3(
 											$elm$html$Html$tbody,
 											_List_Nil,
 											A2(
-												$elm$core$List$map,
+												$elm$core$List$filterMap,
 												renderPid,
 												$elm$core$List$reverse(counters)))
 										]))
@@ -6480,11 +6499,11 @@ var $author$project$System$Internal$Message$SpawnWithFlags = F3(
 		return {$: 'SpawnWithFlags', a: a, b: b, c: c};
 	});
 var $author$project$System$Message$spawnWithFlags = F2(
-	function (flags, applicationActorName) {
+	function (flags, actors) {
 		return A2(
 			$elm$core$Basics$composeL,
 			$author$project$System$Internal$Message$Control,
-			A2($author$project$System$Internal$Message$SpawnWithFlags, flags, applicationActorName));
+			A2($author$project$System$Internal$Message$SpawnWithFlags, flags, actors));
 	});
 var $author$project$Actors$Counters$mapOut = F2(
 	function (pid, msgOut) {
@@ -6495,12 +6514,12 @@ var $author$project$Actors$Counters$mapOut = F2(
 				$elm$json$Json$Encode$int(intialValue),
 				$author$project$ActorName$Counter,
 				A2(
-					$elm$core$Basics$composeL,
+					$elm$core$Basics$composeR,
+					$author$project$Components$Counters$ReceiveCounter,
 					A2(
-						$elm$core$Basics$composeL,
-						$author$project$System$Message$sendToPid(pid),
-						$author$project$Msg$Counters),
-					$author$project$Components$Counters$ReceiveCounter));
+						$elm$core$Basics$composeR,
+						$author$project$Msg$Counters,
+						$author$project$System$Message$sendToPid(pid))));
 		} else {
 			var killPid = msgOut.a;
 			return $author$project$System$Message$batch(
@@ -6516,7 +6535,7 @@ var $author$project$Actors$Counters$mapOut = F2(
 		}
 	});
 var $author$project$System$Internal$Component$wrapLayoutView = F5(
-	function (_v0, view, model, pid, renderPID) {
+	function (_v0, view, model, pid, renderPid) {
 		var wrapMsg = _v0.wrapMsg;
 		return A3(
 			view,
@@ -6525,11 +6544,7 @@ var $author$project$System$Internal$Component$wrapLayoutView = F5(
 				$author$project$System$Message$sendToPid(pid),
 				wrapMsg),
 			model,
-			A2(
-				$elm$core$Basics$composeR,
-				renderPID,
-				$elm$core$Maybe$withDefault(
-					$elm$html$Html$text(''))));
+			renderPid);
 	});
 var $author$project$System$Component$Layout$toActor = F2(
 	function (layout, args) {
@@ -6538,7 +6553,8 @@ var $author$project$System$Component$Layout$toActor = F2(
 			init: A2($author$project$System$Internal$Component$wrapInit, args, layout.init),
 			subscriptions: A2($author$project$System$Internal$Component$wrapSubscriptions, args, layout.subscriptions),
 			update: A2($author$project$System$Internal$Component$wrapUpdate, args, layout.update),
-			view: A2($author$project$System$Internal$Component$wrapLayoutView, args, layout.view)
+			view: $elm$core$Maybe$Just(
+				A2($author$project$System$Internal$Component$wrapLayoutView, args, layout.view))
 		};
 	});
 var $author$project$Actors$Counters$actor = function (wrapModel) {
@@ -7008,6 +7024,12 @@ var $author$project$Components$Snackbar$subscriptions = function (_v0) {
 	var snacks = _v0.a;
 	return $elm$core$List$isEmpty(snacks) ? $elm$core$Platform$Sub$none : A2($elm$time$Time$every, 1000, $author$project$Components$Snackbar$Tick);
 };
+var $author$project$Components$Snackbar$Message = function (a) {
+	return {$: 'Message', a: a};
+};
+var $author$project$Components$Snackbar$Snack = function (a) {
+	return {$: 'Snack', a: a};
+};
 var $elm$core$List$takeReverse = F3(
 	function (n, list, kept) {
 		takeReverse:
@@ -7167,7 +7189,7 @@ var $author$project$Components$Snackbar$update = F2(
 					$elm$core$Platform$Cmd$none);
 			}
 		} else {
-			var snack = msg.a;
+			var message = msg.a;
 			return _Utils_Tuple3(
 				$author$project$Components$Snackbar$Snackbar(
 					_Utils_ap(
@@ -7178,14 +7200,18 @@ var $author$project$Components$Snackbar$update = F2(
 								$elm$core$List$reverse(snacks))),
 						_List_fromArray(
 							[
-								_Utils_Tuple2(2, snack)
+								_Utils_Tuple2(
+								2,
+								$author$project$Components$Snackbar$Snack(
+									$author$project$Components$Snackbar$Message(message)))
 							]))),
 				_List_Nil,
 				$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Components$Snackbar$viewSnack = F2(
-	function (timeRemaining, snack) {
+	function (timeRemaining, _v0) {
+		var message = _v0.a.a;
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -7194,36 +7220,37 @@ var $author$project$Components$Snackbar$viewSnack = F2(
 				]),
 			_List_fromArray(
 				[
-					$elm$html$Html$text(snack.message),
+					$elm$html$Html$text(message),
 					$elm$html$Html$text(' ('),
 					$elm$html$Html$text(
 					$elm$core$String$fromInt(timeRemaining)),
 					$elm$html$Html$text(')')
 				]));
 	});
-var $author$project$Components$Snackbar$view = function (_v0) {
-	var snacks = _v0.a;
-	if (snacks.b) {
-		var _v2 = snacks.a;
-		var _int = _v2.a;
-		var snack = _v2.b;
-		return A2(
-			$elm$html$Html$div,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('fixed-bottom container')
-				]),
-			_List_fromArray(
-				[
-					A2($author$project$Components$Snackbar$viewSnack, _int, snack)
-				]));
-	} else {
-		return $elm$html$Html$text('');
-	}
-};
+var $author$project$Components$Snackbar$view = F2(
+	function (_v0, _v1) {
+		var snacks = _v1.a;
+		if (snacks.b) {
+			var _v3 = snacks.a;
+			var _int = _v3.a;
+			var snack = _v3.b;
+			return A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('fixed-bottom container')
+					]),
+				_List_fromArray(
+					[
+						A2($author$project$Components$Snackbar$viewSnack, _int, snack)
+					]));
+		} else {
+			return $elm$html$Html$text('');
+		}
+	});
 var $author$project$Components$Snackbar$component = {events: $author$project$System$Event$systemDefault, init: $author$project$Components$Snackbar$init, subscriptions: $author$project$Components$Snackbar$subscriptions, update: $author$project$Components$Snackbar$update, view: $author$project$Components$Snackbar$view};
-var $author$project$Components$Snackbar$NewSnack = function (a) {
-	return {$: 'NewSnack', a: a};
+var $author$project$Components$Snackbar$NewSnackMessage = function (a) {
+	return {$: 'NewSnackMessage', a: a};
 };
 var $author$project$System$Internal$Message$logMessageToMeta = function (_v0) {
 	var meta = _v0.a;
@@ -7241,15 +7268,14 @@ var $author$project$Actors$Snackbar$mapIn = function (appMsg) {
 			var logPid = $author$project$System$Process$pidToString(logMessageMeta.pid);
 			var logDescription = logMessageMeta.description;
 			return $elm$core$Maybe$Just(
-				$author$project$Components$Snackbar$NewSnack(
-					{message: logDescription + (' with PID: ' + logPid)}));
+				$author$project$Components$Snackbar$NewSnackMessage(logDescription + (' with PID: ' + logPid)));
 		default:
 			return $elm$core$Maybe$Nothing;
 	}
 };
 var $author$project$System$Message$noOperation = $author$project$System$Internal$Message$NoOp;
 var $author$project$Actors$Snackbar$mapOut = F2(
-	function (pid, msgOut) {
+	function (_v0, _v1) {
 		return $author$project$System$Message$noOperation;
 	});
 var $author$project$Actors$Snackbar$actor = function (wrapModel) {
@@ -7290,24 +7316,6 @@ var $author$project$System$Html$Internal$Template$Node = F3(
 var $author$project$System$Html$Internal$Template$Text = function (a) {
 	return {$: 'Text', a: a};
 };
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var $elm$core$String$trim = _String_trim;
 var $author$project$System$Html$Internal$Template$htmlParserNodeToTemplateElement = F2(
 	function (htmlComponents, parserNode) {
@@ -10956,6 +10964,8 @@ var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$core$String$lines = _String_lines;
+var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -11188,7 +11198,16 @@ var $author$project$Components$Templating$view = F3(
 							A2($elm$html$Html$Attributes$style, 'background-color', '#f5f5f5')
 						]),
 					$author$project$System$Html$Template$render(
-						{htmlTemplate: model.htmlTemplate, instances: model.instances, interpolate: $elm$core$Dict$empty, renderPid: renderPid})),
+						{
+							htmlTemplate: model.htmlTemplate,
+							instances: model.instances,
+							interpolate: $elm$core$Dict$empty,
+							renderPid: A2(
+								$elm$core$Basics$composeR,
+								renderPid,
+								$elm$core$Maybe$withDefault(
+									$elm$html$Html$text('')))
+						})),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -11938,11 +11957,11 @@ var $author$project$System$Internal$Message$PopulateAddress = F2(
 	function (a, b) {
 		return {$: 'PopulateAddress', a: a, b: b};
 	});
-var $author$project$System$Message$populateAddress = function (applicationAddress) {
+var $author$project$System$Message$populateAddress = function (addresses) {
 	return A2(
 		$elm$core$Basics$composeL,
 		$author$project$System$Internal$Message$Control,
-		$author$project$System$Internal$Message$PopulateAddress(applicationAddress));
+		$author$project$System$Internal$Message$PopulateAddress(addresses));
 };
 var $author$project$System$Html$Internal$Template$spawn = F2(
 	function (callback, spawnableHtmlComponent) {
@@ -12030,7 +12049,7 @@ var $author$project$Actors$Templating$mapOut = F2(
 			$author$project$System$Html$Template$toListSpawnableHtmlComponents(htmlTemplate));
 		var killMsgs = A2(
 			$elm$core$List$map,
-			A2($elm$core$Basics$composeL, $author$project$System$Message$kill, $elm$core$Tuple$second),
+			A2($elm$core$Basics$composeR, $elm$core$Tuple$second, $author$project$System$Message$kill),
 			$elm$core$Dict$toList(oldInstances));
 		return $author$project$System$Message$batch(
 			_Utils_ap(killMsgs, spawnComponentMsgs));
@@ -12058,7 +12077,12 @@ var $author$project$System$Actor$toSystemActor = F2(
 				init: actor.init,
 				subscriptions: actor.subscriptions(componentModel),
 				update: actor.update(componentModel),
-				view: actor.view(componentModel)
+				view: A2(
+					$elm$core$Maybe$map,
+					function (v) {
+						return v(componentModel);
+					},
+					actor.view)
 			});
 	});
 var $author$project$Bootstrap$apply = function (model) {
@@ -16652,11 +16676,11 @@ var $author$project$System$Internal$Model$foldlInstances = F3(
 			F3(
 				function (_v1, _v2, x) {
 					var pid = _v2.a;
-					var applicationActorName = _v2.b;
-					var applicationModel = _v2.c;
+					var actors = _v2.b;
+					var appModel = _v2.c;
 					return A2(
 						f,
-						{applicationActorName: applicationActorName, applicationModel: applicationModel, pid: pid},
+						{actors: actors, appModel: appModel, pid: pid},
 						x);
 				}),
 			initial,
@@ -16668,22 +16692,22 @@ var $author$project$System$Internal$Model$SystemModel = function (a) {
 var $author$project$System$Internal$PID$System = {$: 'System'};
 var $author$project$System$Internal$PID$system = $author$project$System$Internal$PID$System;
 var $author$project$System$Internal$Model$init = $author$project$System$Internal$Model$SystemModel(
-	{applicationAddresses: _List_Nil, children: $elm$core$Dict$empty, documentTitle: '', instances: $elm$core$Dict$empty, lastPID: $author$project$System$Internal$PID$system, views: _List_Nil});
+	{addresseses: _List_Nil, children: $elm$core$Dict$empty, documentTitle: '', instances: $elm$core$Dict$empty, lastPID: $author$project$System$Internal$PID$system, views: _List_Nil});
 var $author$project$System$Internal$Event$OnKill = {$: 'OnKill'};
 var $author$project$System$Internal$Event$OnPIDNotFound = function (a) {
 	return {$: 'OnPIDNotFound', a: a};
 };
 var $author$project$System$Internal$Model$addAddress = F3(
-	function (applicationAddress, pid, _v0) {
+	function (addresses, pid, _v0) {
 		var systemModelRecord = _v0.a;
 		return $author$project$System$Internal$Model$SystemModel(
 			_Utils_update(
 				systemModelRecord,
 				{
-					applicationAddresses: A2(
+					addresseses: A2(
 						$elm$core$List$cons,
-						_Utils_Tuple2(applicationAddress, pid),
-						systemModelRecord.applicationAddresses)
+						_Utils_Tuple2(addresses, pid),
+						systemModelRecord.addresseses)
 				}));
 	});
 var $author$project$System$Internal$Model$addView = F2(
@@ -16709,7 +16733,7 @@ var $author$project$System$Internal$Update$cmdAndThen = F2(
 				_List_fromArray(
 					[cmd, cmd_])));
 	});
-var $author$project$System$Internal$Update$collectapplicationMessages = function (msg) {
+var $author$project$System$Internal$Update$collectappMsgs = function (msg) {
 	_v0$2:
 	while (true) {
 		switch (msg.$) {
@@ -16719,7 +16743,7 @@ var $author$project$System$Internal$Update$collectapplicationMessages = function
 			case 'Control':
 				if (msg.a.$ === 'Batch') {
 					var list = msg.a.a;
-					return A2($elm$core$List$concatMap, $author$project$System$Internal$Update$collectapplicationMessages, list);
+					return A2($elm$core$List$concatMap, $author$project$System$Internal$Update$collectappMsgs, list);
 				} else {
 					break _v0$2;
 				}
@@ -16737,21 +16761,21 @@ var $author$project$System$Internal$Update$composeSysMsg = F2(
 					[a, b]))));
 	});
 var $author$project$System$Internal$Model$getAddress = F2(
-	function (applicationAddress, _v0) {
+	function (addresses, _v0) {
 		var systemModelRecord = _v0.a;
 		return A3(
 			$elm$core$List$foldl,
 			F2(
 				function (_v1, _v2) {
-					var xapplicationAddress = _v1.a;
+					var xaddresses = _v1.a;
 					var xpid = _v1.b;
 					var listOfPids = _v2.b;
-					return _Utils_eq(xapplicationAddress, applicationAddress) ? _Utils_Tuple2(
-						applicationAddress,
-						A2($elm$core$List$cons, xpid, listOfPids)) : _Utils_Tuple2(applicationAddress, listOfPids);
+					return _Utils_eq(xaddresses, addresses) ? _Utils_Tuple2(
+						addresses,
+						A2($elm$core$List$cons, xpid, listOfPids)) : _Utils_Tuple2(addresses, listOfPids);
 				}),
-			_Utils_Tuple2(applicationAddress, _List_Nil),
-			systemModelRecord.applicationAddresses);
+			_Utils_Tuple2(addresses, _List_Nil),
+			systemModelRecord.addresseses);
 	});
 var $author$project$System$Internal$Model$getChildren = F2(
 	function (pid, _v0) {
@@ -16767,9 +16791,9 @@ var $author$project$System$Internal$Model$getInstance = F2(
 		return A2(
 			$elm$core$Maybe$map,
 			function (_v1) {
-				var applicationActorName = _v1.b;
-				var applicationModel = _v1.c;
-				return _Utils_Tuple2(applicationActorName, applicationModel);
+				var actors = _v1.b;
+				var appModel = _v1.c;
+				return _Utils_Tuple2(actors, appModel);
 			},
 			A2(
 				$elm$core$Dict$get,
@@ -16819,25 +16843,25 @@ var $elm$core$Tuple$mapFirst = F2(
 			y);
 	});
 var $author$project$System$Internal$Model$removeFromAddress = F3(
-	function (applicationAddress, pid, _v0) {
+	function (addresses, pid, _v0) {
 		var systemModelRecord = _v0.a;
 		return $author$project$System$Internal$Model$SystemModel(
 			_Utils_update(
 				systemModelRecord,
 				{
-					applicationAddresses: A3(
+					addresseses: A3(
 						$elm$core$List$foldr,
 						F2(
 							function (_v1, r) {
 								var a = _v1.a;
 								var b = _v1.b;
-								return (_Utils_eq(a, applicationAddress) && A2($author$project$System$Internal$PID$equals, pid, b)) ? r : A2(
+								return (_Utils_eq(a, addresses) && A2($author$project$System$Internal$PID$equals, pid, b)) ? r : A2(
 									$elm$core$List$cons,
 									_Utils_Tuple2(a, b),
 									r);
 							}),
 						_List_Nil,
-						systemModelRecord.applicationAddresses)
+						systemModelRecord.addresseses)
 				}));
 	});
 var $author$project$System$Internal$Model$removeFromView = F2(
@@ -16865,7 +16889,7 @@ var $author$project$System$Internal$Model$removePID = F2(
 			_Utils_update(
 				systemModelRecord,
 				{
-					applicationAddresses: A2(
+					addresseses: A2(
 						$elm$core$List$filter,
 						A2(
 							$elm$core$Basics$composeL,
@@ -16874,7 +16898,7 @@ var $author$project$System$Internal$Model$removePID = F2(
 								$elm$core$Basics$not,
 								$author$project$System$Internal$PID$equals(pid)),
 							$elm$core$Tuple$second),
-						systemModelRecord.applicationAddresses),
+						systemModelRecord.addresseses),
 					children: A2(
 						$elm$core$Dict$map,
 						F2(
@@ -16907,7 +16931,7 @@ var $author$project$System$Internal$Model$updateDocumentTitle = F2(
 				{documentTitle: documentTitle}));
 	});
 var $author$project$System$Internal$Model$updateInstance = F4(
-	function (pid, applicationActorName, _v0, applicationModel) {
+	function (pid, actors, _v0, appModel) {
 		var systemModelRecord = _v0.a;
 		return $author$project$System$Internal$Model$SystemModel(
 			_Utils_update(
@@ -16916,7 +16940,7 @@ var $author$project$System$Internal$Model$updateInstance = F4(
 					instances: A3(
 						$elm$core$Dict$insert,
 						$author$project$System$Internal$PID$toInt(pid),
-						_Utils_Tuple3(pid, applicationActorName, applicationModel),
+						_Utils_Tuple3(pid, actors, appModel),
 						systemModelRecord.instances)
 				}));
 	});
@@ -16925,8 +16949,8 @@ var $author$project$System$Internal$Update$handleKill = F4(
 		var _v26 = A2($author$project$System$Internal$Model$getInstance, pid, model);
 		if (_v26.$ === 'Just') {
 			var _v27 = _v26.a;
-			var applicationModel = _v27.b;
-			var _v28 = impl.apply(applicationModel);
+			var appModel = _v27.b;
+			var _v28 = impl.apply(appModel);
 			var applied = _v28.a;
 			var event = A2(applied.events, $author$project$System$Internal$Event$OnKill, pid);
 			switch (event.$) {
@@ -16994,29 +17018,29 @@ var $author$project$System$Internal$Update$update = F4(
 							var _v2 = A2($author$project$System$Internal$Model$getInstance, pid, systemModel);
 							if (_v2.$ === 'Just') {
 								var _v3 = _v2.a;
-								var applicationActorName = _v3.a;
-								var applicationModel = _v3.b;
-								var applicationMessages = $author$project$System$Internal$Update$collectapplicationMessages(sendToPidMsg);
+								var actors = _v3.a;
+								var appModel = _v3.b;
+								var appMsgs = $author$project$System$Internal$Update$collectappMsgs(sendToPidMsg);
 								var _v4 = A2(
 									$elm$core$Tuple$mapFirst,
-									A3($author$project$System$Internal$Model$updateInstance, pid, applicationActorName, systemModel),
+									A3($author$project$System$Internal$Model$updateInstance, pid, actors, systemModel),
 									A3(
 										$elm$core$List$foldl,
 										F2(
-											function (applicationMessage, _v5) {
+											function (appMsg, _v5) {
 												var systemModel_ = _v5.a;
 												var msg_ = _v5.b;
 												var _v6 = impl.apply(systemModel_);
 												var appliedActor = _v6.a;
-												var _v7 = A2(appliedActor.update, applicationMessage, pid);
+												var _v7 = A2(appliedActor.update, appMsg, pid);
 												var actorModelUpdated = _v7.a;
-												var applicationMessage_ = _v7.b;
+												var appMsg_ = _v7.b;
 												return _Utils_Tuple2(
 													actorModelUpdated,
-													A2($author$project$System$Internal$Update$composeSysMsg, msg_, applicationMessage_));
+													A2($author$project$System$Internal$Update$composeSysMsg, msg_, appMsg_));
 											}),
-										_Utils_Tuple2(applicationModel, $author$project$System$Internal$Message$NoOp),
-										applicationMessages));
+										_Utils_Tuple2(appModel, $author$project$System$Internal$Message$NoOp),
+										appMsgs));
 								var updatedModel = _v4.a;
 								var newMsg = _v4.b;
 								var $temp$impl = impl,
@@ -17065,7 +17089,7 @@ var $author$project$System$Internal$Update$update = F4(
 							}
 						case 'SendToAddress':
 							var _v12 = msg.a;
-							var applicationAddress = _v12.a;
+							var addresses = _v12.a;
 							var sendToAddressMsg = _v12.b;
 							var $temp$impl = impl,
 								$temp$maybePid = maybePid,
@@ -17077,7 +17101,7 @@ var $author$project$System$Internal$Update$update = F4(
 											return $author$project$System$Internal$Message$Control(
 												A2($author$project$System$Internal$Message$SendToPID, pid, sendToAddressMsg));
 										},
-										A2($author$project$System$Internal$Model$getAddress, applicationAddress, systemModel).b))),
+										A2($author$project$System$Internal$Model$getAddress, addresses, systemModel).b))),
 								$temp$systemModel = systemModel;
 							impl = $temp$impl;
 							maybePid = $temp$maybePid;
@@ -17087,12 +17111,12 @@ var $author$project$System$Internal$Update$update = F4(
 						case 'SendToPidOnAddress':
 							var _v13 = msg.a;
 							var pid = _v13.a;
-							var applicationAddress = _v13.b;
+							var addresses = _v13.b;
 							var sendToPidOnAddressMsg = _v13.c;
 							var pidIsOnAddress = A2(
 								$elm$core$List$member,
 								pid,
-								A2($author$project$System$Internal$Model$getAddress, applicationAddress, systemModel).b);
+								A2($author$project$System$Internal$Model$getAddress, addresses, systemModel).b);
 							if (pidIsOnAddress) {
 								var $temp$impl = impl,
 									$temp$maybePid = maybePid,
@@ -17110,17 +17134,17 @@ var $author$project$System$Internal$Update$update = F4(
 						case 'SpawnWithFlags':
 							var _v14 = msg.a;
 							var flags = _v14.a;
-							var applicationActorName = _v14.b;
+							var actors = _v14.b;
 							var replyMsg = _v14.c;
 							var _v15 = A2($author$project$System$Internal$Model$getNewPID, maybePid, systemModel);
 							var newPID = _v15.a;
 							var m2 = _v15.b;
 							var _v16 = A2(
 								$elm$core$Tuple$mapFirst,
-								A3($author$project$System$Internal$Model$updateInstance, newPID, applicationActorName, m2),
+								A3($author$project$System$Internal$Model$updateInstance, newPID, actors, m2),
 								A2(
 									impl.factory,
-									applicationActorName,
+									actors,
 									_Utils_Tuple2(newPID, flags)));
 							var m3 = _v16.a;
 							var newMsg = _v16.b;
@@ -17191,10 +17215,10 @@ var $author$project$System$Internal$Update$update = F4(
 								$elm$core$Platform$Cmd$none);
 						case 'PopulateAddress':
 							var _v24 = msg.a;
-							var applicationAddress = _v24.a;
+							var addresses = _v24.a;
 							var pid = _v24.b;
 							return _Utils_Tuple2(
-								A3($author$project$System$Internal$Model$addAddress, applicationAddress, pid, systemModel),
+								A3($author$project$System$Internal$Model$addAddress, addresses, pid, systemModel),
 								$elm$core$Platform$Cmd$none);
 						case 'RemoveFromView':
 							var pid = msg.a.a;
@@ -17203,10 +17227,10 @@ var $author$project$System$Internal$Update$update = F4(
 								$elm$core$Platform$Cmd$none);
 						case 'RemoveFromAddress':
 							var _v25 = msg.a;
-							var applicationAddress = _v25.a;
+							var addresses = _v25.a;
 							var pid = _v25.b;
 							return _Utils_Tuple2(
-								A3($author$project$System$Internal$Model$removeFromAddress, applicationAddress, pid, systemModel),
+								A3($author$project$System$Internal$Model$removeFromAddress, addresses, pid, systemModel),
 								$elm$core$Platform$Cmd$none);
 						default:
 							var pid = msg.a.a;
@@ -17256,15 +17280,20 @@ var $author$project$System$Internal$Model$getViews = function (_v0) {
 var $author$project$System$Internal$Render$renderPID = F3(
 	function (renderActor, systemModel, pid) {
 		return A2(
-			$elm$core$Maybe$map,
-			function (_v0) {
-				var componentModel = _v0.b;
-				return A3(
+			$elm$core$Maybe$andThen,
+			A2(
+				$elm$core$Basics$composeR,
+				$elm$core$Tuple$second,
+				A2(
+					$elm$core$Basics$composeR,
 					renderActor,
-					componentModel,
-					pid,
-					A2($author$project$System$Internal$Render$renderPID, renderActor, systemModel));
-			},
+					$elm$core$Maybe$map(
+						function (f) {
+							return A2(
+								f,
+								pid,
+								A2($author$project$System$Internal$Render$renderPID, renderActor, systemModel));
+						}))),
 			A2($author$project$System$Internal$Model$getInstance, pid, systemModel));
 	});
 var $author$project$System$Internal$Render$view = F2(
@@ -17302,8 +17331,8 @@ var $author$project$System$Internal$Browser$toProgramElementRecord = function (i
 				F2(
 					function (_v0, subs) {
 						var pid = _v0.pid;
-						var applicationModel = _v0.applicationModel;
-						var _v1 = implementation.apply(applicationModel);
+						var appModel = _v0.appModel;
+						var _v1 = implementation.apply(appModel);
 						var systemActor = _v1.a;
 						return _Utils_eq(
 							systemActor.subscriptions(pid),
@@ -17331,11 +17360,11 @@ var $author$project$System$Internal$Message$AddView = function (a) {
 };
 var $author$project$System$Message$populateView = A2($elm$core$Basics$composeL, $author$project$System$Internal$Message$Control, $author$project$System$Internal$Message$AddView);
 var $elm$json$Json$Encode$null = _Json_encodeNull;
-var $author$project$System$Message$spawn = function (applicationActorName) {
+var $author$project$System$Message$spawn = function (actors) {
 	return A2(
 		$elm$core$Basics$composeL,
 		$author$project$System$Internal$Message$Control,
-		A2($author$project$System$Internal$Message$SpawnWithFlags, $elm$json$Json$Encode$null, applicationActorName));
+		A2($author$project$System$Internal$Message$SpawnWithFlags, $elm$json$Json$Encode$null, actors));
 };
 var $author$project$Main$init = function (_v0) {
 	return _List_fromArray(
@@ -17366,19 +17395,19 @@ var $author$project$System$Internal$Message$SendToAddress = F2(
 	function (a, b) {
 		return {$: 'SendToAddress', a: a, b: b};
 	});
-var $author$project$System$Message$sendToAddress = function (applicationAddress) {
+var $author$project$System$Message$sendToAddress = function (addresses) {
 	return A2(
 		$elm$core$Basics$composeR,
 		$author$project$System$Internal$Message$ActorMsg,
 		A2(
 			$elm$core$Basics$composeR,
-			$author$project$System$Internal$Message$SendToAddress(applicationAddress),
+			$author$project$System$Internal$Message$SendToAddress(addresses),
 			$author$project$System$Internal$Message$Control));
 };
 var $author$project$Main$onLogMessage = A2(
-	$elm$core$Basics$composeL,
-	$author$project$System$Message$sendToAddress($author$project$Address$Snackbar),
-	$author$project$Msg$LogMsg);
+	$elm$core$Basics$composeR,
+	$author$project$Msg$LogMsg,
+	$author$project$System$Message$sendToAddress($author$project$Address$Snackbar));
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $elm$html$Html$Attributes$rel = _VirtualDom_attribute('rel');
 var $author$project$Main$view = function (contents) {
@@ -17440,9 +17469,8 @@ var $author$project$Main$view = function (contents) {
 									[
 										$elm$html$Html$text('An Actor Model implementation for Elm')
 									])),
-								A3(
-								$elm$html$Html$node,
-								'hr',
+								A2(
+								$elm$html$Html$hr,
 								_List_fromArray(
 									[
 										$elm$html$Html$Attributes$class('my-4')
@@ -17485,7 +17513,7 @@ var $author$project$Main$view = function (contents) {
 var $author$project$Main$main = $author$project$System$Browser$element(
 	{apply: $author$project$Bootstrap$bootstrap.apply, factory: $author$project$Bootstrap$bootstrap.factory, init: $author$project$Main$init, onLogMessage: $author$project$Main$onLogMessage, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"System.Internal.Message.SystemMessage Address.Address ActorName.ActorName Msg.AppMsg","aliases":{"System.Log.LogMessage":{"args":["applicationAddress","applicationActorName","applicationMessage"],"type":"System.Internal.Message.LogMessage applicationAddress applicationActorName applicationMessage"},"System.Html.Template.HtmlComponentId":{"args":[],"type":"String.String"},"Components.Counters.InitialValue":{"args":[],"type":"Basics.Int"},"System.Process.PID":{"args":[],"type":"System.Internal.PID.PID"},"Components.Snackbar.Snack":{"args":[],"type":"{ message : String.String }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"ActorName.ActorName":{"args":[],"tags":{"Counter":[],"Counters":[],"Snackbar":[],"Templating":[]}},"Address.Address":{"args":[],"tags":{"AllCounters":[],"Snackbar":[]}},"Msg.AppMsg":{"args":[],"tags":{"Counters":["Components.Counters.MsgIn"],"Counter":["Components.Counter.MsgIn"],"Snackbar":["Components.Snackbar.MsgIn"],"Templating":["Components.Templating.MsgIn"],"LogMsg":["System.Log.LogMessage Address.Address ActorName.ActorName Msg.AppMsg"]}},"System.Internal.Message.SystemMessage":{"args":["applicationAddress","applicationActorName","applicationMessage"],"tags":{"NoOp":[],"ActorMsg":["applicationMessage"],"UnmappedMsg":["applicationMessage"],"Control":["System.Internal.Message.Control applicationAddress applicationActorName (System.Internal.Message.SystemMessage applicationAddress applicationActorName applicationMessage)"],"Context":["System.Internal.PID.PID","System.Internal.Message.SystemMessage applicationAddress applicationActorName applicationMessage"],"UpdateDocumentTitle":["String.String"],"Log":["System.Internal.Message.LogMessage applicationAddress applicationActorName applicationMessage"]}},"System.Internal.Message.Control":{"args":["applicationAddress","applicationActorName","systemMessage"],"tags":{"Batch":["List.List systemMessage"],"Command":["Platform.Cmd.Cmd systemMessage"],"SendToPID":["System.Internal.PID.PID","systemMessage"],"SendToAddress":["applicationAddress","systemMessage"],"SendToPidOnAddress":["System.Internal.PID.PID","applicationAddress","systemMessage"],"SpawnWithFlags":["Json.Decode.Value","applicationActorName","System.Internal.PID.PID -> systemMessage"],"SpawnMultipleWithFlags":["List.List ( applicationActorName, Json.Decode.Value )","List.List System.Internal.PID.PID -> systemMessage"],"AddView":["System.Internal.PID.PID"],"PopulateAddress":["applicationAddress","System.Internal.PID.PID"],"RemoveFromView":["System.Internal.PID.PID"],"RemoveFromAddress":["applicationAddress","System.Internal.PID.PID"],"Kill":["System.Internal.PID.PID"]}},"System.Internal.Message.LogMessage":{"args":["applicationAddress","applicationActorName","applicationMessage"],"tags":{"LogMessage":["{ posix : Maybe.Maybe Time.Posix, severity : System.Internal.Message.Severity, pid : System.Internal.PID.PID, message : Maybe.Maybe (System.Internal.Message.SystemMessage applicationAddress applicationActorName applicationMessage), description : String.String }"]}},"Components.Counter.MsgIn":{"args":[],"tags":{"Increment":[],"Decrement":[]}},"Components.Counters.MsgIn":{"args":[],"tags":{"ReceiveCounter":["System.Process.PID"],"OnSpawnCounterClick":["Components.Counters.InitialValue"],"OnKillCounterClick":[],"KilledCounter":["System.Process.PID"]}},"Components.Snackbar.MsgIn":{"args":[],"tags":{"Tick":["Time.Posix"],"NewSnack":["Components.Snackbar.Snack"]}},"Components.Templating.MsgIn":{"args":[],"tags":{"OnNewTemplate":["String.String"],"OnSpawnedComponent":["System.Html.Template.HtmlComponentId","System.Process.PID"]}},"System.Internal.PID.PID":{"args":[],"tags":{"PID":["{ id : Basics.Int, spawnedBy : System.Internal.PID.PID }"],"System":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Platform.Cmd.Cmd":{"args":["msg"],"tags":{"Cmd":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"System.Internal.Message.Severity":{"args":[],"tags":{"Emergency":[],"Alert":[],"Critical":[],"Error":[],"Warning":[],"Notice":[],"Informational":[],"Debug":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"System.Internal.Message.SystemMessage Address.Address ActorName.ActorName Msg.AppMsg","aliases":{"System.Log.LogMessage":{"args":["addresses","actors","appMsg"],"type":"System.Internal.Message.LogMessage addresses actors appMsg"},"System.Html.Template.HtmlComponentId":{"args":[],"type":"String.String"},"Components.Counters.InitialValue":{"args":[],"type":"Basics.Int"},"System.Process.PID":{"args":[],"type":"System.Internal.PID.PID"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"ActorName.ActorName":{"args":[],"tags":{"Counter":[],"Counters":[],"Snackbar":[],"Templating":[]}},"Address.Address":{"args":[],"tags":{"AllCounters":[],"Snackbar":[]}},"Msg.AppMsg":{"args":[],"tags":{"Counters":["Components.Counters.MsgIn"],"Counter":["Components.Counter.MsgIn"],"Snackbar":["Components.Snackbar.MsgIn"],"Templating":["Components.Templating.MsgIn"],"LogMsg":["System.Log.LogMessage Address.Address ActorName.ActorName Msg.AppMsg"]}},"System.Internal.Message.SystemMessage":{"args":["addresses","actors","appMsg"],"tags":{"NoOp":[],"ActorMsg":["appMsg"],"UnmappedMsg":["appMsg"],"Control":["System.Internal.Message.Control addresses actors (System.Internal.Message.SystemMessage addresses actors appMsg)"],"Context":["System.Internal.PID.PID","System.Internal.Message.SystemMessage addresses actors appMsg"],"UpdateDocumentTitle":["String.String"],"Log":["System.Internal.Message.LogMessage addresses actors appMsg"]}},"System.Internal.Message.Control":{"args":["addresses","actors","systemMessage"],"tags":{"Batch":["List.List systemMessage"],"Command":["Platform.Cmd.Cmd systemMessage"],"SendToPID":["System.Internal.PID.PID","systemMessage"],"SendToAddress":["addresses","systemMessage"],"SendToPidOnAddress":["System.Internal.PID.PID","addresses","systemMessage"],"SpawnWithFlags":["Json.Decode.Value","actors","System.Internal.PID.PID -> systemMessage"],"SpawnMultipleWithFlags":["List.List ( actors, Json.Decode.Value )","List.List System.Internal.PID.PID -> systemMessage"],"AddView":["System.Internal.PID.PID"],"PopulateAddress":["addresses","System.Internal.PID.PID"],"RemoveFromView":["System.Internal.PID.PID"],"RemoveFromAddress":["addresses","System.Internal.PID.PID"],"Kill":["System.Internal.PID.PID"]}},"System.Internal.Message.LogMessage":{"args":["addresses","actors","appMsg"],"tags":{"LogMessage":["{ posix : Maybe.Maybe Time.Posix, severity : System.Internal.Message.Severity, pid : System.Internal.PID.PID, message : Maybe.Maybe (System.Internal.Message.SystemMessage addresses actors appMsg), description : String.String }"]}},"Components.Counter.MsgIn":{"args":[],"tags":{"Increment":[],"Decrement":[]}},"Components.Counters.MsgIn":{"args":[],"tags":{"ReceiveCounter":["System.Process.PID"],"OnSpawnCounterClick":["Components.Counters.InitialValue"],"OnKillCounterClick":[],"KilledCounter":["System.Process.PID"]}},"Components.Snackbar.MsgIn":{"args":[],"tags":{"Tick":["Time.Posix"],"NewSnackMessage":["String.String"]}},"Components.Templating.MsgIn":{"args":[],"tags":{"OnNewTemplate":["String.String"],"OnSpawnedComponent":["System.Html.Template.HtmlComponentId","System.Process.PID"]}},"System.Internal.PID.PID":{"args":[],"tags":{"PID":["{ id : Basics.Int, spawnedBy : System.Internal.PID.PID }"],"System":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Platform.Cmd.Cmd":{"args":["msg"],"tags":{"Cmd":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Time.Posix":{"args":[],"tags":{"Posix":["Basics.Int"]}},"System.Internal.Message.Severity":{"args":[],"tags":{"Emergency":[],"Alert":[],"Critical":[],"Error":[],"Warning":[],"Notice":[],"Informational":[],"Debug":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

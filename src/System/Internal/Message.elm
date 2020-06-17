@@ -25,35 +25,35 @@ import Time exposing (Month(..), Posix, toDay, toHour, toMinute, toMonth, toSeco
 
 {-| The System Message Type
 -}
-type SystemMessage applicationAddress applicationActorName applicationMessage
+type SystemMessage addresses actors appMsg
     = NoOp
-    | ActorMsg applicationMessage
-    | UnmappedMsg applicationMessage
-    | Control (Control applicationAddress applicationActorName (SystemMessage applicationAddress applicationActorName applicationMessage))
-    | Context PID (SystemMessage applicationAddress applicationActorName applicationMessage)
+    | ActorMsg appMsg
+    | UnmappedMsg appMsg
+    | Control (Control addresses actors (SystemMessage addresses actors appMsg))
+    | Context PID (SystemMessage addresses actors appMsg)
     | UpdateDocumentTitle String
-    | Log (LogMessage applicationAddress applicationActorName applicationMessage)
+    | Log (LogMessage addresses actors appMsg)
 
 
 {-| The Ctrl Messages
 -}
-type Control applicationAddress applicationActorName systemMessage
+type Control addresses actors systemMessage
     = Batch (List systemMessage)
     | Command (Cmd systemMessage)
     | SendToPID PID systemMessage
-    | SendToAddress applicationAddress systemMessage
-    | SendToPidOnAddress PID applicationAddress systemMessage
-    | SpawnWithFlags Value applicationActorName (PID -> systemMessage)
-    | SpawnMultipleWithFlags (List ( applicationActorName, Value )) (List PID -> systemMessage)
+    | SendToAddress addresses systemMessage
+    | SendToPidOnAddress PID addresses systemMessage
+    | SpawnWithFlags Value actors (PID -> systemMessage)
+    | SpawnMultipleWithFlags (List ( actors, Value )) (List PID -> systemMessage)
     | AddView PID
-    | PopulateAddress applicationAddress PID
+    | PopulateAddress addresses PID
     | RemoveFromView PID
-    | RemoveFromAddress applicationAddress PID
+    | RemoveFromAddress addresses PID
     | Kill PID
 
 
 toString :
-    SystemMessage applicationAddress applicationActorName applicationMessage
+    SystemMessage addresses actors appMsg
     -> Maybe String
 toString msg =
     case msg of
@@ -81,7 +81,7 @@ toString msg =
 
 
 controlToString :
-    Control applicationAddress applicationActorName message
+    Control addresses actors message
     -> Maybe String
 controlToString control =
     case control of
@@ -95,10 +95,10 @@ controlToString control =
             Just <| "SendToPID " ++ String.fromInt (toInt pid)
 
         SendToAddress _ _ ->
-            Just <| "SendToAddress applicationAddress"
+            Just <| "SendToAddress addresses"
 
         SendToPidOnAddress _ _ _ ->
-            Just <| "SendToPidOnAddress pid applicationAddress"
+            Just <| "SendToPidOnAddress pid addresses"
 
         SpawnWithFlags _ _ _ ->
             Just "SpawnWithFlags"
@@ -110,13 +110,13 @@ controlToString control =
             Just <| "AddView " ++ String.fromInt (toInt pid)
 
         PopulateAddress _ pid ->
-            Just <| "PopulateAddress applicationAddress " ++ String.fromInt (toInt pid)
+            Just <| "PopulateAddress addresses " ++ String.fromInt (toInt pid)
 
         RemoveFromView pid ->
             Just <| "RemoveFromView " ++ String.fromInt (toInt pid)
 
         RemoveFromAddress _ pid ->
-            Just <| "RemoveFromAddress applicationAddress " ++ String.fromInt (toInt pid)
+            Just <| "RemoveFromAddress addresses " ++ String.fromInt (toInt pid)
 
         Kill pid ->
             Just <| "Kill " ++ String.fromInt (toInt pid)
@@ -137,18 +137,18 @@ type Severity
     | Debug
 
 
-type LogMessage applicationAddress applicationActorName applicationMessage
+type LogMessage addresses actors appMsg
     = LogMessage
         { posix : Maybe Posix
         , severity : Severity
         , pid : PID
-        , message : Maybe (SystemMessage applicationAddress applicationActorName applicationMessage)
+        , message : Maybe (SystemMessage addresses actors appMsg)
         , description : String
         }
 
 
 logMessageToString :
-    LogMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
     -> String
 logMessageToString (LogMessage { posix, severity, pid, description }) =
     List.filterMap identity
@@ -161,12 +161,12 @@ logMessageToString (LogMessage { posix, severity, pid, description }) =
 
 
 logMessageToMeta :
-    LogMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
     ->
         { posix : Maybe Posix
         , severity : Severity
         , pid : PID
-        , message : Maybe (SystemMessage applicationAddress applicationActorName applicationMessage)
+        , message : Maybe (SystemMessage addresses actors appMsg)
         , description : String
         }
 logMessageToMeta (LogMessage meta) =
