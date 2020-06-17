@@ -7,15 +7,6 @@ module System.Browser exposing
 {-| This module helps you set up an System Program.
 
 
-## Type Prefixes
-
-when a type variable is prefixed with
-
-  - `component*` Your component should provide this type
-  - `application*` Your application should provide this type
-  - `system*` The system will provide this type
-
-
 ## Applications
 
 Create an application that manages Url changes.
@@ -63,31 +54,31 @@ import Url exposing (Url)
 -}
 application :
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
         -> Url
         -> Key
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
+        List output
+        -> List (Html (SystemMessage addresses actors appMsg))
     , onUrlRequest :
         UrlRequest
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onUrlChange :
         Url
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
-    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+    -> Program flags addresses actors appModel appMsg
 application =
     SystemBrowser.application
 
@@ -96,23 +87,23 @@ application =
 -}
 element :
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+        List output
+        -> Html (SystemMessage addresses actors appMsg)
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
-    -> Program flags applicationAddress applicationActorName componentModel applicationMessage
+    -> Program flags addresses actors appModel appMsg
 element =
     SystemBrowser.element
 
@@ -121,36 +112,36 @@ element =
 -}
 elementRecord :
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+        List output
+        -> Html (SystemMessage addresses actors appMsg)
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
     ->
         { init :
             flags
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , subscriptions :
-            SystemModel applicationAddress applicationActorName componentModel
-            -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Sub (SystemMessage addresses actors appMsg)
         , update :
-            SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName componentModel
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            SystemMessage addresses actors appMsg
+            -> SystemModel addresses actors appModel
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , view :
-            SystemModel applicationAddress applicationActorName componentModel
-            -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Html (SystemMessage addresses actors appMsg)
         }
 elementRecord =
     SystemBrowser.toProgramElementRecord
@@ -160,48 +151,48 @@ elementRecord =
 -}
 applicationRecord :
     { apply :
-        componentModel
-        -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( componentModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
         -> Url
         -> Key
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
+        List output
+        -> List (Html (SystemMessage addresses actors appMsg))
     , onUrlRequest :
         UrlRequest
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onUrlChange :
         Url
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
     ->
         { init :
             flags
             -> Url
             -> Key
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
-        , onUrlChange : Url -> SystemMessage applicationAddress applicationActorName applicationMessage
-        , onUrlRequest : UrlRequest -> SystemMessage applicationAddress applicationActorName applicationMessage
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
+        , onUrlChange : Url -> SystemMessage addresses actors appMsg
+        , onUrlRequest : UrlRequest -> SystemMessage addresses actors appMsg
         , subscriptions :
-            SystemModel applicationAddress1 applicationActorName1 componentModel
-            -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses1 actors1 appModel
+            -> Sub (SystemMessage addresses actors appMsg)
         , update :
-            SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName componentModel
-            -> ( SystemModel applicationAddress applicationActorName componentModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            SystemMessage addresses actors appMsg
+            -> SystemModel addresses actors appModel
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , view :
-            SystemModel applicationAddress applicationActorName componentModel
-            -> Document (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Document (SystemMessage addresses actors appMsg)
         }
 applicationRecord =
     SystemBrowser.toProgramApplicationRecord

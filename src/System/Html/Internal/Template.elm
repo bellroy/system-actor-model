@@ -409,9 +409,9 @@ toListSpawnableHtmlComponents =
 
 
 spawn :
-    (HtmlComponentId -> PID -> SystemMessage address actorName applicationMessage)
+    (HtmlComponentId -> PID -> SystemMessage address actorName appMsg)
     -> SpawnableHtmlComponent actorName address
-    -> SystemMessage address actorName applicationMessage
+    -> SystemMessage address actorName appMsg
 spawn callback spawnableHtmlComponent =
     let
         flags =

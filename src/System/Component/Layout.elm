@@ -96,7 +96,7 @@ import System.Process exposing (PID)
 
 {-| The Type of a Layout Component
 -}
-type alias Layout componentOutput componentModel componentMsgIn componentMsgOut msg =
+type alias Layout output componentModel componentMsgIn componentMsgOut msg =
     { init :
         ( PID, Value )
         -> ( componentModel, List componentMsgOut, Cmd componentMsgIn )
@@ -111,17 +111,17 @@ type alias Layout componentOutput componentModel componentMsgIn componentMsgOut 
     , view :
         (componentMsgIn -> msg)
         -> componentModel
-        -> (PID -> Maybe componentOutput)
-        -> componentOutput
+        -> (PID -> Maybe output)
+        -> output
     }
 
 
 {-| Create an Actor from a Layout Component
 -}
 toActor :
-    Layout componentOutput componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
+    Layout output componentModel componentMsgIn componentMsgOut (SystemMessage address actorName appMsg)
     ->
-        { wrapModel : componentModel -> applicationModel
+        { wrapModel : componentModel -> appModel
         , wrapMsg : componentMsgIn -> appMsg
         , mapIn : appMsg -> Maybe componentMsgIn
         , mapOut :
@@ -129,7 +129,7 @@ toActor :
             -> componentMsgOut
             -> SystemMessage address actorName appMsg
         }
-    -> Actor componentModel applicationModel componentOutput (SystemMessage address actorName appMsg)
+    -> Actor componentModel appModel output (SystemMessage address actorName appMsg)
 toActor layout args =
     { init = Component.wrapInit args layout.init
     , update = Component.wrapUpdate args layout.update

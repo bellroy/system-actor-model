@@ -33,10 +33,7 @@ type EventHandler componentMsgIn
 
 {-| Map a function over eventHandler
 -}
-mapEventHandler :
-    (a -> b)
-    -> EventHandler a
-    -> EventHandler b
+mapEventHandler : (a -> b) -> EventHandler a -> EventHandler b
 mapEventHandler f eventHandler =
     case eventHandler of
         Default ->

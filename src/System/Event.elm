@@ -30,34 +30,34 @@ import System.Internal.PID exposing (PID)
 
 {-| A System Event Handler
 -}
-type alias EventHandler componentMsgIn =
-    Event.EventHandler componentMsgIn
+type alias EventHandler appMsg =
+    Event.EventHandler appMsg
 
 
 {-| Let the System decide what to do
 -}
-default : EventHandler componentMsgIn
+default : EventHandler appMsg
 default =
     Event.Default
 
 
 {-| Ignore the event
 -}
-ignore : EventHandler componentMsgIn
+ignore : EventHandler appMsg
 ignore =
     Event.Ignore
 
 
-{-| Before the default behaviour respond with a custom componentMsgIn
+{-| Before the default behaviour respond with a custom appMsg
 -}
-beforeDefault : componentMsgIn -> EventHandler componentMsgIn
+beforeDefault : appMsg -> EventHandler appMsg
 beforeDefault =
     Event.BeforeDefault
 
 
-{-| Ignore the default behaviour and respond with a custom componentMsgIn
+{-| Ignore the default behaviour and respond with a custom appMsg
 -}
-custom : componentMsgIn -> EventHandler componentMsgIn
+custom : appMsg -> EventHandler appMsg
 custom =
     Event.Custom
 
@@ -68,9 +68,9 @@ custom =
 
 {-| Components need to supply the following event handlers
 -}
-type alias ComponentEventHandlers componentMsgIn =
-    { onPIDNotFound : PID -> EventHandler componentMsgIn
-    , onKill : EventHandler componentMsgIn
+type alias ComponentEventHandlers appMsg =
+    { onPIDNotFound : PID -> EventHandler appMsg
+    , onKill : EventHandler appMsg
     }
 
 
@@ -81,7 +81,7 @@ It might be easy to start with systemDefault when specifying your components eve
     { systemDefault | onKill = beforeDefault SaveProgress }
 
 -}
-systemDefault : ComponentEventHandlers componentMsgIn
+systemDefault : ComponentEventHandlers appMsg
 systemDefault =
     { onPIDNotFound = always default
     , onKill = default
@@ -90,7 +90,7 @@ systemDefault =
 
 {-| You can choose to ignore all events
 -}
-ignoreAll : ComponentEventHandlers componentMsgIn
+ignoreAll : ComponentEventHandlers appMsg
 ignoreAll =
     { onPIDNotFound = always ignore
     , onKill = ignore

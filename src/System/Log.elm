@@ -58,8 +58,8 @@ import Time exposing (Posix)
 You can create LogMessages using the helper function available
 
 -}
-type alias LogMessage applicationAddress applicationActorName applicationMessage =
-    Internal.LogMessage applicationAddress applicationActorName applicationMessage
+type alias LogMessage addresses actors appMsg =
+    Internal.LogMessage addresses actors appMsg
 
 
 {-| The Severity of the log message
@@ -73,7 +73,7 @@ type alias Severity =
 emergency :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 emergency =
     create Emergency
 
@@ -83,7 +83,7 @@ emergency =
 alert :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 alert =
     create Alert
 
@@ -93,7 +93,7 @@ alert =
 critical :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 critical =
     create Critical
 
@@ -103,7 +103,7 @@ critical =
 error :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 error =
     create Error
 
@@ -113,7 +113,7 @@ error =
 warning :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 warning =
     create Warning
 
@@ -123,7 +123,7 @@ warning =
 notice :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 notice =
     create Notice
 
@@ -133,7 +133,7 @@ notice =
 info :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 info =
     create Informational
 
@@ -143,7 +143,7 @@ info =
 debug :
     PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 debug =
     create Debug
 
@@ -152,7 +152,7 @@ create :
     Severity
     -> PID
     -> String
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 create severity pid description =
     LogMessage
         { posix = Nothing
@@ -166,9 +166,9 @@ create severity pid description =
 {-| Add a Posix (elm/time) to your LogMessage
 -}
 withPosix :
-    LogMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
     -> Posix
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    -> LogMessage addresses actors appMsg
 withPosix (LogMessage meta) posix =
     LogMessage { meta | posix = Just posix }
 
@@ -179,21 +179,21 @@ You could use this to retry a failed command for instance.
 
 -}
 withMessage :
-    SystemMessage applicationAddress applicationActorName applicationMessage
-    -> LogMessage applicationAddress applicationActorName applicationMessage
-    -> LogMessage applicationAddress applicationActorName applicationMessage
+    SystemMessage addresses actors appMsg
+    -> LogMessage addresses actors appMsg
+    -> LogMessage addresses actors appMsg
 withMessage message (LogMessage meta) =
     LogMessage { meta | message = Just message }
 
 
 {-| Turn a LogMessage into a String
 
-    error pid applicationMessage "I'm sorry Dave, I'm afraid I can't do that"
+    error pid appMsg "I'm sorry Dave, I'm afraid I can't do that"
         |> toString
 
     -- error | 2(1) | I'm sorry Dave, I'm afraid I can't do that
 
-    error system applicationMessage "I'm sorry Dave, I'm afraid I can't do that"
+    error system appMsg "I'm sorry Dave, I'm afraid I can't do that"
         |> withPosix now
         |> toString
 
@@ -201,7 +201,7 @@ withMessage message (LogMessage meta) =
 
 -}
 toString :
-    LogMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
     -> String
 toString =
     Internal.logMessageToString
@@ -219,12 +219,12 @@ severityToString =
 {-| LogMessage to Description
 -}
 toMeta :
-    LogMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
     ->
         { posix : Maybe Posix
         , severity : Severity
         , pid : PID
-        , message : Maybe (SystemMessage applicationAddress applicationActorName applicationMessage)
+        , message : Maybe (SystemMessage addresses actors appMsg)
         , description : String
         }
 toMeta =

@@ -6,11 +6,11 @@ import System.Internal.Event exposing (Event)
 import System.Internal.PID exposing (PID)
 
 
-type SystemActor applicationModel componentOutput componentMsgIn
+type SystemActor appModel output componentMsgIn
     = SystemActor
-        { init : ( PID, Value ) -> ( applicationModel, componentMsgIn )
-        , update : componentMsgIn -> PID -> ( applicationModel, componentMsgIn )
-        , view : Maybe (PID -> (PID -> Maybe componentOutput) -> componentOutput)
+        { init : ( PID, Value ) -> ( appModel, componentMsgIn )
+        , update : componentMsgIn -> PID -> ( appModel, componentMsgIn )
+        , view : Maybe (PID -> (PID -> Maybe output) -> output)
         , subscriptions : PID -> Sub componentMsgIn
         , events : Event -> PID -> EventHandler componentMsgIn
         }

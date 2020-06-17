@@ -15,84 +15,84 @@ import System.Platform exposing (Program)
 import Url exposing (Url)
 
 
-type alias ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage =
+type alias ElementArguments flags addresses actors appModel output appMsg =
     { apply :
-        applicationModel
-        -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> Html.Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+        List output
+        -> Html.Html (SystemMessage addresses actors appMsg)
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
 
 
-type alias ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage =
+type alias ApplicationArguments flags addresses actors appModel output appMsg =
     { apply :
-        applicationModel
-        -> SystemActor applicationModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        appModel
+        -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     , factory :
-        applicationActorName
+        actors
         -> ( PID, Value )
-        -> ( applicationModel, SystemMessage applicationAddress applicationActorName applicationMessage )
+        -> ( appModel, SystemMessage addresses actors appMsg )
     , init :
         flags
         -> Url
         -> Key
-        -> List (SystemMessage applicationAddress applicationActorName applicationMessage)
+        -> List (SystemMessage addresses actors appMsg)
     , view :
-        List componentOutput
-        -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
+        List output
+        -> List (Html (SystemMessage addresses actors appMsg))
     , onUrlRequest :
         Browser.UrlRequest
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onUrlChange :
         Url
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        -> SystemMessage addresses actors appMsg
     , onLogMessage :
-        LogMessage applicationAddress applicationActorName applicationMessage
-        -> SystemMessage applicationAddress applicationActorName applicationMessage
+        LogMessage addresses actors appMsg
+        -> SystemMessage addresses actors appMsg
     }
 
 
 element :
-    ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
-    -> Program flags applicationAddress applicationActorName applicationModel applicationMessage
+    ElementArguments flags addresses actors appModel output appMsg
+    -> Program flags addresses actors appModel appMsg
 element =
     Browser.element << toProgramElementRecord
 
 
 application :
-    ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
-    -> Program flags applicationAddress applicationActorName applicationModel applicationMessage
+    ApplicationArguments flags addresses actors appModel output appMsg
+    -> Program flags addresses actors appModel appMsg
 application =
     Browser.application << toProgramApplicationRecord
 
 
 toProgramElementRecord :
-    ElementArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
+    ElementArguments flags addresses actors appModel output appMsg
     ->
         { init :
             flags
-            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , subscriptions :
-            SystemModel applicationAddress applicationActorName applicationModel
-            -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Sub (SystemMessage addresses actors appMsg)
         , update :
-            SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName applicationModel
-            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            SystemMessage addresses actors appMsg
+            -> SystemModel addresses actors appModel
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , view :
-            SystemModel applicationAddress applicationActorName applicationModel
-            -> Html (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Html (SystemMessage addresses actors appMsg)
         }
 toProgramElementRecord implementation =
     { init =
@@ -102,10 +102,10 @@ toProgramElementRecord implementation =
     , subscriptions =
         Sub.batch
             << SystemModel.foldlInstances
-                (\{ pid, applicationModel } subs ->
+                (\{ pid, appModel } subs ->
                     let
                         (SystemActor systemActor) =
-                            implementation.apply applicationModel
+                            implementation.apply appModel
                     in
                     if systemActor.subscriptions pid == Sub.none then
                         subs
@@ -119,25 +119,25 @@ toProgramElementRecord implementation =
 
 
 toProgramApplicationRecord :
-    ApplicationArguments flags applicationAddress applicationActorName applicationModel componentOutput applicationMessage
+    ApplicationArguments flags addresses actors appModel output appMsg
     ->
         { init :
             flags
             -> Url
             -> Key
-            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
-        , onUrlChange : Url -> SystemMessage applicationAddress applicationActorName applicationMessage
-        , onUrlRequest : UrlRequest -> SystemMessage applicationAddress applicationActorName applicationMessage
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
+        , onUrlChange : Url -> SystemMessage addresses actors appMsg
+        , onUrlRequest : UrlRequest -> SystemMessage addresses actors appMsg
         , subscriptions :
-            SystemModel applicationAddress1 applicationActorName1 applicationModel
-            -> Sub (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses1 actors1 appModel
+            -> Sub (SystemMessage addresses actors appMsg)
         , update :
-            SystemMessage applicationAddress applicationActorName applicationMessage
-            -> SystemModel applicationAddress applicationActorName applicationModel
-            -> ( SystemModel applicationAddress applicationActorName applicationModel, Cmd (SystemMessage applicationAddress applicationActorName applicationMessage) )
+            SystemMessage addresses actors appMsg
+            -> SystemModel addresses actors appModel
+            -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
         , view :
-            SystemModel applicationAddress applicationActorName applicationModel
-            -> Document (SystemMessage applicationAddress applicationActorName applicationMessage)
+            SystemModel addresses actors appModel
+            -> Document (SystemMessage addresses actors appMsg)
         }
 toProgramApplicationRecord implementation =
     { init =
@@ -147,10 +147,10 @@ toProgramApplicationRecord implementation =
     , subscriptions =
         Sub.batch
             << SystemModel.foldlInstances
-                (\{ pid, applicationModel } subs ->
+                (\{ pid, appModel } subs ->
                     let
                         (SystemActor systemActor) =
-                            implementation.apply applicationModel
+                            implementation.apply appModel
                     in
                     if systemActor.subscriptions pid == Sub.none then
                         subs

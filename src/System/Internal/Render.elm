@@ -14,12 +14,10 @@ import System.Internal.SystemActor exposing (SystemActor(..))
 
 view :
     { a
-        | apply :
-            componentModel
-            -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
+        | apply : appModel -> SystemActor appModel output (SystemMessage addresses actors appMsg)
     }
-    -> SystemModel applicationAddress applicationActorName componentModel
-    -> List componentOutput
+    -> SystemModel addresses actors appModel
+    -> List output
 view { apply } systemModel =
     SystemModel.getViews systemModel
         |> List.reverse
@@ -38,15 +36,11 @@ view { apply } systemModel =
 
 viewApplication :
     { a
-        | apply :
-            componentModel
-            -> SystemActor componentModel componentOutput (SystemMessage applicationAddress applicationActorName applicationMessage)
-        , view :
-            List componentOutput
-            -> List (Html (SystemMessage applicationAddress applicationActorName applicationMessage))
+        | apply : appModel -> SystemActor appModel output (SystemMessage addresses actors appMsg)
+        , view : List output -> List (Html (SystemMessage addresses actors appMsg))
     }
-    -> SystemModel applicationAddress applicationActorName componentModel
-    -> Document (SystemMessage applicationAddress applicationActorName applicationMessage)
+    -> SystemModel addresses actors appModel
+    -> Document (SystemMessage addresses actors appMsg)
 viewApplication impl systemModel =
     view impl systemModel
         |> impl.view
@@ -57,21 +51,13 @@ viewApplication impl systemModel =
            )
 
 
-type alias RenderActor componentModel componentOutput =
-    componentModel
-    ->
-        Maybe
-            (PID
-             -> (PID -> Maybe componentOutput)
-             -> componentOutput
-            )
-
-
 renderPID :
-    RenderActor componentModel componentOutput
-    -> SystemModel applicationAddress applicationActorName componentModel
+    (appModel
+     -> Maybe (PID -> (PID -> Maybe output) -> output)
+    )
+    -> SystemModel addresses actors appModel
     -> PID
-    -> Maybe componentOutput
+    -> Maybe output
 renderPID renderActor systemModel pid =
     SystemModel.getInstance pid systemModel
         |> Maybe.andThen

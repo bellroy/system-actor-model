@@ -70,8 +70,8 @@ import Task as Task
 
 {-| The type of the System Messages
 -}
-type alias SystemMessage applicationAddress applicationActorName applicationMessage =
-    Internal.SystemMessage applicationAddress applicationActorName applicationMessage
+type alias SystemMessage addresses actors appMsg =
+    Internal.SystemMessage addresses actors appMsg
 
 
 
@@ -81,40 +81,40 @@ type alias SystemMessage applicationAddress applicationActorName applicationMess
 {-| Spawn an Actor
 -}
 spawn :
-    applicationActorName
-    -> (PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-spawn applicationActorName =
-    Control << SpawnWithFlags Encode.null applicationActorName
+    actors
+    -> (PID -> SystemMessage addresses actors appMsg)
+    -> SystemMessage addresses actors appMsg
+spawn actors =
+    Control << SpawnWithFlags Encode.null actors
 
 
 {-| Spawn an Actor with given flags (as an encoded JSON Value)
 -}
 spawnWithFlags :
     Value
-    -> applicationActorName
-    -> (PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-spawnWithFlags flags applicationActorName =
-    Control << SpawnWithFlags flags applicationActorName
+    -> actors
+    -> (PID -> SystemMessage addresses actors appMsg)
+    -> SystemMessage addresses actors appMsg
+spawnWithFlags flags actors =
+    Control << SpawnWithFlags flags actors
 
 
 {-| Spawn multiple Actors
 -}
 spawnMultiple :
-    List applicationActorName
-    -> (List PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-spawnMultiple listApplicationActorName =
-    Control << SpawnMultipleWithFlags (List.map (\a -> ( a, Encode.null )) listApplicationActorName)
+    List actors
+    -> (List PID -> SystemMessage addresses actors appMsg)
+    -> SystemMessage addresses actors appMsg
+spawnMultiple listactors =
+    Control << SpawnMultipleWithFlags (List.map (\a -> ( a, Encode.null )) listactors)
 
 
 {-| Spawn multiple Actors with given flags
 -}
 spawnMultipleWithFlags :
-    List ( applicationActorName, Value )
-    -> (List PID -> SystemMessage applicationAddress applicationActorName applicationMessage)
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    List ( actors, Value )
+    -> (List PID -> SystemMessage addresses actors appMsg)
+    -> SystemMessage addresses actors appMsg
 spawnMultipleWithFlags listActorNamesAndFlags =
     Control << SpawnMultipleWithFlags listActorNamesAndFlags
 
@@ -126,22 +126,22 @@ The System will render views in the order it receives it.
 -}
 populateView :
     PID
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage addresses actors appMsg
 populateView =
     Control << AddView
 
 
-{-| Add a PID to a given applicationAddress
+{-| Add a PID to a given addresses
 
 You can send messages to Addresses just like you can send messages to a PID.
 
 -}
 populateAddress :
-    applicationAddress
+    addresses
     -> PID
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-populateAddress applicationAddress =
-    Control << PopulateAddress applicationAddress
+    -> SystemMessage addresses actors appMsg
+populateAddress addresses =
+    Control << PopulateAddress addresses
 
 
 
@@ -157,26 +157,26 @@ There is a Default behaviour available that will remove the Process from the Sys
 -}
 kill :
     PID
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage addresses actors appMsg
 kill =
     Control << Kill
 
 
-{-| Remove a PID from a given applicationAddress
+{-| Remove a PID from a given addresses
 -}
 removeFromAddress :
-    applicationAddress
+    addresses
     -> PID
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-removeFromAddress applicationAddress =
-    Control << RemoveFromAddress applicationAddress
+    -> SystemMessage addresses actors appMsg
+removeFromAddress addresses =
+    Control << RemoveFromAddress addresses
 
 
 {-| Remove a PID from the System view
 -}
 removeFromView :
     PID
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage addresses actors appMsg
 removeFromView =
     Control << RemoveFromView
 
@@ -189,36 +189,36 @@ removeFromView =
 -}
 sendToPid :
     PID
-    -> applicationMessage
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> appMsg
+    -> SystemMessage addresses actors appMsg
 sendToPid pid =
     ActorMsg
         >> SendToPID pid
         >> Control
 
 
-{-| Send a message to an _applicationAddress_.
+{-| Send a message to an _addresses_.
 -}
 sendToAddress :
-    applicationAddress
-    -> applicationMessage
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-sendToAddress applicationAddress =
+    addresses
+    -> appMsg
+    -> SystemMessage addresses actors appMsg
+sendToAddress addresses =
     ActorMsg
-        >> SendToAddress applicationAddress
+        >> SendToAddress addresses
         >> Control
 
 
-{-| Send a message to a PID **only** when it's on the given _applicationAddress_.
+{-| Send a message to a PID **only** when it's on the given _addresses_.
 -}
 sendToPidOnAddress :
     PID
-    -> applicationAddress
-    -> applicationMessage
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
-sendToPidOnAddress pid applicationAddress =
+    -> addresses
+    -> appMsg
+    -> SystemMessage addresses actors appMsg
+sendToPidOnAddress pid addresses =
     ActorMsg
-        >> SendToPidOnAddress pid applicationAddress
+        >> SendToPidOnAddress pid addresses
         >> Control
 
 
@@ -238,8 +238,8 @@ sendToPidOnAddress pid applicationAddress =
 
 -}
 batch :
-    List (SystemMessage applicationAddress applicationActorName applicationMessage)
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    List (SystemMessage addresses actors appMsg)
+    -> SystemMessage addresses actors appMsg
 batch =
     Control << Batch
 
@@ -249,7 +249,7 @@ batch =
     spaw MyActorWorker (always noOperation)
 
 -}
-noOperation : SystemMessage applicationAddress applicationActorName applicationMessage
+noOperation : SystemMessage addresses actors appMsg
 noOperation =
     NoOp
 
@@ -271,7 +271,7 @@ toCmd =
 -}
 updateDocumentTitle :
     String
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    -> SystemMessage addresses actors appMsg
 updateDocumentTitle =
     UpdateDocumentTitle
 
@@ -283,8 +283,8 @@ updateDocumentTitle =
 {-| Convenience function that ignores all logs
 -}
 ignoreLog :
-    LogMessage applicationAddress applicationActorName applicationMessage
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
+    -> SystemMessage addresses actors appMsg
 ignoreLog =
     always noOperation
 
@@ -295,7 +295,7 @@ This will trigger the onLogMessage function you provided while initializing your
 
 -}
 log :
-    LogMessage applicationAddress applicationActorName applicationMessage
-    -> SystemMessage applicationAddress applicationActorName applicationMessage
+    LogMessage addresses actors appMsg
+    -> SystemMessage addresses actors appMsg
 log =
     Log
