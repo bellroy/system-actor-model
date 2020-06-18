@@ -1,6 +1,6 @@
 module System.Internal.Update exposing (update)
 
-import Json.Encode as Encode exposing (Value)
+import Json.Encode exposing (Value)
 import System.Internal.Event exposing (Event(..), EventHandler(..))
 import System.Internal.Message exposing (Control(..), LogMessage(..), Severity(..), SystemMessage(..))
 import System.Internal.Model
@@ -201,8 +201,8 @@ update impl maybePid msg systemModel =
             , Cmd.none
             )
 
-        Control (Kill pid) ->
-            handleKill impl maybePid pid systemModel
+        Control (Stop pid) ->
+            handleStop impl maybePid pid systemModel
 
         Context pid systemMsg ->
             update impl (Just pid) systemMsg systemModel
@@ -225,7 +225,7 @@ update impl maybePid msg systemModel =
             ( systemModel, Cmd.none )
 
 
-handleKill :
+handleStop :
     { a
         | apply :
             appModel
@@ -242,7 +242,7 @@ handleKill :
     -> PID
     -> SystemModel addresses actors appModel
     -> ( SystemModel addresses actors appModel, Cmd (SystemMessage addresses actors appMsg) )
-handleKill impl maybePid pid model =
+handleStop impl maybePid pid model =
     case getInstance pid model of
         Just ( _, appModel ) ->
             let
@@ -250,7 +250,7 @@ handleKill impl maybePid pid model =
                     impl.apply appModel
 
                 event =
-                    applied.events OnKill pid
+                    applied.events OnStop pid
             in
             case event of
                 Ignore ->
@@ -263,7 +263,7 @@ handleKill impl maybePid pid model =
                     getChildren pid model
                         |> Maybe.withDefault []
                         |> List.foldl
-                            (handleKill impl maybePid >> cmdAndThen)
+                            (handleStop impl maybePid >> cmdAndThen)
                             ( model, Cmd.none )
                         |> Tuple.mapFirst (removePID pid)
 

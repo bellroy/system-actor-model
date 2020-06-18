@@ -76,13 +76,13 @@ wrapEvents :
     -> Event
     -> PID
     -> EventHandler (SystemMessage addresses actors appMsg)
-wrapEvents { wrapMsg } { onPIDNotFound, onKill } event pid =
+wrapEvents { wrapMsg } { onPIDNotFound, onStop } event pid =
     case event of
         OnPIDNotFound pidNotFound ->
             mapEventHandler (sendToPid pid << wrapMsg) (onPIDNotFound pidNotFound)
 
-        OnKill ->
-            mapEventHandler (sendToPid pid << wrapMsg) onKill
+        OnStop ->
+            mapEventHandler (sendToPid pid << wrapMsg) onStop
 
 
 wrapToTuple :

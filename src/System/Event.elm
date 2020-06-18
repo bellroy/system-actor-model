@@ -70,7 +70,7 @@ custom =
 -}
 type alias ComponentEventHandlers appMsg =
     { onPIDNotFound : PID -> EventHandler appMsg
-    , onKill : EventHandler appMsg
+    , onStop : EventHandler appMsg
     }
 
 
@@ -78,13 +78,13 @@ type alias ComponentEventHandlers appMsg =
 
 It might be easy to start with systemDefault when specifying your components event handlers.
 
-    { systemDefault | onKill = beforeDefault SaveProgress }
+    { systemDefault | onStop = beforeDefault SaveProgress }
 
 -}
 systemDefault : ComponentEventHandlers appMsg
 systemDefault =
     { onPIDNotFound = always default
-    , onKill = default
+    , onStop = default
     }
 
 
@@ -93,5 +93,5 @@ systemDefault =
 ignoreAll : ComponentEventHandlers appMsg
 ignoreAll =
     { onPIDNotFound = always ignore
-    , onKill = ignore
+    , onStop = ignore
     }
