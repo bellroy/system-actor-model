@@ -49,7 +49,7 @@ type Control addresses actors systemMessage
     | PopulateAddress addresses PID
     | RemoveFromView PID
     | RemoveFromAddress addresses PID
-    | Kill PID
+    | Stop PID
 
 
 toString :
@@ -118,8 +118,8 @@ controlToString control =
         RemoveFromAddress _ pid ->
             Just <| "RemoveFromAddress addresses " ++ String.fromInt (toInt pid)
 
-        Kill pid ->
-            Just <| "Kill " ++ String.fromInt (toInt pid)
+        Stop pid ->
+            Just <| "Stop " ++ String.fromInt (toInt pid)
 
 
 

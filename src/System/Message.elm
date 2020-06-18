@@ -1,7 +1,7 @@
 module System.Message exposing
     ( SystemMessage
     , spawn, spawnWithFlags, populateView, populateAddress, spawnMultiple, spawnMultipleWithFlags
-    , kill, removeFromView, removeFromAddress
+    , stop, removeFromView, removeFromAddress
     , sendToPid, sendToAddress, sendToPidOnAddress
     , batch, noOperation, toCmd
     , updateDocumentTitle
@@ -38,7 +38,7 @@ Spawn an Actor, add it to the System's view, and assign it an Address
 
 # Removing and Destroying
 
-@docs kill, removeFromView, removeFromAddress
+@docs stop, removeFromView, removeFromAddress
 
 
 # Actor Communication
@@ -155,11 +155,11 @@ This will trigger the Actors onKill event on which you can decide what to do wit
 There is a Default behaviour available that will remove the Process from the System.
 
 -}
-kill :
+stop :
     PID
     -> SystemMessage addresses actors appMsg
-kill =
-    Control << Kill
+stop =
+    Control << Stop
 
 
 {-| Remove a PID from a given addresses

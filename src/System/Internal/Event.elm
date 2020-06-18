@@ -19,7 +19,7 @@ import System.Internal.PID exposing (PID)
 -}
 type Event
     = OnPIDNotFound PID
-    | OnKill
+    | OnStop
 
 
 {-| A System Event Handler

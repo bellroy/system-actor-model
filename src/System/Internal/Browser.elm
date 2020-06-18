@@ -11,8 +11,11 @@ import System.Internal.Render as Render
 import System.Internal.SystemActor exposing (SystemActor(..))
 import System.Internal.Update exposing (update)
 import System.Message exposing (batch)
-import System.Platform exposing (Program)
 import Url exposing (Url)
+
+
+type alias Program flags addresses actors appModel applicationMsg =
+    Platform.Program flags (SystemModel addresses actors appModel) (SystemMessage addresses actors applicationMsg)
 
 
 type alias ElementArguments flags addresses actors appModel output appMsg =
